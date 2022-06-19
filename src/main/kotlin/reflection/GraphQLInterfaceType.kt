@@ -23,6 +23,8 @@ import kotlin.reflect.KProperty1
 /**
  * Define a field for this interface.
  *
+ * > NOTE: the field's `resolve` function will be ignored.
+ *
  * @param field a kotlin property to get the value
  *              automatically using reflection.
  * @param block a function to configure the field.

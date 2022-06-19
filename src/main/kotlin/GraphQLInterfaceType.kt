@@ -63,6 +63,8 @@ open class GraphQLInterfaceTypeScope<T>(
     /**
      * Define a field for this interface.
      *
+     * > NOTE: the field's `resolve` function will be ignored.
+     *
      * @since 1.0.0
      */
     fun <M> field(
