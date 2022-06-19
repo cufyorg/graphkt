@@ -24,9 +24,9 @@ dependencies {
 //    implementation("com.expediagroup:graphql-kotlin-federation:6.0.0-alpha.4")
 //    implementation("com.expediagroup:graphql-kotlin-dataloader:6.0.0-alpha.4")
 //    implementation("com.expediagroup:graphql-kotlin-schema-generator:6.0.0-alpha.4")
-//    implementation("com.google.guava:guava:31.1-jre")
 
     implementation("com.graphql-java:graphql-java:18.1")
+    implementation("com.google.guava:guava:31.1-jre")
 
     testImplementation(kotlin("test"))
 }
