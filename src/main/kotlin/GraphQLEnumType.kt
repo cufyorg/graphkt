@@ -69,7 +69,7 @@ fun <T : Enum<T>> GraphQLEnumTypeBuilder<T>.value(
     enum: T,
     block: GraphQLEnumValueDefinitionBuilder<T>.() -> Unit = {}
 ) {
-    value(enum.name, enum, block)
+    value(GraphQLEnumValueDefinition(enum, block))
 }
 
 /**

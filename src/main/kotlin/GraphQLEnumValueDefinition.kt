@@ -76,6 +76,21 @@ open class GraphQLEnumValueDefinitionBuilder<T> :
  *
  * @since 1.0.0
  */
+fun <T : Enum<T>> GraphQLEnumValueDefinition(
+    enum: T,
+    block: GraphQLEnumValueDefinitionBuilder<T>.() -> Unit = {}
+): GraphQLEnumValueDefinition {
+    return GraphQLEnumValueDefinition(
+        enum.name, enum, block
+    )
+}
+
+/**
+ * Create a new [GraphQLEnumValueDefinition] and
+ * apply the given [block] to it.
+ *
+ * @since 1.0.0
+ */
 fun <T> GraphQLEnumValueDefinition(
     name: String? = null,
     value: T? = null,
