@@ -94,7 +94,7 @@ fun Route.graphql(
             ExecutionInput.newExecutionInput()
                 .operationName(request.operationName)
                 .query(request.query)
-                .variables(request.variables)
+                .variables(request.variables ?: mapOf())
                 .graphQLContext { it.of(context) }
                 .also { config.executionInputBlock(it, this) }
                 .build()
