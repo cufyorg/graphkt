@@ -23,29 +23,16 @@ import graphql.schema.GraphQLEnumType
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLEnumTypeScope(
-    name: String? = null,
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    val builder: GraphQLEnumType.Builder =
-        GraphQLEnumType.newEnum()
-            .apply { name?.let { name(it) } }
-) {
+open class GraphQLEnumTypeBuilder<T> :
+    GraphQLEnumType.Builder() {
     /**
      * The name of the enum type.
      *
      * @since 1.0.0
      */
     var name: String
-        @Deprecated(
-            "builder.name is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.name is not accessible")
-        set(value) = run { builder.name(value) }
+        get() = super.name
+        set(value) = run { super.name = value }
 
     /**
      * The description of the enum type.
@@ -53,25 +40,8 @@ open class GraphQLEnumTypeScope(
      * @since 1.0.0
      */
     var description: String
-        @Deprecated(
-            "builder.description is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.description is not accessible")
-        set(value) = run { builder.description(value) }
-
-    /**
-     * Define a value for this enum type.
-     *
-     * @since 1.0.0
-     */
-    fun value(
-        name: String? = null,
-        value: Any? = null,
-        block: GraphQLEnumValueDefinitionScope.() -> Unit = {}
-    ) {
-        builder.value(GraphQLEnumValueDefinition(name, value, block))
-    }
+        get() = super.description
+        set(value) = run { super.description = value }
 }
 
 /**
@@ -80,12 +50,25 @@ open class GraphQLEnumTypeScope(
  *
  * @since 1.0.0
  */
-inline fun GraphQLEnumType(
+inline fun <T> GraphQLEnumType(
     name: String? = null,
-    block: GraphQLEnumTypeScope.() -> Unit = {}
+    block: GraphQLEnumTypeBuilder<T>.() -> Unit = {}
 ): GraphQLEnumType {
-    return GraphQLEnumTypeScope(name)
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLEnumTypeBuilder<T>()
+    name?.let { builder.name = it }
+    builder.apply(block)
+    return builder.build()
+}
+
+/**
+ * Define a value for this enum type.
+ *
+ * @since 1.0.0
+ */
+fun <T> GraphQLEnumTypeBuilder<T>.value(
+    name: String? = null,
+    value: T? = null,
+    block: GraphQLEnumValueDefinitionBuilder<T>.() -> Unit = {}
+) {
+    value(GraphQLEnumValueDefinition(name, value, block))
 }

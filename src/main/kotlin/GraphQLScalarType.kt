@@ -13,8 +13,9 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kaguya.graphql
+package org.cufy.kaguya
 
+import graphql.Scalars
 import graphql.language.IntValue
 import graphql.language.Value
 import graphql.schema.Coercing
@@ -22,6 +23,21 @@ import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import java.math.BigInteger
+
+val GraphQLInt: GraphQLScalarType =
+    Scalars.GraphQLInt
+
+val GraphQLFloat: GraphQLScalarType =
+    Scalars.GraphQLFloat
+
+val GraphQLString: GraphQLScalarType =
+    Scalars.GraphQLString
+
+val GraphQLBoolean: GraphQLScalarType =
+    Scalars.GraphQLBoolean
+
+val GraphQLID: GraphQLScalarType =
+    Scalars.GraphQLID
 
 open class GraphqlLongCoercing : Coercing<Long, Long> {
     companion object {
@@ -74,11 +90,9 @@ open class GraphqlLongCoercing : Coercing<Long, Long> {
     }
 }
 
-object ExtraScalars {
-    val GraphQLLong: GraphQLScalarType =
-        GraphQLScalarType.newScalar()
-            .name("Long")
-            .description("Built-in Long")
-            .coercing(GraphqlLongCoercing())
-            .build()
-}
+val GraphQLLong: GraphQLScalarType =
+    GraphQLScalarType.newScalar()
+        .name("Long")
+        .description("Built-in Long")
+        .coercing(GraphqlLongCoercing())
+        .build()

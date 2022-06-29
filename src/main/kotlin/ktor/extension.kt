@@ -15,16 +15,16 @@
  */
 package org.cufy.kaguya.ktor
 
-import graphql.schema.DataFetchingEnvironment
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
+import org.cufy.kaguya.ResolverScope
 
 /**
  * The call instance.
  *
  * @since 1.0.0
  */
-val DataFetchingEnvironment.call: ApplicationCall
+val ResolverScope.call: ApplicationCall
     get() = graphQlContext.get("call")
 
 /**
@@ -32,5 +32,5 @@ val DataFetchingEnvironment.call: ApplicationCall
  *
  * @since 1.0.0
  */
-val DataFetchingEnvironment.pipeline: PipelineContext<Unit, ApplicationCall>
+val ResolverScope.pipeline: PipelineContext<Unit, ApplicationCall>
     get() = graphQlContext.get("pipeline")

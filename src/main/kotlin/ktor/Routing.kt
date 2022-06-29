@@ -21,6 +21,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.*
 import kotlinx.coroutines.future.await
 import kotlinx.serialization.json.Json
 import org.cufy.kaguya.GraphQL
@@ -36,9 +37,10 @@ import org.cufy.kaguya.internal.dynamicEncodeToString
  *
  * @since 1.0.0
  */
+@KtorDsl
 fun Application.graphql(
     path: String = "/graphql",
-    block: Configuration.() -> Unit
+    block: Configuration.() -> Unit = {}
 ) {
     routing {
         graphql(path, block)
@@ -50,6 +52,7 @@ fun Application.graphql(
  * and respond to them with the graphql playground
  * html.
  */
+@KtorDsl
 fun Application.graphiql(
     path: String = "/graphql"
 ) {
@@ -65,9 +68,10 @@ fun Application.graphiql(
  *
  * @since 1.0.0
  */
+@KtorDsl
 fun Route.graphql(
     path: String = "",
-    block: Configuration.() -> Unit
+    block: Configuration.() -> Unit = {}
 ) {
     val config = Configuration().apply(block)
     val schema = GraphQLSchema(config.schemaBlock)
@@ -111,6 +115,7 @@ fun Route.graphql(
  * and respond to them with the graphql playground
  * html.
  */
+@KtorDsl
 fun Route.graphiql(
     path: String = ""
 ) {

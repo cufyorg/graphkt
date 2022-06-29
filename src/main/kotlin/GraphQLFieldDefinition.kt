@@ -15,12 +15,12 @@
  */
 package org.cufy.kaguya
 
-import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputType
 import graphql.schema.GraphQLOutputType
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.KProperty1
 
 /**
  * A kotlin-friendly wrapper over [GraphQLFieldDefinition.Builder].
@@ -28,31 +28,16 @@ import java.util.concurrent.CompletableFuture
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLFieldDefinitionScope<O, T>(
-    name: String? = null,
-    type: GraphQLOutputType? = null,
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    val builder: GraphQLFieldDefinition.Builder =
-        GraphQLFieldDefinition.newFieldDefinition()
-            .apply { name?.let { name(it) } }
-            .apply { type?.let { type(it) } }
-) {
+open class GraphQLFieldDefinitionBuilder<O, T> :
+    GraphQLFieldDefinition.Builder() {
     /**
      * The name of the field.
      *
      * @since 1.0.0
      */
     var name: String
-        @Deprecated(
-            "builder.name is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.name is not accessible")
-        set(value) = run { builder.name(value) }
+        get() = super.name
+        set(value) = run { super.name = value }
 
     /**
      * The description of the field.
@@ -60,12 +45,21 @@ open class GraphQLFieldDefinitionScope<O, T>(
      * @since 1.0.0
      */
     var description: String
+        get() = super.description
+        set(value) = run { super.description = value }
+
+    /**
+     * If deprecated, the deprecation reason of the field.
+     *
+     * @since 1.0.0
+     */
+    var deprecationReason: String
         @Deprecated(
-            "builder.description is not accessible",
+            "builder.deprecationReason is not accessible",
             level = DeprecationLevel.ERROR
         )
-        get() = TODO("builder.description is not accessible")
-        set(value) = run { builder.description(value) }
+        get() = error("builder.deprecationReason is not accessible")
+        set(value) = run { deprecate(value) }
 
     /**
      * The type of the field.
@@ -77,42 +71,24 @@ open class GraphQLFieldDefinitionScope<O, T>(
             "builder.type is not accessible",
             level = DeprecationLevel.ERROR
         )
-        get() = TODO("builder.type is not accessible")
-        set(value) = run { builder.type(value) }
+        get() = error("builder.type is not accessible")
+        set(value) = run { super.type(value) }
+}
 
-    /**
-     * Define an argument for this field.
-     *
-     * @return an accessor to the argument to be
-     *         used in an accessor block.
-     * @since 1.0.0
-     */
-    fun <A> argument(
-        name: String? = null,
-        type: GraphQLInputType? = null,
-        block: GraphQLArgumentScope<A>.() -> Unit = {}
-    ): DataFetchingEnvironment.() -> A {
-        val argument = GraphQLArgument(name, type, block)
-        builder.argument(argument)
-        return { getArgument(argument.name) }
-    }
-
-    /**
-     * Define a resolver for this field.
-     *
-     * @since 1.0.0
-     */
-    fun resolver(
-        block: suspend DataFetchingEnvironment.(O) -> T
-    ) {
-        @Suppress("DEPRECATION")
-        builder.dataFetcher { environment ->
-            CompletableFuture.supplyAsync {
-                runBlocking {
-                    block(environment, environment.getSource())
-                }
-            }
-        }
+/**
+ * Create a new field definition delegating to the
+ * given [field].
+ *
+ * @since 1.0.0
+ */
+inline fun <O, T> GraphQLFieldDefinition(
+    field: KProperty1<in O, T>,
+    type: GraphQLOutputType? = null,
+    block: GraphQLFieldDefinitionBuilder<O, T>.() -> Unit = {}
+): GraphQLFieldDefinition {
+    return GraphQLFieldDefinition(field.name, type) {
+        resolver { field.get(it) }
+        block()
     }
 }
 
@@ -125,10 +101,46 @@ open class GraphQLFieldDefinitionScope<O, T>(
 inline fun <O, T> GraphQLFieldDefinition(
     name: String? = null,
     type: GraphQLOutputType? = null,
-    block: GraphQLFieldDefinitionScope<O, T>.() -> Unit = {}
+    block: GraphQLFieldDefinitionBuilder<O, T>.() -> Unit = {}
 ): GraphQLFieldDefinition {
-    return GraphQLFieldDefinitionScope<O, T>(name, type)
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLFieldDefinitionBuilder<O, T>()
+    name?.let { builder.name = it }
+    type?.let { builder.type = it }
+    builder.apply(block)
+    return builder.build()
+}
+
+/**
+ * Define an argument for this field.
+ *
+ * @return an accessor to the argument to be
+ *         used in an accessor block.
+ * @since 1.0.0
+ */
+fun <A> GraphQLFieldDefinitionBuilder<*, *>.argument(
+    name: String? = null,
+    type: GraphQLInputType? = null,
+    block: GraphQLArgumentBuilder<A>.() -> Unit = {}
+): ResolverScope.() -> A {
+    val argument = GraphQLArgument(name, type, block)
+    argument(argument)
+    return { getArgument(argument.name) }
+}
+
+/**
+ * Define a resolver for this field.
+ *
+ * @since 1.0.0
+ */
+fun <O, T> GraphQLFieldDefinitionBuilder<O, T>.resolver(
+    block: suspend ResolverScope.(O) -> T
+) {
+    @Suppress("DEPRECATION")
+    dataFetcher { scope ->
+        CompletableFuture.supplyAsync {
+            runBlocking {
+                block(scope, scope.getSource())
+            }
+        }
+    }
 }

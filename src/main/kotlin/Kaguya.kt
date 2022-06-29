@@ -15,6 +15,15 @@
  */
 package org.cufy.kaguya
 
+import graphql.schema.DataFetchingEnvironment
+
+/**
+ * The type of the resolver scope.
+ *
+ * @since 1.0.0
+ */
+typealias ResolverScope = DataFetchingEnvironment
+
 /**
  * The main class of this library.
  * Currently, has no purpose.

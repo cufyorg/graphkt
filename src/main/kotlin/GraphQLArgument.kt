@@ -24,31 +24,16 @@ import graphql.schema.GraphQLInputType
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLArgumentScope<T>(
-    name: String? = null,
-    type: GraphQLInputType? = null,
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    var builder: GraphQLArgument.Builder =
-        GraphQLArgument.newArgument()
-            .apply { name?.let { name(it) } }
-            .apply { type?.let { type(it) } }
-) {
+open class GraphQLArgumentBuilder<T> :
+    GraphQLArgument.Builder() {
     /**
      * The name of the argument.
      *
      * @since 1.0.0
      */
     var name: String
-        @Deprecated(
-            "builder.name is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.name is not accessible")
-        set(value) = run { builder.name(value) }
+        get() = super.name
+        set(value) = run { super.name = value }
 
     /**
      * The description of the argument.
@@ -56,12 +41,8 @@ open class GraphQLArgumentScope<T>(
      * @since 1.0.0
      */
     var description: String
-        @Deprecated(
-            "builder.description is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.description is not accessible")
-        set(value) = run { builder.description(value) }
+        get() = super.description
+        set(value) = run { super.description = value }
 
     /**
      * If deprecated, the deprecation reason of the argument.
@@ -73,8 +54,8 @@ open class GraphQLArgumentScope<T>(
             "builder.deprecationReason is not accessible",
             level = DeprecationLevel.ERROR
         )
-        get() = TODO("builder.deprecationReason is not accessible")
-        set(value) = run { builder.deprecate(value) }
+        get() = error("builder.deprecationReason is not accessible")
+        set(value) = run { deprecate(value) }
 
     /**
      * The type of the argument.
@@ -86,8 +67,8 @@ open class GraphQLArgumentScope<T>(
             "builder.type is not accessible",
             level = DeprecationLevel.ERROR
         )
-        get() = TODO("builder.type is not accessible")
-        set(value) = run { builder.type(value) }
+        get() = error("builder.type is not accessible")
+        set(value) = run { type(value) }
 }
 
 /**
@@ -99,10 +80,11 @@ open class GraphQLArgumentScope<T>(
 inline fun <T> GraphQLArgument(
     name: String? = null,
     type: GraphQLInputType? = null,
-    block: GraphQLArgumentScope<T>.() -> Unit = {}
+    block: GraphQLArgumentBuilder<T>.() -> Unit = {}
 ): GraphQLArgument {
-    return GraphQLArgumentScope<T>(name, type)
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLArgumentBuilder<T>()
+    name?.let { builder.name = it }
+    type?.let { builder.type = it }
+    builder.apply(block)
+    return builder.build()
 }

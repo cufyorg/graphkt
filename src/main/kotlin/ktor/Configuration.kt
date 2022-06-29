@@ -18,9 +18,9 @@ package org.cufy.kaguya.ktor
 import graphql.ExecutionInput
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
-import org.cufy.kaguya.GraphQLContextScope
-import org.cufy.kaguya.GraphQLSchemaScope
-import org.cufy.kaguya.GraphQLScope
+import org.cufy.kaguya.GraphQLBuilder
+import org.cufy.kaguya.GraphQLContextBuilder
+import org.cufy.kaguya.GraphQLSchemaBuilder
 
 /**
  * A configuration object to be passed to a graphql
@@ -41,13 +41,13 @@ open class Configuration {
      *
      * @since 1.0.0
      */
-    var schemaBlock: GraphQLSchemaScope.() -> Unit = {}
+    var schemaBlock: GraphQLSchemaBuilder.() -> Unit = {}
 
     /**
      * A function to be invoked when constructing
      * the graphql instance.
      */
-    var graphqlBlock: GraphQLScope.() -> Unit = {}
+    var graphqlBlock: GraphQLBuilder.() -> Unit = {}
 
     /**
      * A function to be invoked when constructing
@@ -55,7 +55,7 @@ open class Configuration {
      *
      * @since 1.0.0
      */
-    var contextBlock: suspend GraphQLContextScope.(
+    var contextBlock: suspend GraphQLContextBuilder.(
         PipelineContext<Unit, ApplicationCall>
     ) -> Unit = {}
 
@@ -68,76 +68,76 @@ open class Configuration {
     var executionInputBlock: suspend ExecutionInput.Builder.(
         PipelineContext<Unit, ApplicationCall>
     ) -> Unit = {}
+}
 
-    /**
-     * Execute the given [block] when constructing the
-     * graphql schema.
-     *
-     * @since 1.0.0
-     */
-    fun schema(
-        block: GraphQLSchemaScope.() -> Unit = {}
-    ) {
-        schemaBlock.let {
-            schemaBlock = {
-                it()
-                block()
-            }
+/**
+ * Execute the given [block] when constructing the
+ * graphql schema.
+ *
+ * @since 1.0.0
+ */
+fun Configuration.schema(
+    block: GraphQLSchemaBuilder.() -> Unit = {}
+) {
+    schemaBlock.let {
+        schemaBlock = {
+            it()
+            block()
         }
     }
+}
 
-    /**
-     * Execute the given [block] when constructing the
-     * graphql instance.
-     *
-     * @since 1.0.0
-     */
-    fun instance(
-        block: GraphQLScope.() -> Unit = {}
-    ) {
-        graphqlBlock.let {
-            graphqlBlock = {
-                it()
-                block()
-            }
+/**
+ * Execute the given [block] when constructing the
+ * graphql instance.
+ *
+ * @since 1.0.0
+ */
+fun Configuration.instance(
+    block: GraphQLBuilder.() -> Unit = {}
+) {
+    graphqlBlock.let {
+        graphqlBlock = {
+            it()
+            block()
         }
     }
+}
 
-    /**
-     * Execute the given [block] when constructing a
-     * new graphql context.
-     *
-     * @since 1.0.0
-     */
-    fun context(
-        block: GraphQLContextScope.(
-            PipelineContext<Unit, ApplicationCall>
-        ) -> Unit = {}
-    ) {
-        contextBlock.let {
-            contextBlock = {
-                it(it)
-                block(it)
-            }
+/**
+ * Execute the given [block] when constructing a
+ * new graphql context.
+ *
+ * @since 1.0.0
+ */
+fun Configuration.context(
+    block: GraphQLContextBuilder.(
+        PipelineContext<Unit, ApplicationCall>
+    ) -> Unit = {}
+) {
+    contextBlock.let {
+        contextBlock = {
+            it(it)
+            block(it)
         }
     }
+}
 
-    /**
-     * Execute the given [block] when constructing a
-     * new graphql execution input.
-     *
-     * @since 1.0.0
-     */
-    fun executionInput(
-        block: ExecutionInput.Builder.(
-            PipelineContext<Unit, ApplicationCall>
-        ) -> Unit = {}
-    ) {
-        executionInputBlock.let {
-            executionInputBlock = {
-                it(it)
-                block(it)
-            }
+/**
+ * Execute the given [block] when constructing a
+ * new graphql execution input.
+ *
+ * @since 1.0.0
+ */
+fun Configuration.executionInput(
+    block: ExecutionInput.Builder.(
+        PipelineContext<Unit, ApplicationCall>
+    ) -> Unit = {}
+) {
+    executionInputBlock.let {
+        executionInputBlock = {
+            it(it)
+            block(it)
         }
     }
 }

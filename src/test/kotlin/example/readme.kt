@@ -3,9 +3,10 @@ package example
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLNonNull
 import io.ktor.server.application.*
-import org.cufy.kaguya.GraphQLObjectType
+import org.cufy.kaguya.*
+import org.cufy.kaguya.ktor.context
 import org.cufy.kaguya.ktor.graphql
-import org.cufy.kaguya.reflection.field
+import org.cufy.kaguya.ktor.schema
 
 data class Entity(
     val name: String

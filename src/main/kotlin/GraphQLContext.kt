@@ -23,22 +23,8 @@ import graphql.GraphQLContext
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLContextScope(
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    val builder: GraphQLContext.Builder =
-        GraphQLContext.newContext()
-) {
-    fun put(
-        name: String,
-        value: Any
-    ) {
-        builder.put(name, value)
-    }
-}
+open class GraphQLContextBuilder :
+    GraphQLContext.Builder()
 
 /**
  * Create a new [GraphQLContext] and apply the
@@ -47,10 +33,9 @@ open class GraphQLContextScope(
  * @since 1.0.0
  */
 inline fun GraphQLContext(
-    block: GraphQLContextScope.() -> Unit = {}
+    block: GraphQLContextBuilder.() -> Unit = {}
 ): GraphQLContext {
-    return GraphQLContextScope()
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLContextBuilder()
+    builder.apply(block)
+    return builder.build()
 }

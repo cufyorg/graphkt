@@ -17,6 +17,8 @@ package org.cufy.kaguya
 
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLOutputType
+import io.ktor.util.*
+import kotlin.reflect.KProperty1
 
 /**
  * A kotlin-friendly wrapper over [GraphQLInterfaceType.Builder].
@@ -24,28 +26,16 @@ import graphql.schema.GraphQLOutputType
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLInterfaceTypeScope<T>(
-    name: String? = null,
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    val builder: GraphQLInterfaceType.Builder =
-        GraphQLInterfaceType.newInterface()
-) {
+open class GraphQLInterfaceTypeBuilder<T> :
+    GraphQLInterfaceType.Builder() {
     /**
      * The name of the interface.
      *
      * @since 1.0.0
      */
     var name: String
-        @Deprecated(
-            "builder.name is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.name is not accessible")
-        set(value) = run { builder.name(value) }
+        get() = super.name
+        set(value) = run { super.name = value }
 
     /**
      * The description of the interface.
@@ -53,27 +43,8 @@ open class GraphQLInterfaceTypeScope<T>(
      * @since 1.0.0
      */
     var description: String
-        @Deprecated(
-            "builder.description is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.description is not accessible")
-        set(value) = run { builder.description(value) }
-
-    /**
-     * Define a field for this interface.
-     *
-     * > NOTE: the field's `resolve` function will be ignored.
-     *
-     * @since 1.0.0
-     */
-    fun <M> field(
-        name: String? = null,
-        type: GraphQLOutputType? = null,
-        block: GraphQLFieldDefinitionScope<T, M>.() -> Unit = {}
-    ) {
-        builder.field(GraphQLFieldDefinition(name, type, block))
-    }
+        get() = super.description
+        set(value) = run { super.description = value }
 }
 
 /**
@@ -84,10 +55,45 @@ open class GraphQLInterfaceTypeScope<T>(
  */
 fun <T> GraphQLInterfaceType(
     name: String? = null,
-    block: GraphQLInterfaceTypeScope<T>.() -> Unit = {}
+    block: GraphQLInterfaceTypeBuilder<T>.() -> Unit = {}
 ): GraphQLInterfaceType {
-    return GraphQLInterfaceTypeScope<T>(name)
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLInterfaceTypeBuilder<T>()
+    name?.let { builder.name = it }
+    builder.apply(block)
+    return builder.build()
+}
+
+/**
+ * Define a field for this interface.
+ *
+ * > NOTE: the field's `resolve` function will be ignored.
+ *
+ * @param field a kotlin property to get the value
+ *              automatically using reflection.
+ * @param block a function to configure the field.
+ * @since 1.0.0
+ */
+@KtorDsl
+fun <T, M> GraphQLInterfaceTypeBuilder<T>.field(
+    field: KProperty1<in T, M>,
+    type: GraphQLOutputType? = null,
+    block: GraphQLFieldDefinitionBuilder<T, M>.() -> Unit = {}
+) {
+    field(GraphQLFieldDefinition(field, type, block))
+}
+
+/**
+ * Define a field for this interface.
+ *
+ * > NOTE: the field's `resolve` function will be ignored.
+ *
+ * @since 1.0.0
+ */
+@KtorDsl
+fun <T, M> GraphQLInterfaceTypeBuilder<T>.field(
+    name: String? = null,
+    type: GraphQLOutputType? = null,
+    block: GraphQLFieldDefinitionBuilder<T, M>.() -> Unit = {}
+) {
+    field(GraphQLFieldDefinition(name, type, block))
 }

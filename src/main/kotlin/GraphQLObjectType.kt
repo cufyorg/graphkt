@@ -17,6 +17,8 @@ package org.cufy.kaguya
 
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
+import io.ktor.util.*
+import kotlin.reflect.KProperty1
 
 /**
  * A kotlin-friendly wrapper over [GraphQLObjectType.Builder].
@@ -24,29 +26,16 @@ import graphql.schema.GraphQLOutputType
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLObjectTypeScope<T>(
-    name: String? = null,
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    val builder: GraphQLObjectType.Builder =
-        GraphQLObjectType.newObject()
-            .apply { name?.let { name(it) } }
-) {
+open class GraphQLObjectTypeBuilder<T> :
+    GraphQLObjectType.Builder() {
     /**
      * The name of the object type.
      *
      * @since 1.0.0
      */
     var name: String
-        @Deprecated(
-            "builder.name is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.name is not accessible")
-        set(value) = run { builder.name(value) }
+        get() = super.name
+        set(value) = run { super.name = value }
 
     /**
      * The description of the object type.
@@ -54,25 +43,8 @@ open class GraphQLObjectTypeScope<T>(
      * @since 1.0.0
      */
     var description: String
-        @Deprecated(
-            "builder.description is not accessible",
-            level = DeprecationLevel.ERROR
-        )
-        get() = TODO("builder.description is not accessible")
-        set(value) = run { builder.description(value) }
-
-    /**
-     * Define a field for this object type.
-     *
-     * @since 1.0.0
-     */
-    fun <M> field(
-        name: String? = null,
-        type: GraphQLOutputType? = null,
-        block: GraphQLFieldDefinitionScope<T, M>.() -> Unit = {}
-    ) {
-        builder.field(GraphQLFieldDefinition(name, type, block))
-    }
+        get() = super.description
+        set(value) = run { super.description = value }
 }
 
 /**
@@ -83,10 +55,41 @@ open class GraphQLObjectTypeScope<T>(
  */
 inline fun <T> GraphQLObjectType(
     name: String? = null,
-    block: GraphQLObjectTypeScope<T>.() -> Unit = {}
+    block: GraphQLObjectTypeBuilder<T>.() -> Unit = {}
 ): GraphQLObjectType {
-    return GraphQLObjectTypeScope<T>(name)
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLObjectTypeBuilder<T>()
+    name?.let { builder.name = it }
+    builder.apply(block)
+    return builder.build()
+}
+
+/**
+ * Define a field for this object type.
+ *
+ * @param field a kotlin property to get the value
+ *              automatically using reflection.
+ * @param block a function to configure the field.
+ * @since 1.0.0
+ */
+@KtorDsl
+fun <T, M> GraphQLObjectTypeBuilder<T>.field(
+    field: KProperty1<in T, M>,
+    type: GraphQLOutputType? = null,
+    block: GraphQLFieldDefinitionBuilder<T, M>.() -> Unit = {}
+) {
+    field(GraphQLFieldDefinition(field, type, block))
+}
+
+/**
+ * Define a field for this object type.
+ *
+ * @since 1.0.0
+ */
+@KtorDsl
+fun <T, M> GraphQLObjectTypeBuilder<T>.field(
+    name: String? = null,
+    type: GraphQLOutputType? = null,
+    block: GraphQLFieldDefinitionBuilder<T, M>.() -> Unit = {}
+) {
+    field(GraphQLFieldDefinition(name, type, block))
 }

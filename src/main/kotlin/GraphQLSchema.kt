@@ -16,6 +16,7 @@
 package org.cufy.kaguya
 
 import graphql.schema.GraphQLSchema
+import io.ktor.util.*
 
 /**
  * A kotlin-friendly wrapper over [GraphQLSchema.Builder].
@@ -23,51 +24,8 @@ import graphql.schema.GraphQLSchema
  * @author LSafer
  * @since 1.0.0
  */
-open class GraphQLSchemaScope(
-    /**
-     * The wrapped builder.
-     *
-     * @since 1.0.0
-     */
-    val builder: GraphQLSchema.Builder =
-        GraphQLSchema.newSchema()
-) {
-    /**
-     * Define the query root object type.
-     *
-     * @since 1.0.0
-     */
-    fun query(
-        name: String = "Query",
-        block: GraphQLObjectTypeScope<Unit>.() -> Unit
-    ) {
-        builder.query(GraphQLObjectType(name, block))
-    }
-
-    /**
-     * Define the mutation root object type.
-     *
-     * @since 1.0.0
-     */
-    fun mutation(
-        name: String = "Mutation",
-        block: GraphQLObjectTypeScope<Unit>.() -> Unit
-    ) {
-        builder.mutation(GraphQLObjectType(name, block))
-    }
-
-    /**
-     * Define the subscription root object type.
-     *
-     * @since 1.0.0
-     */
-    fun subscription(
-        name: String = "Subscription",
-        block: GraphQLObjectTypeScope<Unit>.() -> Unit
-    ) {
-        builder.subscription(GraphQLObjectType(name, block))
-    }
-}
+open class GraphQLSchemaBuilder :
+    GraphQLSchema.Builder()
 
 /**
  * Create a new [GraphQLSchema] and apply the
@@ -76,10 +34,48 @@ open class GraphQLSchemaScope(
  * @since 1.0.0
  */
 inline fun GraphQLSchema(
-    block: GraphQLSchemaScope.() -> Unit = {}
+    block: GraphQLSchemaBuilder.() -> Unit = {}
 ): GraphQLSchema {
-    return GraphQLSchemaScope()
-        .apply(block)
-        .builder
-        .build()
+    val builder = GraphQLSchemaBuilder()
+    builder.apply(block)
+    return builder.build()
+}
+
+/**
+ * Define the query root object type.
+ *
+ * @since 1.0.0
+ */
+@KtorDsl
+fun GraphQLSchemaBuilder.query(
+    name: String = "Query",
+    block: GraphQLObjectTypeBuilder<Unit>.() -> Unit = {}
+) {
+    query(GraphQLObjectType(name, block))
+}
+
+/**
+ * Define the mutation root object type.
+ *
+ * @since 1.0.0
+ */
+@KtorDsl
+fun GraphQLSchemaBuilder.mutation(
+    name: String = "Mutation",
+    block: GraphQLObjectTypeBuilder<Unit>.() -> Unit = {}
+) {
+    mutation(GraphQLObjectType(name, block))
+}
+
+/**
+ * Define the subscription root object type.
+ *
+ * @since 1.0.0
+ */
+@KtorDsl
+fun GraphQLSchemaBuilder.subscription(
+    name: String = "Subscription",
+    block: GraphQLObjectTypeBuilder<Unit>.() -> Unit = {}
+) {
+    subscription(GraphQLObjectType(name, block))
 }
