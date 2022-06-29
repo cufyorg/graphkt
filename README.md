@@ -1,8 +1,28 @@
-# Kaguya Shinomiya <small>(Don't touch my harem)</small>
+# Kaguya Shinomiya [![](https://jitpack.io/v/org.cufy/kaguya.svg)](https://jitpack.io/#org.cufy/kaguya)
 
-A GraphQL library based
-on [graphql-java](http://github.com/graphql-java/graphql-java)
+A GraphQL library based on
+[graphql-java](http://github.com/graphql-java/graphql-java)
 with kotlin-friendly builders and ktor routing extensions.
+
+> Please, Don't touch my harem 😪
+
+### Install
+
+The main way of installing this library is
+using `jitpack.io`
+
+```kts
+repositories {
+    // ...
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+}
+
+dependencies {
+    // Replace TAG with the desired version
+    implementation("org.cufy:mangaka:TAG")
+}
+```
 
 ### How to set up on ktor
 
