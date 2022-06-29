@@ -65,6 +65,18 @@ inline fun <T> GraphQLEnumType(
  *
  * @since 1.0.0
  */
+fun <T : Enum<T>> GraphQLEnumTypeBuilder<T>.value(
+    enum: T,
+    block: GraphQLEnumValueDefinitionBuilder<T>.() -> Unit = {}
+) {
+    value(enum.name, enum, block)
+}
+
+/**
+ * Define a value for this enum type.
+ *
+ * @since 1.0.0
+ */
 fun <T> GraphQLEnumTypeBuilder<T>.value(
     name: String? = null,
     value: T? = null,
