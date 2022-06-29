@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     // Replace TAG with the desired version
-    implementation("org.cufy:mangaka:TAG")
+    implementation("org.cufy:kaguya:TAG")
 }
 ```
 
