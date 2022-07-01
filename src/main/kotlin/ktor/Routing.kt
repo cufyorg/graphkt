@@ -73,11 +73,13 @@ fun Route.graphql(
     path: String = "",
     block: Configuration.() -> Unit = {}
 ) {
-    val config = Configuration().apply(block)
-    val schema = GraphQLSchema(config.schemaBlock)
-    val graphql = GraphQL(schema, config.graphqlBlock)
+    val configuration = Configuration()
+    configuration.apply(block)
+    configuration.configurationBlock(configuration)
+    val schema = GraphQLSchema(configuration.schemaBlock)
+    val graphql = GraphQL(schema, configuration.graphqlBlock)
 
-    if (config.graphiql)
+    if (configuration.graphiql)
         graphiql(path)
 
     post(path) {
@@ -87,7 +89,7 @@ fun Route.graphql(
             GraphQLContext {
                 put("call", call)
                 put("pipeline", this@post)
-                config.contextBlock(this, this@post)
+                configuration.contextBlock(this, this@post)
             }
 
         val executionInput =
@@ -96,7 +98,7 @@ fun Route.graphql(
                 .query(request.query)
                 .variables(request.variables ?: mapOf())
                 .graphQLContext { it.of(context) }
-                .also { config.executionInputBlock(it, this) }
+                .also { configuration.executionInputBlock(it, this) }
                 .build()
 
         val executionResult =

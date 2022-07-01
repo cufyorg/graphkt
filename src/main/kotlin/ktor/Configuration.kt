@@ -36,6 +36,14 @@ open class Configuration {
     var graphiql: Boolean = true
 
     /**
+     * A function to be invoked after the
+     * construction of the configuration instance.
+     *
+     * @since 1.0.0
+     */
+    var configurationBlock: Configuration.() -> Unit = {}
+
+    /**
      * A function to be invoked when constructing
      * the schema instance.
      *
@@ -68,6 +76,23 @@ open class Configuration {
     var executionInputBlock: suspend ExecutionInput.Builder.(
         PipelineContext<Unit, ApplicationCall>
     ) -> Unit = {}
+}
+
+/**
+ * Execute the given [block] after the construction
+ * of the configuration object.
+ *
+ * @since 1.0.0
+ */
+fun Configuration.plugin(
+    block: Configuration.() -> Unit = {}
+) {
+    configurationBlock.let {
+        configurationBlock = {
+            it()
+            block()
+        }
+    }
 }
 
 /**
