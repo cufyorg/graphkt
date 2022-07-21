@@ -136,7 +136,7 @@ fun Configuration.instance(
  * @since 1.0.0
  */
 fun Configuration.context(
-    block: GraphQLContextBuilder.(
+    block: suspend GraphQLContextBuilder.(
         PipelineContext<Unit, ApplicationCall>
     ) -> Unit = {}
 ) {
@@ -155,7 +155,7 @@ fun Configuration.context(
  * @since 1.0.0
  */
 fun Configuration.executionInput(
-    block: ExecutionInput.Builder.(
+    block: suspend ExecutionInput.Builder.(
         PipelineContext<Unit, ApplicationCall>
     ) -> Unit = {}
 ) {
