@@ -1,6 +1,5 @@
 package example
 
-import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLNonNull
 import io.ktor.server.application.*
 import org.cufy.kaguya.*
@@ -17,11 +16,13 @@ val EntityObjectType = GraphQLObjectType<Entity> {
     description = "Some entity."
 
     field(Entity::name) {
+        type = GraphQLNonNull(GraphQLString)
         description = "The name of the entity."
     }
 
     field("nameWithCustomVar") {
         type = GraphQLNonNull(GraphQLString)
+        description = "The name of the entity with the customVar in the context."
 
         resolver {
             it.name + graphQlContext.get("myCustomVar")
