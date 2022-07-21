@@ -17,6 +17,7 @@ package org.cufy.kaguya.ktor
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 
 /**
  * A container for a graphql request.
@@ -27,6 +28,6 @@ import kotlinx.serialization.json.JsonObject
 @Serializable
 data class GraphQLRequest(
     val operationName: String? = null,
-    val variables: JsonObject? = null,
+    val variables: JsonObject = buildJsonObject { },
     val query: String
 )

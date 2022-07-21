@@ -28,6 +28,7 @@ import org.cufy.kaguya.GraphQL
 import org.cufy.kaguya.GraphQLContext
 import org.cufy.kaguya.GraphQLSchema
 import org.cufy.kaguya.Kaguya
+import org.cufy.kaguya.internal.dynamicDecodeFromJsonElement
 import org.cufy.kaguya.internal.dynamicEncodeToString
 
 /**
@@ -92,11 +93,16 @@ fun Route.graphql(
                 configuration.contextBlock(this, this@post)
             }
 
+        @Suppress("UNCHECKED_CAST")
+        val variables = request.variables
+            .let { Json.dynamicDecodeFromJsonElement(it)!! }
+            .let { it as Map<String, Any?> }
+
         val executionInput =
             ExecutionInput.newExecutionInput()
                 .operationName(request.operationName)
                 .query(request.query)
-                .variables(request.variables ?: mapOf())
+                .variables(variables)
                 .graphQLContext { it.of(context) }
                 .also { configuration.executionInputBlock(it, this) }
                 .build()

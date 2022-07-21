@@ -47,3 +47,29 @@ fun Json.dynamicEncodeToJsonElement(value: Any?): JsonElement {
         )
     }
 }
+
+fun Json.dynamicDecodeFromJsonElement(value: JsonElement): Any? {
+    return when (value) {
+        is JsonNull -> null
+        is JsonPrimitive -> {
+            value.content.takeIf { value.isString }
+                ?: value.booleanOrNull
+                ?: value.longOrNull
+                ?: value.doubleOrNull
+        }
+        is JsonObject -> buildMap {
+            value.forEach { key, value ->
+                put(key, dynamicDecodeFromJsonElement(value))
+            }
+        }
+        is JsonArray -> buildList {
+            value.forEach { item ->
+                add(dynamicDecodeFromJsonElement(item))
+            }
+        }
+        else -> decodeFromJsonElement(
+            serializersModule.serializer(value::class.createType()),
+            value
+        )
+    }
+}
