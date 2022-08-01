@@ -111,6 +111,17 @@ inline fun <O, T> GraphQLFieldDefinition(
 }
 
 /**
+ * Set the field type to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLFieldDefinitionBuilder<*, *>.type(
+    block: () -> GraphQLOutputType
+) {
+    type = block()
+}
+
+/**
  * Define an argument for this field.
  *
  * @return an accessor to the argument to be
