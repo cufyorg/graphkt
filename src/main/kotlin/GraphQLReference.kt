@@ -39,7 +39,6 @@ import kotlin.experimental.ExperimentalTypeInference
  * @author LSafer
  * @since 1.1.0
  */
-@ExperimentalKaguyaApi
 open class GraphQLReference<T>(
     name: String? = null,
     block: GraphQLObjectTypeBuilder<T>.() -> Unit = {}
@@ -78,7 +77,6 @@ open class GraphQLReference<T>(
  * @since 1.0.0
  */
 @JvmName("referenceType")
-@ExperimentalKaguyaApi
 @OptIn(ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun GraphQLFieldDefinitionBuilder<*, *>.type(
@@ -92,7 +90,6 @@ fun GraphQLFieldDefinitionBuilder<*, *>.type(
  *
  * @since 1.1.0
  */
-@ExperimentalKaguyaApi
 fun GraphQLNonNull(
     reference: GraphQLReference<*>
 ) = GraphQLNonNull(reference.computeValue())
@@ -102,7 +99,6 @@ fun GraphQLNonNull(
  *
  * @since 1.1.0
  */
-@ExperimentalKaguyaApi
 fun GraphQLList(
     reference: GraphQLReference<*>
 ) = GraphQLList(reference.computeValue())
