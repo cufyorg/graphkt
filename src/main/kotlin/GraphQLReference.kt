@@ -16,6 +16,7 @@
 package org.cufy.kaguya
 
 import graphql.schema.*
+import kotlin.experimental.ExperimentalTypeInference
 
 /**
  * A graphql reference is a class to be used
@@ -78,6 +79,8 @@ open class GraphQLReference<T>(
  */
 @JvmName("referenceType")
 @ExperimentalKaguyaApi
+@OptIn(ExperimentalTypeInference::class)
+@OverloadResolutionByLambdaReturnType
 fun GraphQLFieldDefinitionBuilder<*, *>.type(
     block: () -> GraphQLReference<*>
 ) {
