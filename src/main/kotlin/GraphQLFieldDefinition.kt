@@ -75,6 +75,54 @@ open class GraphQLFieldDefinitionBuilder<O, T> :
         set(value) = run { super.type(value) }
 }
 
+// Fields
+
+/**
+ * Set the name to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLFieldDefinitionBuilder<*, *>.name(
+    block: () -> String
+) {
+    this.name = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLFieldDefinitionBuilder<*, *>.description(
+    block: () -> String
+) {
+    this.description = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLFieldDefinitionBuilder<*, *>.deprecation(
+    block: () -> String
+) {
+    this.deprecationReason = block()
+}
+
+/**
+ * Set the field type to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLFieldDefinitionBuilder<*, *>.type(
+    block: () -> GraphQLOutputType
+) {
+    type = block()
+}
+
+// Constructors
+
 /**
  * Create a new field definition delegating to the
  * given [field].
@@ -110,16 +158,7 @@ inline fun <O, T> GraphQLFieldDefinition(
     return builder.build()
 }
 
-/**
- * Set the field type to the result of [block].
- *
- * @since 1.1.0
- */
-fun GraphQLFieldDefinitionBuilder<*, *>.type(
-    block: () -> GraphQLOutputType
-) {
-    type = block()
-}
+// Extensions
 
 /**
  * Define an argument for this field.

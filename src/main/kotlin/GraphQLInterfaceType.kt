@@ -47,6 +47,32 @@ open class GraphQLInterfaceTypeBuilder<T> :
         set(value) = run { super.description = value }
 }
 
+// Fields
+
+/**
+ * Set the name to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLInterfaceTypeBuilder<*>.name(
+    block: () -> String
+) {
+    this.name = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLInterfaceTypeBuilder<*>.description(
+    block: () -> String
+) {
+    this.description = block()
+}
+
+// Constructors
+
 /**
  * Create a new [GraphQLInterfaceType] and apply the
  * given [block] to it.
@@ -62,6 +88,8 @@ fun <T> GraphQLInterfaceType(
     builder.apply(block)
     return builder.build()
 }
+
+// Extensions
 
 /**
  * Define a field for this interface.

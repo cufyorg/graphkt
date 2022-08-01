@@ -70,6 +70,8 @@ open class GraphQLEnumValueDefinitionBuilder<T> :
         set(value) = run { super.value(value) }
 }
 
+// Constructors
+
 /**
  * Create a new [GraphQLEnumValueDefinition] and
  * apply the given [block] to it.

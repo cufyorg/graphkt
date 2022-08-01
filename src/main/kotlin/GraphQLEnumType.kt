@@ -44,6 +44,32 @@ open class GraphQLEnumTypeBuilder<T> :
         set(value) = run { super.description = value }
 }
 
+// Fields
+
+/**
+ * Set the name to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLEnumTypeBuilder<*>.name(
+    block: () -> String
+) {
+    this.name = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLEnumTypeBuilder<*>.description(
+    block: () -> String
+) {
+    this.description = block()
+}
+
+// Constructors
+
 /**
  * Create a new [GraphQLEnumType] and apply the
  * given [block] to it.
@@ -59,6 +85,8 @@ inline fun <T> GraphQLEnumType(
     builder.apply(block)
     return builder.build()
 }
+
+// Extensions
 
 /**
  * Define a value for this enum type.

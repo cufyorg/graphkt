@@ -47,6 +47,32 @@ open class GraphQLObjectTypeBuilder<T> :
         set(value) = run { super.description = value }
 }
 
+// Fields
+
+/**
+ * Set the name to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLObjectTypeBuilder<*>.name(
+    block: () -> String
+) {
+    this.name = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLObjectTypeBuilder<*>.description(
+    block: () -> String
+) {
+    this.description = block()
+}
+
+// Constructors
+
 /**
  * Create a new [GraphQLObjectType] and apply the
  * given [block] to it.
@@ -62,6 +88,8 @@ inline fun <T> GraphQLObjectType(
     builder.apply(block)
     return builder.build()
 }
+
+// Extensions
 
 /**
  * Define a field for this object type.

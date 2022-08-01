@@ -27,6 +27,8 @@ import io.ktor.util.*
 open class GraphQLSchemaBuilder :
     GraphQLSchema.Builder()
 
+// Constructors
+
 /**
  * Create a new [GraphQLSchema] and apply the
  * given [block] to it.
@@ -40,6 +42,8 @@ inline fun GraphQLSchema(
     builder.apply(block)
     return builder.build()
 }
+
+// Extensions
 
 /**
  * Define the query root object type.

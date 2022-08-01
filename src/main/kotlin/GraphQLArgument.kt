@@ -71,6 +71,54 @@ open class GraphQLArgumentBuilder<T> :
         set(value) = run { type(value) }
 }
 
+// Fields
+
+/**
+ * Set the name to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLArgumentBuilder<*>.name(
+    block: () -> String
+) {
+    this.name = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLArgumentBuilder<*>.description(
+    block: () -> String
+) {
+    this.description = block()
+}
+
+/**
+ * Set the description to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLArgumentBuilder<*>.deprecation(
+    block: () -> String
+) {
+    this.deprecationReason = block()
+}
+
+/**
+ * Set the type to the result of [block].
+ *
+ * @since 1.1.0
+ */
+fun GraphQLArgumentBuilder<*>.type(
+    block: () -> GraphQLInputType
+) {
+    this.type = block()
+}
+
+// Constructors
+
 /**
  * Create a new [GraphQLArgument] and apply the
  * given [block] to it.

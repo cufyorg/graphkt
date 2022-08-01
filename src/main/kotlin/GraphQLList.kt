@@ -15,29 +15,16 @@
  */
 package org.cufy.kaguya
 
-import graphql.GraphQLContext
+import graphql.schema.GraphQLList
+import graphql.schema.GraphQLType
 
 /**
- * A kotlin-friendly wrapper over [GraphQLContext.Builder].
+ * Construct a new [GraphQLList] with the given [type].
  *
- * @author LSafer
- * @since 1.0.0
+ * @since 1.1.0
  */
-open class GraphQLContextBuilder :
-    GraphQLContext.Builder()
-
-// Constructors
-
-/**
- * Create a new [GraphQLContext] and apply the
- * given [block] to it.
- *
- * @since 1.0.0
- */
-inline fun GraphQLContext(
-    block: GraphQLContextBuilder.() -> Unit = {}
-): GraphQLContext {
-    val builder = GraphQLContextBuilder()
-    builder.apply(block)
-    return builder.build()
+fun GraphQLList(
+    type: GraphQLType
+): GraphQLList {
+    return GraphQLList.list(type)
 }

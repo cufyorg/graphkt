@@ -48,6 +48,8 @@ open class GraphqlErrorExceptionBuilder
         set(value) = run { super.errorClassification = value }
 }
 
+// Constructors
+
 /**
  * Create a new [GraphqlErrorException] and apply
  * the given [block] to it.

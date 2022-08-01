@@ -33,6 +33,8 @@ import java.util.concurrent.CompletionException
 open class GraphQLBuilder(schema: GraphQLSchema) :
     GraphQL.Builder(schema)
 
+// Constructors
+
 /**
  * Create a new [GraphQL] and apply the given
  * [block] to it.
@@ -47,6 +49,8 @@ inline fun GraphQL(
     builder.apply(block)
     return builder.build()
 }
+
+// Extensions
 
 /**
  * Override the default exception handler.
