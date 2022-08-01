@@ -15,9 +15,7 @@
  */
 package org.cufy.kaguya
 
-import graphql.schema.GraphQLObjectType
-import graphql.schema.GraphQLOutputType
-import graphql.schema.GraphQLTypeReference
+import graphql.schema.*
 
 /**
  * A graphql reference is a class to be used
@@ -85,3 +83,23 @@ fun GraphQLFieldDefinitionBuilder<*, *>.type(
 ) {
     type = block().computeValue()
 }
+
+/**
+ * Return a [GraphQLNonNull] wrapping the given [reference].
+ *
+ * @since 1.1.0
+ */
+@ExperimentalKaguyaApi
+fun GraphQLNonNull(
+    reference: GraphQLReference<*>
+) = GraphQLNonNull(reference.computeValue())
+
+/**
+ * Return a [GraphQLList] wrapping the given [reference].
+ *
+ * @since 1.1.0
+ */
+@ExperimentalKaguyaApi
+fun GraphQLList(
+    reference: GraphQLReference<*>
+) = GraphQLList(reference.computeValue())
