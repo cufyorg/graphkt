@@ -16,6 +16,7 @@
 package org.cufy.kaguya.ktor
 
 import graphql.ExecutionInput
+import graphql.ExecutionResult
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import org.cufy.kaguya.GraphQLBuilder
@@ -76,6 +77,16 @@ open class Configuration {
     var executionInputBlock: suspend ExecutionInput.Builder.(
         PipelineContext<Unit, ApplicationCall>
     ) -> Unit = {}
+
+    /**
+     * A function to be invoked after execution is
+     * finished.
+     *
+     * @since 1.0.0
+     */
+    var executionResultBlock: suspend PipelineContext<Unit, ApplicationCall>.(
+        ExecutionResult
+    ) -> Unit = { }
 }
 
 /**
@@ -161,6 +172,24 @@ fun Configuration.executionInput(
 ) {
     executionInputBlock.let {
         executionInputBlock = {
+            it(it)
+            block(it)
+        }
+    }
+}
+
+/**
+ * Execute the given [block] after execution is finished.
+ *
+ * @since 1.0.2
+ */
+fun Configuration.executionResult(
+    block: suspend PipelineContext<Unit, ApplicationCall>.(
+        ExecutionResult
+    ) -> Unit = { }
+) {
+    executionResultBlock.let {
+        executionResultBlock = {
             it(it)
             block(it)
         }

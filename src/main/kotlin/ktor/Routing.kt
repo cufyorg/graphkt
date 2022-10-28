@@ -110,6 +110,8 @@ fun Route.graphql(
         val executionResult =
             graphql.executeAsync(executionInput).await()
 
+        configuration.executionResultBlock(this, executionResult)
+
         val result = Json.dynamicEncodeToString(
             executionResult.toSpecification()
         )
