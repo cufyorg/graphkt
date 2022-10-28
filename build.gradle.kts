@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.cufy"
-version = "1.0.2"
+version = "1.1.0"
 
 repositories {
     mavenCentral()

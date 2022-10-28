@@ -82,7 +82,7 @@ open class Configuration {
      * A function to be invoked after execution is
      * finished.
      *
-     * @since 1.0.0
+     * @since 1.1.0
      */
     var executionResultBlock: suspend PipelineContext<Unit, ApplicationCall>.(
         ExecutionResult
@@ -181,7 +181,7 @@ fun Configuration.executionInput(
 /**
  * Execute the given [block] after execution is finished.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 fun Configuration.executionResult(
     block: suspend PipelineContext<Unit, ApplicationCall>.(
