@@ -27,6 +27,7 @@ dependencies {
     implementation(Dependencies.Kotlin.reflect)
 
     testImplementation(Dependencies.Ktor.server_core_jvm)
+    testImplementation(Dependencies.Ktor.server_websockets)
     testImplementation(Dependencies.Ktor.host_common_jvm)
     testImplementation(Dependencies.Ktor.netty_jvm)
     testImplementation(Dependencies.Ktor.call_logging_jvm)
