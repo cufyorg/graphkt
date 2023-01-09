@@ -532,6 +532,9 @@
 				root.classList.add('playgroundIn');
 
 				GraphQLPlayground.init(root, {
+					settings: {
+						"request.credentials": "include"
+					}
 					// you can add more options here
 				})
 			})
