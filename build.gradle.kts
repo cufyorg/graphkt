@@ -51,12 +51,14 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-                artifactId = "graphkt"
+subprojects {
+    afterEvaluate {
+        publishing {
+            publications {
+                create<MavenPublication>("maven") {
+                    from(components["java"])
+                    artifactId = "graphkt"
+                }
             }
         }
     }
