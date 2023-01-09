@@ -154,7 +154,7 @@ val GraphQLDecimalType: GraphQLScalarType<BigDecimal> = GraphQLScalarType("Decim
  *
  * @since 2.0.0
  */
-val GraphQLBigIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integer") {
+val GraphQLIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integer") {
     description { "Integer" }
     decode {
         require(it is GraphQLInt) {
