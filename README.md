@@ -1,10 +1,8 @@
-# Kaguya Shinomiya [![](https://jitpack.io/v/org.cufy/kaguya.svg)](https://jitpack.io/#org.cufy/kaguya)
+# Graphkt [![](https://jitpack.io/v/org.cufy/graphkt.svg)](https://jitpack.io/#org.cufy/graphkt)
 
 A GraphQL library based on
 [graphql-java](http://github.com/graphql-java/graphql-java)
 with kotlin-friendly builders and ktor routing extensions.
-
-> Please, Don't touch my harem 😪
 
 ### Install
 
@@ -20,7 +18,7 @@ repositories {
 
 dependencies {
     // Replace TAG with the desired version
-    implementation("org.cufy:kaguya:TAG")
+    implementation("org.cufy:graphkt:TAG")
 }
 ```
 
@@ -33,28 +31,34 @@ data class Entity(
     val name: String
 )
 
-val EntityObjectType = GraphQLObjectType<Entity> {
-    name = "Entity"
-    description = "Some entity."
+val EntityObjectType = GraphQLObjectType<Entity>("Entity") {
+    description { "Some entity." }
 
-    field(Entity::name) {
-        type = GraphQLString
-        description = "The name of the entity."
+    field(Entity::name, GraphQLStringType) {
+        description { "The name of the entity." }
     }
 
-    field("nameWithCustomVar") {
-        type = GraphQLNonNull(GraphQLString)
-        description = "The name of the entity with the customVar in the context."
+    field("nameWithCustomVar", GraphQLNullableType(GraphQLStringType)) {
+        description { "The name of the entity with the customVar in the context." }
 
         resolver {
-            it.name + graphQlContext.get("myCustomVar")
+            it.name + context["myCustomVar"]
         }
     }
 }
 
+val EntitiesFlow = MutableSharedFlow<Entity>()
+
 fun Application.configureGraphQL() {
+    // you can choose any of these IDEs
+    // graphiql()
+    // sandbox()
+    playground() // recommended
+
     graphql {
-        graphiql = true
+        engine(GraphQLJava) {
+            // engine-specific configuration
+        }
 
         context {
             put("myCustomVar", Math.random())
@@ -62,21 +66,42 @@ fun Application.configureGraphQL() {
 
         schema {
             query {
-                description = "The root query."
+                description { "The root query." }
 
-                field("getEntityWithName") {
-                    type = EntityObjectType
-                    description = "Get an entity instance."
+                field("getEntityWithName", EntityObjectType) {
+                    description { "Get an entity instance." }
 
-                    val nameArg = argument<String> {
-                        type = GraphQLString
-                        name = "name"
-                        description = "The name of the entity."
+                    val nameArg = argument<String>("name", GraphQLStringType) {
+                        description { "The name of the entity." }
                     }
 
-                    resolver {
-                        Entity(nameArg())
+                    get { Entity(nameArg()) }
+                }
+            }
+            mutation {
+                description { "The root mutation" }
+
+                field("pushEntity", EntityObjectType) {
+                    description { "Push an entity to subscribers" }
+
+                    val nameArg = argument<String>("name", GraphQLStringType) {
+                        description { "The name of the entity." }
                     }
+
+                    get {
+                        val entity = Entity(nameArg())
+                        EntitiesFlow.emit(entity)
+                        entity
+                    }
+                }
+            }
+            subscription {
+                description { "The root subscription" }
+
+                field("subscribeToEntities", EntityObjectType) {
+                    description { "Subscribe to pushed entities" }
+
+                    getFlow { EntitiesFlow }
                 }
             }
         }
