@@ -144,6 +144,14 @@ fun <T : Any> GraphQLInterfaceTypeBuilder(): GraphQLInterfaceTypeBuilder<T> {
  * Construct a new [GraphQLInterfaceType] with the
  * given [block].
  *
+ * When self referencing, you might use `by`:
+ *
+ * ```
+ * val MyObjectType: GraphQLInterfaceType<T> by GraphQLInterfaceType {
+ *      // ...
+ * }
+ * ```
+ *
  * @param name the initial name.
  * @param block the builder block.
  * @return a new interface type.

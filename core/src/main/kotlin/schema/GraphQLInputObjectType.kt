@@ -103,6 +103,14 @@ fun <T : Any> GraphQLInputObjectTypeBuilder(): GraphQLInputObjectTypeBuilder<T> 
  * Construct a new [GraphQLInputObjectType] with the
  * given [block].
  *
+ * When self referencing, you might use `by`:
+ *
+ * ```
+ * val MyObjectType: GraphQLInputObjectType<T> by GraphQLInputObjectType {
+ *      // ...
+ * }
+ * ```
+ *
  * @param name the initial name.
  * @param constructor the initial constructor.
  * @param block the builder block.

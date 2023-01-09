@@ -90,6 +90,16 @@ fun <T : Any> GraphQLObjectTypeBuilder(): GraphQLObjectTypeBuilder<T> {
  * Construct a new [GraphQLObjectType] with the
  * given [block].
  *
+ * ####
+ *
+ * When self referencing, you might use `by`:
+ *
+ * ```
+ * val MyObjectType: GraphQLObjectType<T> by GraphQLObjectType {
+ *      // ...
+ * }
+ * ```
+ *
  * @param name the initial name.
  * @param block the builder block.
  * @return a new object type.
