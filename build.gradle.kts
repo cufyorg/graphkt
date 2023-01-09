@@ -1,32 +1,44 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.0"
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("jvm") version kotlin_version
+    kotlin("plugin.serialization") version kotlin_version
     id("maven-publish")
 }
 
 group = "org.cufy"
-version = "1.1.0"
+version = "2.0.0"
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
+    implementation(project(":core"))
+    implementation(project(":ktor"))
+    implementation(project(":graphql-java"))
+
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
 
-    implementation("io.ktor:ktor-server-core-jvm:2.0.2")
+    implementation(Dependencies.Kotlin.serialization)
+    implementation(Dependencies.Kotlin.coroutines_core)
+    implementation(Dependencies.Kotlin.coroutines_reactive)
+    implementation(Dependencies.Kotlin.reflect)
 
-//    implementation("com.expediagroup:graphql-kotlin-server:6.0.0-alpha.4")
-//    implementation("com.expediagroup:graphql-kotlin-federation:6.0.0-alpha.4")
-//    implementation("com.expediagroup:graphql-kotlin-dataloader:6.0.0-alpha.4")
-//    implementation("com.expediagroup:graphql-kotlin-schema-generator:6.0.0-alpha.4")
+    testImplementation(Dependencies.Ktor.server_core_jvm)
+    testImplementation(Dependencies.Ktor.host_common_jvm)
+    testImplementation(Dependencies.Ktor.netty_jvm)
+    testImplementation(Dependencies.Ktor.call_logging_jvm)
+    testImplementation(Dependencies.Ktor.content_negotiation_jvm)
+    testImplementation(Dependencies.Ktor.serialization_kotlinx_json_jvm)
 
-    implementation("com.graphql-java:graphql-java:18.1")
-    implementation("com.google.guava:guava:31.1-jre")
+    testImplementation(Dependencies.Logging.logback_core)
+    testImplementation(Dependencies.Logging.logback_classic)
+    testImplementation(Dependencies.Logging.self4j)
+
+    testImplementation(Dependencies.rxjava)
+    testImplementation(Dependencies.graphql_java)
 
     testImplementation(kotlin("test"))
 }
@@ -44,7 +56,7 @@ afterEvaluate {
         publications {
             create<MavenPublication>("maven") {
                 from(components["java"])
-                artifactId = "kaguya"
+                artifactId = "graphkt"
             }
         }
     }
