@@ -56,7 +56,8 @@ fun Application.configureGraphQL() {
     playground() // recommended
 
     graphql {
-        engine(GraphQLJava) {
+        // add import org.cufy.graphkt.java.`graphql-java`
+        `graphql-java` {
             // engine-specific configuration
         }
 

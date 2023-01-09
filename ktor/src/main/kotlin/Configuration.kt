@@ -18,6 +18,7 @@ package org.cufy.graphkt.ktor
 import io.ktor.server.application.*
 import org.cufy.graphkt.AdvancedGraphktApi
 import org.cufy.graphkt.GraphktEngineFactory
+import org.cufy.graphkt.WithEngine
 import org.cufy.graphkt.schema.*
 import kotlin.time.Duration
 
@@ -28,7 +29,9 @@ import kotlin.time.Duration
  * @author LSafer
  * @since 2.0.0
  */
-class Configuration<TConfiguration> : WithDeferredBuilder {
+class Configuration<TConfiguration> :
+    WithEngine<TConfiguration>,
+    WithDeferredBuilder {
     /**
      * True, to enable `graphql-ws` implementation.
      *
@@ -43,19 +46,13 @@ class Configuration<TConfiguration> : WithDeferredBuilder {
      */
     var connectionInitWaitTimeout: Duration? = null
 
-    /**
-     * The engine factory.
-     */
     @AdvancedGraphktApi("Use `engine()` instead")
-    var engineFactory: GraphktEngineFactory<TConfiguration>? = null
+    override var engineFactory: GraphktEngineFactory<TConfiguration>? = null
 
     /* blocks */
 
-    /**
-     * Code to be executed to configure the engine.
-     */
     @AdvancedGraphktApi("Use `engine()` instead")
-    val engineBlock: MutableList<TConfiguration.() -> Unit> = mutableListOf()
+    override val engineBlock: MutableList<TConfiguration.() -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to configure the schema.
@@ -96,32 +93,6 @@ class Configuration<TConfiguration> : WithDeferredBuilder {
  */
 fun <TConfiguration> Configuration<TConfiguration>.disableWebsocket() {
     websocket = false
-}
-
-/**
- * Set the engine factory.
- *
- * @param factory the engine factory.
- * @param block the engine configuration.
- * @since 2.0.0
- */
-@OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.engine(
-    factory: GraphktEngineFactory<TConfiguration>,
-    block: TConfiguration.() -> Unit = {}
-) {
-    engineFactory = factory
-    engineBlock += block
-}
-
-/**
- * Configure the engine with the given [block].
- */
-@OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.engine(
-    block: TConfiguration.() -> Unit
-) {
-    engineBlock += block
 }
 
 /**

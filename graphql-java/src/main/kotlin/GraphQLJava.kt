@@ -102,3 +102,26 @@ class GraphQLJavaEngine(
         return GraphQLResponse(result)
     }
 }
+
+
+/**
+ * Set the engine factory to be [GraphQLJava].
+ *
+ * @param block the engine configuration.
+ * @since 2.0.0
+ */
+@Suppress("FunctionName")
+fun WithEngine<GraphQLJavaConfiguration>.`graphql-java`(
+    block: GraphQLJavaConfiguration.() -> Unit
+) {
+    engine(GraphQLJava, block)
+}
+
+/**
+ * Set the engine factory to be [GraphQLJava].
+ *
+ * @since 2.0.0
+ */
+@Suppress("ObjectPropertyName")
+val WithEngine<GraphQLJavaConfiguration>.`graphql-java`
+    get() = `graphql-java` {}

@@ -71,3 +71,55 @@ interface GraphktEngine {
         local: Map<Any?, Any?> = emptyMap()
     ): Flow<GraphQLResponse>
 }
+
+/**
+ * An interface for builders with graphkt engine.
+ *
+ * Important Note: these interface might change in
+ * the future. It was made to make it easier to
+ * implement features for different kids of tweaks
+ * with less code and not to be used by regular
+ * users.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+interface WithEngine<TConfiguration> {
+    /**
+     * The engine factory.
+     */
+    @AdvancedGraphktApi("Use `engine()` instead")
+    var engineFactory: GraphktEngineFactory<TConfiguration>? // REQUIRED
+
+    /**
+     * Code to be executed to configure the engine.
+     */
+    @AdvancedGraphktApi("Use `engine()` instead")
+    val engineBlock: MutableList<TConfiguration.() -> Unit>
+}
+
+/**
+ * Set the engine factory.
+ *
+ * @param factory the engine factory.
+ * @param block the engine configuration.
+ * @since 2.0.0
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun <TConfiguration> WithEngine<TConfiguration>.engine(
+    factory: GraphktEngineFactory<TConfiguration>,
+    block: TConfiguration.() -> Unit = {}
+) {
+    engineFactory = factory
+    engineBlock += block
+}
+
+/**
+ * Configure the engine with the given [block].
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun <TConfiguration> WithEngine<TConfiguration>.engine(
+    block: TConfiguration.() -> Unit
+) {
+    engineBlock += block
+}
