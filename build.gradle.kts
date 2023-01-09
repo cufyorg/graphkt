@@ -63,12 +63,14 @@ afterEvaluate {
 }
 
 subprojects {
+    group = "org.cufy.graphkt"
+
     afterEvaluate {
         publishing {
             publications {
                 create<MavenPublication>("maven") {
                     from(components["java"])
-                    artifactId = "graphkt"
+                    artifactId = project.name
                 }
             }
         }
