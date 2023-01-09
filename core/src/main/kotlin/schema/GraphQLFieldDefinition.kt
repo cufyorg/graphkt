@@ -95,16 +95,19 @@ interface GraphQLGetterScope<T : Any, M> {
     /**
      * Get the directive with this definition.
      */
-    operator fun GraphQLDirectiveDefinition.invoke(): GraphQLDirective {
-        return directives.first { it.definition.name == this.name }
+    operator fun GraphQLDirectiveDefinition.invoke(): GraphQLDirective? {
+        return directives.firstOrNull { it.definition.name == this.name }
     }
 
     /**
      * Get the value of this argument.
      */
     operator fun <T> GraphQLArgumentDefinition<T>.invoke(): T {
+        val argument = arguments.firstOrNull { it.definition.name == this.name }
+            ?: error("Argument was not provided: $name")
+
         @Suppress("UNCHECKED_CAST")
-        return arguments.first { it.definition.name == this.name }.value as T
+        return argument.value as T
     }
 
     /**
