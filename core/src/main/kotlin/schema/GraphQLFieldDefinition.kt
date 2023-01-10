@@ -272,7 +272,7 @@ fun <T : Any, M> GraphQLFieldDefinition(
  */
 @Suppress("FunctionName")
 fun <T : Any, M> GraphQLPropertyFieldDefinition(
-    property: KProperty1<T, M>,
+    property: KProperty1<in T, M>,
     type: GraphQLOutputType<M>? = null,
     block: GraphQLFieldDefinitionBuilderBlock<T, M> = {}
 ): GraphQLFieldDefinition<T, M> {
@@ -293,7 +293,7 @@ fun <T : Any, M> GraphQLPropertyFieldDefinition(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.property(
-    property: KProperty1<T, M>
+    property: KProperty1<in T, M>
 ) {
     this.name = property.name
     this.getter = {

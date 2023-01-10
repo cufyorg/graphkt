@@ -160,7 +160,7 @@ fun <T : Any, M> GraphQLInputFieldDefinition(
  */
 @Suppress("FunctionName")
 fun <T : Any, M> GraphQLPropertyInputFieldDefinition(
-    property: KMutableProperty1<T, M>,
+    property: KMutableProperty1<in T, M>,
     type: GraphQLInputType<M>? = null,
     block: GraphQLInputFieldDefinitionBuilderBlock<T, M> = {}
 ): GraphQLInputFieldDefinition<T, M> {
@@ -181,7 +181,7 @@ fun <T : Any, M> GraphQLPropertyInputFieldDefinition(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any, M> GraphQLInputFieldDefinitionBuilder<T, M>.property(
-    property: KMutableProperty1<T, M>
+    property: KMutableProperty1<in T, M>
 ) {
     this.name = property.name
     this.getter = property.getter

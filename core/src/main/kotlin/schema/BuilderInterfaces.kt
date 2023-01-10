@@ -416,7 +416,7 @@ fun <T : Any, M> WithFieldsBuilder<T>.field(
  */
 @MonktDsl
 fun <T : Any, M> WithFieldsBuilder<T>.field(
-    property: KProperty1<T, M>,
+    property: KProperty1<in T, M>,
     type: GraphQLOutputType<M>? = null,
     block: GraphQLFieldDefinitionBuilderBlock<T, M> = {}
 ) {
@@ -482,7 +482,7 @@ fun <T : Any, M> WithInputFieldsBuilder<T>.field(
  * @since 2.0.0
  */
 fun <T : Any, M> WithInputFieldsBuilder<T>.field(
-    property: KMutableProperty1<T, M>,
+    property: KMutableProperty1<in T, M>,
     type: GraphQLInputType<M>? = null,
     block: GraphQLInputFieldDefinitionBuilderBlock<T, M> = {}
 ) {
