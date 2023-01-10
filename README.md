@@ -41,7 +41,7 @@ val EntityObjectType = GraphQLObjectType<Entity>("Entity") {
     field("nameWithCustomVar", GraphQLNullableType(GraphQLStringType)) {
         description { "The name of the entity with the customVar in the context." }
 
-        resolver {
+        get {
             it.name + context["myCustomVar"]
         }
     }
