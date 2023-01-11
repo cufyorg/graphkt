@@ -381,7 +381,7 @@ interface WithFieldsBuilder<T : Any> {
  *
  * @since 2.0.0
  */
-@MonktDsl
+@GraphQLDsl
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any, M> WithFieldsBuilder<T>.field(
     definition: GraphQLFieldDefinition<T, M>
@@ -397,7 +397,7 @@ fun <T : Any, M> WithFieldsBuilder<T>.field(
  * @param block the builder block.
  * @since 2.0.0
  */
-@MonktDsl
+@GraphQLDsl
 fun <T : Any, M> WithFieldsBuilder<T>.field(
     name: String? = null,
     type: GraphQLOutputType<M>? = null,
@@ -414,7 +414,7 @@ fun <T : Any, M> WithFieldsBuilder<T>.field(
  * @param block the builder block.
  * @since 2.0.0
  */
-@MonktDsl
+@GraphQLDsl
 fun <T : Any, M> WithFieldsBuilder<T>.field(
     property: KProperty1<in T, M>,
     type: GraphQLOutputType<M>? = null,

@@ -21,7 +21,7 @@ package org.cufy.graphkt.schema
  * @since 2.0.0
  */
 @DslMarker
-annotation class MonktDsl
+annotation class GraphQLDsl
 
 /**
  * The scope for any graphql routing.
