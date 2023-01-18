@@ -28,7 +28,8 @@ open class GraphQLInterfaceTypeImpl<T : Any>(
     override val fields: List<GraphQLFieldDefinition<T, *>>,
     override val interfaces: List<GraphQLInterfaceType<in T>>,
     override val directives: List<GraphQLDirective>,
-    override val typeGetter: GraphQLTypeGetter<T>
+    override val typeGetter: GraphQLTypeGetter<T>,
+    override val getter: GraphQLGetterBlock<T, Any?>
 ) : GraphQLInterfaceType<T> {
     override fun toString(): String = "GraphQLInterfaceType($name)"
 }
@@ -56,7 +57,8 @@ open class GraphQLObjectTypeImpl<T : Any>(
     override val description: String,
     override val fields: List<GraphQLFieldDefinition<T, *>>,
     override val interfaces: List<GraphQLInterfaceType<in T>>,
-    override val directives: List<GraphQLDirective>
+    override val directives: List<GraphQLDirective>,
+    override val getter: GraphQLGetterBlock<T, Any?>
 ) : GraphQLObjectType<T> {
     override fun toString(): String = "GraphQLObjectType($name)"
 }

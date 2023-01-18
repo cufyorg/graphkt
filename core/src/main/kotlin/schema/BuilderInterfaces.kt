@@ -370,10 +370,27 @@ fun <T> WithArgumentsBuilder.argument(
  */
 interface WithFieldsBuilder<T : Any> {
     /**
+     * The added getter blocks.
+     */
+    @AdvancedGraphktApi("Use `onGet()` instead")
+    val getterBlocks: MutableList<GraphQLGetterBlock<T, Any?>>
+
+    /**
      * The added fields.
      */
     @AdvancedGraphktApi("Use `field()` instead")
     val fields: MutableList<GraphQLFieldDefinition<T, *>>
+}
+
+/**
+ * Add the given [block] to be invoked before
+ * *every* field getter.
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun <T : Any> WithFieldsBuilder<T>.onGet(
+    block: GraphQLGetterBlock<T, Any?>
+) {
+    getterBlocks += block
 }
 
 /**

@@ -42,10 +42,16 @@ open class GraphQLInterfaceTypeBuilderImpl<T : Any> :
     @AdvancedGraphktApi
     override var typeGetter: GraphQLTypeGetter<T>? = null
 
+    @AdvancedGraphktApi
+    override val getterBlocks: MutableList<GraphQLGetterBlock<T, Any?>> = mutableListOf()
+
     @OptIn(AdvancedGraphktApi::class)
     override fun build(): GraphQLInterfaceType<T> {
         deferred.forEach { it() }
         deferred.clear()
+
+        val getterBlocks = getterBlocks.toList()
+
         return GraphQLInterfaceTypeImpl(
             name = name
                 ?: error("name is required but was not provided."),
@@ -54,7 +60,10 @@ open class GraphQLInterfaceTypeBuilderImpl<T : Any> :
             interfaces = interfaces.toList(),
             fields = fields.toList(),
             typeGetter = typeGetter
-                ?: error("typeGetter is required but was not provided.")
+                ?: error("typeGetter is required but was not provided."),
+            getter = {
+                getterBlocks.forEach { it() }
+            }
         )
     }
 }
@@ -80,6 +89,9 @@ open class GraphQLObjectTypeBuilderImpl<T : Any> :
     @AdvancedGraphktApi
     override val deferred: MutableList<() -> Unit> = mutableListOf()
 
+    @AdvancedGraphktApi
+    override val getterBlocks: MutableList<GraphQLGetterBlock<T, Any?>> = mutableListOf()
+
     @OptIn(AdvancedGraphktApi::class)
     override fun build(): GraphQLObjectType<T> {
         deferred.forEach { it() }
@@ -88,13 +100,18 @@ open class GraphQLObjectTypeBuilderImpl<T : Any> :
         if (fields.isEmpty() && interfaces.isEmpty())
             error("\"$name\" must define one or more fields.")
 
+        val getterBlocks = getterBlocks.toList()
+
         return GraphQLObjectTypeImpl(
             name = name
                 ?: error("name is required but was not provided."),
             description = description,
             fields = fields.toList(),
             interfaces = interfaces.toList(),
-            directives = directives.toList()
+            directives = directives.toList(),
+            getter = {
+                getterBlocks.forEach { it() }
+            }
         )
     }
 }

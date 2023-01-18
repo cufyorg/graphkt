@@ -136,6 +136,14 @@ interface WithArguments {
  */
 interface WithFieldDefinitions<T : Any> {
     /**
+     * A block of code to be invoked on every
+     * field getter.
+     *
+     * @since 2.0.0
+     */
+    val getter: GraphQLGetterBlock<T, Any?>
+
+    /**
      * The fields of the type.
      *
      * @since 2.0.0

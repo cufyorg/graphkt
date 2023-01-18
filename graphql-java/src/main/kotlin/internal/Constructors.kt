@@ -271,6 +271,7 @@ fun TransformRuntimeContext.GraphQLDirective(
 @InternalGraphktApi
 fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
     getter: GraphQLFlowGetter<T, M>,
+    getterBlocks: List<GraphQLGetterBlock<T, *>>,
     field: GraphQLFieldDefinition<T, M>,
 ): JavaDataFetcher<*> {
     return JavaDataFetcher { environment ->
@@ -287,6 +288,10 @@ fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
 
         CoroutineScope(Dispatchers.Default).launch {
             val scope = GraphQLGetterScope(environment, field)
+
+            getterBlocks.forEach {
+                it(scope)
+            }
 
             @Suppress("UNCHECKED_CAST")
             val flow = getter(scope) as Flow<M & Any>

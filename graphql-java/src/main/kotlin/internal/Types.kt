@@ -359,16 +359,23 @@ fun <T : Any> TransformContext.addObjectType(
 
     //
 
-    val allFields = generateSequence(type.interfaces) {
+    // collect all the interfaces (recursively)
+    val allInterfaces = generateSequence(type.interfaces) {
         it.flatMap { it.interfaces }.takeIf { it.isNotEmpty() }
-    }.flatten().toList().flatMap { it.fields } + type.fields
+    }.flatten().toSet()
+
+    @Suppress("UNCHECKED_CAST")
+    val allGetterBlocks = (allInterfaces.map { it.getter } + type.getter)
+            as List<GraphQLGetterBlock<T, *>>
+
+    val allFields = (allInterfaces.flatMap { it.fields } + type.fields)
 
     allFields.forEach {
         @Suppress("UNCHECKED_CAST")
         it as GraphQLFieldDefinition<T, Any?>
 
         val coordinates = JavaFieldCoordinates.coordinates(type.name, it.name)
-        val fetcher = with(runtime) { JavaDataFetcher(it.getter, it) }
+        val fetcher = with(runtime) { JavaDataFetcher(it.getter, allGetterBlocks, it) }
 
         codeRegistry.dataFetcher(coordinates, fetcher)
     }
