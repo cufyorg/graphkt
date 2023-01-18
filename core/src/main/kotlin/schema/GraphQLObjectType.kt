@@ -27,14 +27,7 @@ import org.cufy.graphkt.internal.GraphQLObjectTypeBuilderImpl
  * @author LSafer
  * @since 2.0.0
  */
-interface GraphQLObjectType<T : Any> : WithName, WithDirectives, GraphQLOutputType<T> {
-    /**
-     * The fields in this object type.
-     *
-     * @since 2.0.0
-     */
-    val fields: List<GraphQLFieldDefinition<T, *>>
-
+interface GraphQLObjectType<T : Any> : WithName, WithFieldDefinitions<T>, WithDirectives, GraphQLOutputType<T> {
     /**
      * The interfaces applied to this.
      *

@@ -28,14 +28,7 @@ import org.cufy.graphkt.internal.GraphQLTypeGetterScopeImpl
  * @author LSafer
  * @since 2.0.0
  */
-interface GraphQLInterfaceType<T : Any> : WithName, WithDirectives, GraphQLOutputType<T> {
-    /**
-     * The fields in this interface.
-     *
-     * @since 2.0.0
-     */
-    val fields: List<GraphQLFieldDefinition<T, *>>
-
+interface GraphQLInterfaceType<T : Any> : WithName, WithFieldDefinitions<T>, WithDirectives, GraphQLOutputType<T> {
     /**
      * The interfaces applied to this.
      *

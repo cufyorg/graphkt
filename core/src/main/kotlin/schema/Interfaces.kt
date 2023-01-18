@@ -121,3 +121,24 @@ interface WithArguments {
      */
     val arguments: List<GraphQLArgument<*>>
 }
+
+/**
+ * An instance with field definitions.
+ *
+ * Important Note: these interface might change in
+ * the future. It was made to make it easier to
+ * implement features for different kids of tweaks
+ * with less code and not to be used by regular
+ * users.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+interface WithFieldDefinitions<T : Any> {
+    /**
+     * The fields of the type.
+     *
+     * @since 2.0.0
+     */
+    val fields: List<GraphQLFieldDefinition<T, *>>
+}
