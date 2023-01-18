@@ -27,9 +27,11 @@ open class GraphQLGetterScopeImpl<T : Any, M>(
     override val arguments: List<GraphQLArgument<*>>,
     override val directives: List<GraphQLDirective>,
     override val context: Map<Any?, Any?>,
-    override val local: Map<Any?, Any?>,
+    override val supLocal: Map<Any?, Any?>,
     override val subLocal: MutableMap<Any?, Any?>
-) : GraphQLGetterScope<T, M>
+) : GraphQLGetterScope<T, M> {
+    override val local: MutableMap<Any?, Any?> = mutableMapOf()
+}
 
 @InternalGraphktApi
 open class GraphQLTypeGetterScopeImpl<T : Any>(

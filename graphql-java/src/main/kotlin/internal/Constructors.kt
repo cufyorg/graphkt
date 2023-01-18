@@ -304,7 +304,7 @@ fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
                     val result = flow.map {
                         JavaDataFetcherResult.newResult<Any?>()
                             .data(it)
-                            .localContext(scope.local + scope.subLocal)
+                            .localContext(scope.supLocal + scope.subLocal)
                             .build()
                     }
 
@@ -314,7 +314,7 @@ fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
 
                     val result = JavaDataFetcherResult.newResult<Any?>()
                         .data(flow.single())
-                        .localContext(scope.local + scope.subLocal)
+                        .localContext(scope.supLocal + scope.subLocal)
                         .build()
 
                     future.complete(result)
@@ -345,7 +345,7 @@ private fun <T : Any, M> TransformRuntimeContext.GraphQLGetterScope(
         .graphQlContext
         .get<Map<Any?, Any?>>("graphkt")
         ?: emptyMap()
-    val local = environment
+    val supLocal = environment
         .getLocalContext() as? Map<Any?, Any?>
         ?: emptyMap()
     val subLocal = mutableMapOf<Any?, Any?>()
@@ -356,7 +356,7 @@ private fun <T : Any, M> TransformRuntimeContext.GraphQLGetterScope(
         arguments,
         directives,
         graphQlContext,
-        local,
+        supLocal,
         subLocal
     )
 }

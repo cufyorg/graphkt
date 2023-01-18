@@ -82,7 +82,14 @@ interface GraphQLGetterScope<T : Any, M> {
      * The context variables that have been passed
      * by the containing field.
      */
-    val local: Map<Any?, Any?>
+    val supLocal: Map<Any?, Any?>
+
+    /**
+     * The local variables. These variables are
+     * set within the scope and will die with the
+     * scope.
+     */
+    val local: MutableMap<Any?, Any?>
 
     /**
      * The context variables to be passed to the
@@ -215,7 +222,7 @@ fun <T : Any, M> GraphQLGetterScope(
     arguments: List<GraphQLArgument<*>>,
     directives: List<GraphQLDirective>,
     context: Map<Any?, Any?>,
-    local: Map<Any?, Any?>,
+    supLocal: Map<Any?, Any?>,
     subLocal: MutableMap<Any?, Any?>
 ): GraphQLGetterScope<T, M> {
     return GraphQLGetterScopeImpl(
@@ -223,7 +230,7 @@ fun <T : Any, M> GraphQLGetterScope(
         arguments,
         directives,
         context,
-        local,
+        supLocal,
         subLocal
     )
 }
