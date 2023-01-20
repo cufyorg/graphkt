@@ -331,6 +331,11 @@ fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.onGet(
  * Note: If this field is not a root subscription
  * field, the given [getter] must return a flow
  * with a single item.
+ *
+ * Note: the errors from the [getter] will be
+ * caught and sent to the client. But, the errors
+ * from the flow returned from the [getter] will
+ * not.
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.getFlow(

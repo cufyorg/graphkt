@@ -289,17 +289,23 @@ fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
         CoroutineScope(Dispatchers.Default).launch {
             val scope = GraphQLGetterScope(environment, field)
 
-            getterBlocks.forEach {
-                it(scope)
-            }
+            val flow = try {
+                getterBlocks.forEach {
+                    it(scope)
+                }
 
-            @Suppress("UNCHECKED_CAST")
-            val flow = getter(scope) as Flow<M & Any>
+                @Suppress("UNCHECKED_CAST")
+                getter(scope) as Flow<M & Any>
+            } catch (error: Throwable) {
+                future.completeExceptionally(error)
+                return@launch
+            }
 
             when {
                 environment.operationDefinition.operation ==
                         OperationDefinition.Operation.SUBSCRIPTION &&
                         environment.executionStepInfo.path.parent.isRootPath -> {
+                    // for root subscription fields
 
                     val result = flow.map {
                         JavaDataFetcherResult.newResult<Any?>()
@@ -311,6 +317,7 @@ fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
                     future.complete(result.asPublisher())
                 }
                 else -> {
+                    // for none root subscription fields
 
                     val result = JavaDataFetcherResult.newResult<Any?>()
                         .data(flow.single())
