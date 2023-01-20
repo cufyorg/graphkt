@@ -62,7 +62,7 @@ fun Application.configureGraphQL() {
         }
 
         context {
-            put("myCustomVar", Math.random())
+            it["myCustomVar"] = Math.random()
         }
 
         schema {

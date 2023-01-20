@@ -16,11 +16,28 @@
 package org.cufy.graphkt.ktor
 
 import io.ktor.server.application.*
+import io.ktor.util.pipeline.*
 import org.cufy.graphkt.AdvancedGraphktApi
 import org.cufy.graphkt.GraphktEngineFactory
 import org.cufy.graphkt.WithEngine
 import org.cufy.graphkt.schema.*
 import kotlin.time.Duration
+
+/**
+ * A scope holding the commonly available data
+ * from a graphql implementation on every request.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+class ConfigurationScope(
+    /**
+     * The application call instance.
+     *
+     * @since 2.0.0
+     */
+    val call: ApplicationCall
+)
 
 /**
  * The configuration for creating a graphql ktor route.
@@ -64,25 +81,25 @@ class Configuration<TConfiguration> :
      * Code to be executed to configure execution context.
      */
     @AdvancedGraphktApi("Use `context()` instead")
-    val contextBlock: MutableList<MutableMap<Any?, Any?>.(ApplicationCall) -> Unit> = mutableListOf()
+    val contextBlock: MutableList<ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to configure initial execution local.
      */
     @AdvancedGraphktApi("Use `local()` instead")
-    val localBlock: MutableList<MutableMap<Any?, Any?>.(ApplicationCall) -> Unit> = mutableListOf()
+    val localBlock: MutableList<ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to transform request.
      */
     @AdvancedGraphktApi("Use `transformRequest()` instead")
-    val requestBlock: MutableList<(GraphQLRequest) -> GraphQLRequest> = mutableListOf()
+    val requestBlock: MutableList<ConfigurationScope.(GraphQLRequest) -> GraphQLRequest> = mutableListOf()
 
     /**
      * Code to be executed to transform response.
      */
     @AdvancedGraphktApi("Use `transformResponse()` instead")
-    val responseBlock: MutableList<(GraphQLResponse) -> GraphQLResponse> = mutableListOf()
+    val responseBlock: MutableList<ConfigurationScope.(GraphQLResponse) -> GraphQLResponse> = mutableListOf()
 
     @AdvancedGraphktApi("Use `deferred()` instead")
     override val deferred: MutableList<() -> Unit> = mutableListOf()
@@ -110,7 +127,7 @@ fun <TConfiguration> Configuration<TConfiguration>.schema(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.context(
-    block: MutableMap<Any?, Any?>.(ApplicationCall) -> Unit
+    block: ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
 ) {
     contextBlock += block
 }
@@ -120,7 +137,7 @@ fun <TConfiguration> Configuration<TConfiguration>.context(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.local(
-    block: MutableMap<Any?, Any?>.(ApplicationCall) -> Unit
+    block: ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
 ) {
     localBlock += block
 }
@@ -131,7 +148,7 @@ fun <TConfiguration> Configuration<TConfiguration>.local(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.transformRequest(
-    block: (GraphQLRequest) -> GraphQLRequest
+    block: ConfigurationScope.(GraphQLRequest) -> GraphQLRequest
 ) {
     requestBlock += block
 }
@@ -142,7 +159,7 @@ fun <TConfiguration> Configuration<TConfiguration>.transformRequest(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.transformResponse(
-    block: (GraphQLResponse) -> GraphQLResponse
+    block: ConfigurationScope.(GraphQLResponse) -> GraphQLResponse
 ) {
     responseBlock += block
 }

@@ -94,20 +94,22 @@ fun <TConfiguration> Route.graphql(
         request: GraphQLRequest,
         call: ApplicationCall
     ): Flow<GraphQLResponse> {
+        val scope = ConfigurationScope(call)
+
         var req = request
 
         // apply request block
-        requestBlock.forEach { req = it(req) }
+        requestBlock.forEach { req = it(scope, req) }
 
         /* prepare execution arguments */
 
         val context = buildMap {
             put("call", call)
-            contextBlock.forEach { it(call) }
+            contextBlock.forEach { it(scope, this@buildMap) }
         }
 
         val local = buildMap {
-            localBlock.forEach { it(call) }
+            localBlock.forEach { it(scope, this@buildMap) }
         }
 
         // actual execution
@@ -117,7 +119,7 @@ fun <TConfiguration> Route.graphql(
             var res = response
 
             // apply response block
-            responseBlock.forEach { res = it(res) }
+            responseBlock.forEach { res = it(scope, res) }
 
             res
         }
