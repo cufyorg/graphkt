@@ -81,25 +81,25 @@ class Configuration<TConfiguration> :
      * Code to be executed to configure execution context.
      */
     @AdvancedGraphktApi("Use `context()` instead")
-    val contextBlock: MutableList<ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
+    val contextBlock: MutableList<suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to configure initial execution local.
      */
     @AdvancedGraphktApi("Use `local()` instead")
-    val localBlock: MutableList<ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
+    val localBlock: MutableList<suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to transform request.
      */
     @AdvancedGraphktApi("Use `transformRequest()` instead")
-    val requestBlock: MutableList<ConfigurationScope.(GraphQLRequest) -> GraphQLRequest> = mutableListOf()
+    val requestBlock: MutableList<suspend ConfigurationScope.(GraphQLRequest) -> GraphQLRequest> = mutableListOf()
 
     /**
      * Code to be executed to transform response.
      */
     @AdvancedGraphktApi("Use `transformResponse()` instead")
-    val responseBlock: MutableList<ConfigurationScope.(GraphQLResponse) -> GraphQLResponse> = mutableListOf()
+    val responseBlock: MutableList<suspend ConfigurationScope.(GraphQLResponse) -> GraphQLResponse> = mutableListOf()
 
     @AdvancedGraphktApi("Use `deferred()` instead")
     override val deferred: MutableList<() -> Unit> = mutableListOf()
@@ -127,7 +127,7 @@ fun <TConfiguration> Configuration<TConfiguration>.schema(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.context(
-    block: ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
+    block: suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
 ) {
     contextBlock += block
 }
@@ -137,7 +137,7 @@ fun <TConfiguration> Configuration<TConfiguration>.context(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.local(
-    block: ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
+    block: suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
 ) {
     localBlock += block
 }
@@ -148,7 +148,7 @@ fun <TConfiguration> Configuration<TConfiguration>.local(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.transformRequest(
-    block: ConfigurationScope.(GraphQLRequest) -> GraphQLRequest
+    block: suspend ConfigurationScope.(GraphQLRequest) -> GraphQLRequest
 ) {
     requestBlock += block
 }
@@ -159,7 +159,7 @@ fun <TConfiguration> Configuration<TConfiguration>.transformRequest(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <TConfiguration> Configuration<TConfiguration>.transformResponse(
-    block: ConfigurationScope.(GraphQLResponse) -> GraphQLResponse
+    block: suspend ConfigurationScope.(GraphQLResponse) -> GraphQLResponse
 ) {
     responseBlock += block
 }
@@ -169,9 +169,9 @@ fun <TConfiguration> Configuration<TConfiguration>.transformResponse(
  * errors before sending it to the client.
  */
 fun <TConfiguration> Configuration<TConfiguration>.transformError(
-    block: (GraphQLError) -> GraphQLError
+    block: suspend ConfigurationScope.(GraphQLError) -> GraphQLError
 ) {
     transformResponse {
-        it.copy(errors = it.errors?.map(block))
+        it.copy(errors = it.errors?.map { block(it) })
     }
 }

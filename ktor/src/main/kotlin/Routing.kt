@@ -90,7 +90,7 @@ fun <TConfiguration> Route.graphql(
         engineBlock.forEach { it() }
     }
 
-    fun handleRequest(
+    suspend fun handleRequest(
         request: GraphQLRequest,
         call: ApplicationCall
     ): Flow<GraphQLResponse> {
