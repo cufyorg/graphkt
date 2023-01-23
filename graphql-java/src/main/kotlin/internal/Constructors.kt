@@ -56,8 +56,8 @@ fun GraphQLScalar(
     value: JavaValue<*>
 ): GraphQLScalar<*> {
     return when (value) {
-        is JavaIntValue -> GraphQLInt(value.value)
-        is JavaFloatValue -> GraphQLFloat(value.value)
+        is JavaIntValue -> GraphQLInteger(value.value)
+        is JavaFloatValue -> GraphQLDecimal(value.value)
         is JavaStringValue -> GraphQLString(value.value)
         is JavaBooleanValue -> GraphQLBoolean(value.isValue)
         else -> error("Unexpected Java Value: $value")
@@ -69,8 +69,8 @@ fun JavaValue(
     scalar: GraphQLScalar<*>
 ): JavaValue<*> {
     return when (scalar) {
-        is GraphQLInt -> JavaIntValue.newIntValue(scalar.value).build()
-        is GraphQLFloat -> JavaFloatValue.newFloatValue(scalar.value).build()
+        is GraphQLInteger -> JavaIntValue.newIntValue(scalar.value).build()
+        is GraphQLDecimal -> JavaFloatValue.newFloatValue(scalar.value).build()
         is GraphQLString -> JavaStringValue.newStringValue(scalar.value).build()
         is GraphQLBoolean -> JavaBooleanValue.newBooleanValue(scalar.value).build()
         else -> error("Unexpected GraphQL Value: $scalar")
@@ -82,13 +82,14 @@ fun JavaValue(
 @InternalGraphktApi
 fun <T : Any> JavaCoercing(
     type: GraphQLScalarType<T>,
-): JavaCoercing<T, T> {
+): JavaCoercing<T, GraphQLScalar<*>> {
     // TODO: testing
-    return object : JavaCoercing<T, T> {
-        override fun serialize(dataFetcherResult: Any): T {
+    return object : JavaCoercing<T, GraphQLScalar<*>> {
+        override fun serialize(dataFetcherResult: Any): GraphQLScalar<*> {
             // resolvers will always return the correct type: T
             @Suppress("UNCHECKED_CAST")
-            return dataFetcherResult as T
+            val result = dataFetcherResult as T
+            return type.encode(result)
         }
 
         override fun parseLiteral(input: Any): T {
@@ -97,11 +98,10 @@ fun <T : Any> JavaCoercing(
         }
 
         override fun parseValue(input: Any): T {
-            // variables will always be of type GraphQLScalar
-            input as GraphQLScalar<*>
+            val scalar = dynamicDecodeScalar(input)
 
             return try {
-                type.decode(input)
+                type.decode(scalar)
             } catch (e: Throwable) {
                 throw JavaCoercingParseLiteralException(e)
             }

@@ -15,27 +15,23 @@
  */
 package org.cufy.graphkt.java.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.*
-import kotlinx.serialization.serializer
 import org.cufy.graphkt.InternalGraphktApi
-import kotlin.reflect.full.createType
-
-@InternalGraphktApi
-@OptIn(ExperimentalSerializationApi::class)
-internal val GraphQLJavaJson = Json {
-    encodeDefaults = false
-    explicitNulls = false
-    ignoreUnknownKeys = true
-}
+import org.cufy.graphkt.schema.*
+import java.math.BigDecimal
+import java.math.BigInteger
 
 @InternalGraphktApi
 fun dynamicEncodeToJsonElement(value: Any?): JsonElement {
     return when (value) {
-        null -> JsonNull
+        null, is GraphQLNull -> JsonNull
         is String -> JsonPrimitive(value)
         is Number -> JsonPrimitive(value)
         is Boolean -> JsonPrimitive(value)
+        is GraphQLString -> JsonPrimitive(value.value)
+        is GraphQLBoolean -> JsonPrimitive(value.value)
+        is GraphQLInteger -> JsonPrimitive(value.value)
+        is GraphQLDecimal -> JsonPrimitive(value.value)
         is Map<*, *> -> buildJsonObject {
             value.forEach { key, value ->
                 require(key is String) { "Key must be a string" }
@@ -47,10 +43,7 @@ fun dynamicEncodeToJsonElement(value: Any?): JsonElement {
                 add(dynamicEncodeToJsonElement(item))
             }
         }
-        else -> GraphQLJavaJson.encodeToJsonElement(
-            GraphQLJavaJson.serializersModule.serializer(value::class.createType()),
-            value
-        )
+        else -> error("Can't dynamically encode: $value")
     }
 }
 
@@ -61,8 +54,8 @@ fun dynamicDecodeFromJsonElement(value: JsonElement): Any? {
         is JsonPrimitive -> {
             value.content.takeIf { value.isString }
                 ?: value.booleanOrNull
-                ?: value.longOrNull
-                ?: value.doubleOrNull
+                ?: value.content.toBigIntegerOrNull()
+                ?: value.content.toBigDecimalOrNull()
         }
         is JsonObject -> buildMap {
             value.forEach { key, value ->
@@ -74,9 +67,22 @@ fun dynamicDecodeFromJsonElement(value: JsonElement): Any? {
                 add(dynamicDecodeFromJsonElement(item))
             }
         }
-        else -> GraphQLJavaJson.decodeFromJsonElement(
-            GraphQLJavaJson.serializersModule.serializer(value::class.createType()),
-            value
-        )
+        else -> error("Can't dynamically decode: $value")
+    }
+}
+
+@InternalGraphktApi
+fun dynamicDecodeScalar(value: Any?): GraphQLScalar<*> {
+    return when (value) {
+        null -> GraphQLNull
+        is Boolean -> GraphQLBoolean(value)
+        is String -> GraphQLString(value)
+        is Int -> GraphQLInteger(value.toBigInteger())
+        is Long -> GraphQLInteger(value.toBigInteger())
+        is BigInteger -> GraphQLInteger(value)
+        is Float -> GraphQLDecimal(value.toBigDecimal())
+        is Double -> GraphQLDecimal(value.toBigDecimal())
+        is BigDecimal -> GraphQLDecimal(value)
+        else -> error("Cannot dynamically decode: ${value.javaClass}")
     }
 }

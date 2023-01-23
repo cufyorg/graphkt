@@ -32,6 +32,16 @@ interface GraphQLScalar<V> {
 }
 
 /**
+ * The graphql null scalar.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+object GraphQLNull : GraphQLScalar<Any?> {
+    override val value: Any? = null
+}
+
+/**
  * The graphql string scalar.
  *
  * @author LSafer
@@ -57,7 +67,7 @@ class GraphQLBoolean(
  * @author LSafer
  * @since 2.0.0
  */
-class GraphQLInt(
+class GraphQLInteger(
     override val value: BigInteger
 ) : GraphQLScalar<BigInteger>
 
@@ -67,6 +77,6 @@ class GraphQLInt(
  * @author LSafer
  * @since 2.0.0
  */
-class GraphQLFloat(
+class GraphQLDecimal(
     override val value: BigDecimal
 ) : GraphQLScalar<BigDecimal>

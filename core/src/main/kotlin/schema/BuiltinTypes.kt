@@ -21,38 +21,38 @@ import java.math.BigInteger
 //
 
 /**
- * A scalar type for [Int] and [GraphQLInt].
+ * A scalar type for [Int] and [GraphQLInteger].
  *
  * @since 2.0.0
  */
 val GraphQLIntType: GraphQLScalarType<Int> = GraphQLScalarType("Int") {
     description { "Built-in Int (32-bit)" }
     decode {
-        require(it is GraphQLInt) {
-            "Expected GraphQLInt but got ${it.javaClass.simpleName}"
+        require(it is GraphQLInteger) {
+            "Expected GraphQLInteger but got ${it.javaClass.simpleName}"
         }
         it.value.toInt()
     }
     encode {
-        GraphQLInt(it.toBigInteger())
+        GraphQLInteger(it.toBigInteger())
     }
 }
 
 /**
- * A scalar type for [Double] and [GraphQLFloat].
+ * A scalar type for [Double] and [GraphQLDecimal].
  *
  * @since 2.0.0
  */
 val GraphQLFloatType: GraphQLScalarType<Double> = GraphQLScalarType("Float") {
     description { "Built-in Float (64-bit)" }
     decode {
-        require(it is GraphQLFloat) {
-            "Expected GraphQLFloat but got ${it.javaClass.simpleName}"
+        require(it is GraphQLDecimal) {
+            "Expected GraphQLDecimal but got ${it.javaClass.simpleName}"
         }
         it.value.toDouble()
     }
     encode {
-        GraphQLFloat(it.toBigDecimal())
+        GraphQLDecimal(it.toBigDecimal())
     }
 }
 
@@ -113,7 +113,7 @@ val GraphQLIDType: GraphQLScalarType<String> = GraphQLScalarType("ID") {
 //
 
 /**
- * A scalar type for [Long] and [GraphQLInt].
+ * A scalar type for [Long] and [GraphQLInteger].
  *
  * @since 2.0.0
  */
@@ -121,48 +121,48 @@ val GraphQLLongType: GraphQLScalarType<Long> = GraphQLScalarType("Long") {
     specifiedBy("https://github.com")
     description { "Long" }
     decode {
-        require(it is GraphQLInt) {
+        require(it is GraphQLInteger) {
             "Expected GraphQLInt but got ${it.javaClass.simpleName}"
         }
         it.value.toLong()
     }
     encode {
-        GraphQLInt(it.toBigInteger())
+        GraphQLInteger(it.toBigInteger())
     }
 }
 
 /**
- * A scalar type for [BigDecimal] and [GraphQLFloat].
+ * A scalar type for [BigDecimal] and [GraphQLDecimal].
  *
  * @since 2.0.0
  */
 val GraphQLDecimalType: GraphQLScalarType<BigDecimal> = GraphQLScalarType("Decimal") {
     description { "Decimal" }
     decode {
-        require(it is GraphQLFloat) {
+        require(it is GraphQLDecimal) {
             "Expected GraphQLFloat but got ${it.javaClass.simpleName}"
         }
         it.value
     }
     encode {
-        GraphQLFloat(it)
+        GraphQLDecimal(it)
     }
 }
 
 /**
- * A scalar type for [BigInteger] and [GraphQLInt].
+ * A scalar type for [BigInteger] and [GraphQLInteger].
  *
  * @since 2.0.0
  */
 val GraphQLIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integer") {
     description { "Integer" }
     decode {
-        require(it is GraphQLInt) {
+        require(it is GraphQLInteger) {
             "Expected GraphQLInt but got ${it.javaClass.simpleName}"
         }
         it.value
     }
     encode {
-        GraphQLInt(it)
+        GraphQLInteger(it)
     }
 }
