@@ -72,7 +72,7 @@ private fun <T> TransformContext.doAddOutputType(
         return doAddOutputType(type.type)
 
     if (type is GraphQLOutputArrayType<*>)
-        return JavaGraphQLList.list(doAddOutputType(type.type))
+        return JavaGraphQLList.list(addOutputType(type.type))
 
     if (type is GraphQLTypeReference<T>)
         return JavaGraphQLTypeReference.typeRef(type.name)
@@ -115,7 +115,7 @@ private fun <T> TransformContext.doAddInputType(
         return doAddInputType(type.type)
 
     if (type is GraphQLInputArrayType<*>)
-        return JavaGraphQLList.list(doAddInputType(type.type))
+        return JavaGraphQLList.list(addInputType(type.type))
 
     if (type is GraphQLTypeReference<T>)
         return JavaGraphQLTypeReference.typeRef(type.name)
