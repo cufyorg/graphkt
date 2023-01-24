@@ -47,8 +47,10 @@ fun JavaGraphQLSchema(
     val mutationType = schema.mutation?.let { context.addObjectType(it) as JavaGraphQLObjectType }
     val subscriptionType = schema.subscription?.let { context.addObjectType(it) as JavaGraphQLObjectType }
     val additionalTypes = schema.additionalTypes.mapTo(mutableSetOf()) { context.addType(it) }
-    val additionalDirectives = schema.additionalDirectives.mapTo(mutableSetOf()) { context.JavaGraphQLDirective(it) }
+    val additionalDirectives = schema.additionalDirectives.mapTo(mutableSetOf()) { context.addDirectiveDefinition(it) }
     val directives = schema.directives.map { context.JavaGraphQLAppliedDirective(it) }
+
+    val builtDirectives = context.directives.values.filterNotNullTo(mutableSetOf())
 
     //
 
@@ -67,6 +69,7 @@ fun JavaGraphQLSchema(
         .subscription(subscriptionType)
         .additionalTypes(additionalTypes)
         .additionalDirectives(additionalDirectives)
+        .additionalDirectives(builtDirectives) // sometimes it needs to be specified manually
         .codeRegistry(codeRegistry)
         .withSchemaAppliedDirectives(directives)
         .build()

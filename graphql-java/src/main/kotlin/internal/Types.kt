@@ -19,6 +19,7 @@ import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.java.*
 import org.cufy.graphkt.schema.*
 import graphql.schema.FieldCoordinates as JavaFieldCoordinates
+import graphql.schema.GraphQLDirective as JavaGraphQLDirective
 import graphql.schema.GraphQLInputType as JavaGraphQLInputType
 import graphql.schema.GraphQLList as JavaGraphQLList
 import graphql.schema.GraphQLNamedInputType as JavaGraphQLNamedInputType
@@ -150,10 +151,7 @@ fun <T : Any> TransformContext.addScalarType(
     val directives = type.directives.map {
         JavaGraphQLAppliedDirective(it)
     }
-    val specifiedByUrl = type.directives
-        .firstOrNull { it.definition.name == "specifiedBy" }
-        ?.arguments?.firstOrNull { it.definition.name == "url" }
-        ?.value as? String
+    val specifiedByUrl = type.javaSpecifiedByUrl()
 
     //
 
@@ -408,6 +406,46 @@ fun <T : Any> TransformContext.addObjectType(
     //
 
     objectTypes[type] = java
+
+    return java
+}
+
+/* ============= ------------------ ============= */
+
+@InternalGraphktApi
+fun TransformContext.addDirectiveDefinition(
+    definition: GraphQLDirectiveDefinition
+): JavaGraphQLDirective {
+    if (definition in directives)
+        return directives[definition] ?: error("Recursion is not supported for directive definitions")
+
+    directives[definition] = null
+
+    //
+
+    val name = definition.name
+    val description = definition.description
+    val repeatable = definition.repeatable
+    val locations = definition.locations.map {
+        JavaDirectiveLocation(it)
+    }
+    val arguments = definition.arguments.map {
+        JavaGraphQLArgument(it)
+    }
+
+    //
+
+    val java = JavaGraphQLDirective.newDirective()
+        .name(name)
+        .description(description)
+        .repeatable(repeatable)
+        .apply { locations.forEach { validLocation(it) } }
+        .replaceArguments(arguments)
+        .build()
+
+    //
+
+    directives[definition] = java
 
     return java
 }

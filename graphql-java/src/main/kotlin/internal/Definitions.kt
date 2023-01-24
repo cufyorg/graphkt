@@ -18,7 +18,6 @@ package org.cufy.graphkt.java.internal
 import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.*
 import graphql.schema.GraphQLArgument as JavaGraphQLArgument
-import graphql.schema.GraphQLDirective as JavaGraphQLDirective
 import graphql.schema.GraphQLEnumValueDefinition as JavaGraphQLEnumValueDefinition
 import graphql.schema.GraphQLFieldDefinition as JavaGraphQLFieldDefinition
 import graphql.schema.GraphQLInputObjectField as JavaGraphQLInputObjectField
@@ -35,6 +34,7 @@ fun <T> TransformContext.JavaGraphQLArgument(
     val directives = definition.directives.map {
         JavaGraphQLAppliedDirective(it)
     }
+    val deprecationReason = definition.javaDeprecationReason()
 
     //
 
@@ -44,6 +44,7 @@ fun <T> TransformContext.JavaGraphQLArgument(
         .description(description)
         .type(type)
         .replaceAppliedDirectives(directives)
+        .deprecate(deprecationReason)
         .build()
 }
 
@@ -59,6 +60,7 @@ fun <T> TransformContext.JavaGraphQLEnumValueDefinition(
     val directives = definition.directives.map {
         JavaGraphQLAppliedDirective(it)
     }
+    val deprecationReason = definition.javaDeprecationReason()
 
     //
 
@@ -67,6 +69,7 @@ fun <T> TransformContext.JavaGraphQLEnumValueDefinition(
         .name(name)
         .description(description)
         .replaceAppliedDirectives(directives)
+        .deprecationReason(deprecationReason)
         .value(value)
         .build()
 }
@@ -86,6 +89,7 @@ fun <T : Any, M> TransformContext.JavaGraphQLFieldDefinition(
     val directives = definition.directives.map {
         JavaGraphQLAppliedDirective(it)
     }
+    val deprecationReason = definition.javaDeprecationReason()
 
     //
 
@@ -96,6 +100,7 @@ fun <T : Any, M> TransformContext.JavaGraphQLFieldDefinition(
         .type(type)
         .replaceArguments(arguments)
         .replaceAppliedDirectives(directives)
+        .deprecate(deprecationReason)
         .build()
 }
 
@@ -111,6 +116,7 @@ fun <T : Any, M> TransformContext.JavaGraphQLInputObjectField(
     val directives = definition.directives.map {
         JavaGraphQLAppliedDirective(it)
     }
+    val deprecationReason = definition.javaDeprecationReason()
 
     //
 
@@ -120,45 +126,8 @@ fun <T : Any, M> TransformContext.JavaGraphQLInputObjectField(
         .description(description)
         .type(type)
         .replaceAppliedDirectives(directives)
+        .deprecate(deprecationReason)
         .build()
 }
 
 /* ========== - DirectiveDefinition  - ========== */
-
-@InternalGraphktApi
-fun TransformContext.JavaGraphQLDirective(
-    definition: GraphQLDirectiveDefinition
-): JavaGraphQLDirective {
-    if (definition in directives)
-        error("Duplicate directive: $definition")
-
-    directives[definition] = null
-
-    //
-
-    val name = definition.name
-    val description = definition.description
-    val repeatable = definition.repeatable
-    val locations = definition.locations.map {
-        JavaDirectiveLocation(it)
-    }
-    val arguments = definition.arguments.map {
-        JavaGraphQLArgument(it)
-    }
-
-    //
-
-    val java = JavaGraphQLDirective.newDirective()
-        .name(name)
-        .description(description)
-        .repeatable(repeatable)
-        .apply { locations.forEach { validLocation(it) } }
-        .replaceArguments(arguments)
-        .build()
-
-    //
-
-    directives[definition] = java
-
-    return java
-}

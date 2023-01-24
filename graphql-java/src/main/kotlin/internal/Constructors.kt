@@ -228,6 +228,8 @@ fun <T> TransformContext.JavaGraphQLAppliedDirectiveArgument(
 fun TransformContext.JavaGraphQLAppliedDirective(
     directive: GraphQLDirective
 ): JavaGraphQLAppliedDirective {
+    addDirectiveDefinition(directive.definition)
+
     val name = directive.definition.name
     val description = directive.definition.name
     val arguments = directive.arguments.map {
