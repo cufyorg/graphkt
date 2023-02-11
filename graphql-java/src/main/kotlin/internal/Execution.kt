@@ -131,7 +131,7 @@ fun GraphQLError(
     error: JavaGraphQLError
 ): GraphQLError {
     val message = error.message
-    val locations = error.locations.map { GraphQLErrorLocation(it) }
+    val locations = error.locations?.map { GraphQLErrorLocation(it) } ?: emptyList()
     val path = error.path?.map { if (it is Number) JsonPrimitive(it) else JsonPrimitive("$it") }
     val extensions = dynamicEncodeToJsonElement(error.extensions) as? JsonObject
     val cause = when (error) {
