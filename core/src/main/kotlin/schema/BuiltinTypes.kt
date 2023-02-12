@@ -46,10 +46,13 @@ val GraphQLIntType: GraphQLScalarType<Int> = GraphQLScalarType("Int") {
 val GraphQLFloatType: GraphQLScalarType<Double> = GraphQLScalarType("Float") {
     description { "Built-in Float (64-bit)" }
     decode {
-        require(it is GraphQLDecimal) {
-            "Expected GraphQLDecimal but got ${it.javaClass.simpleName}"
+        when (it) {
+            is GraphQLDecimal -> it.value.toDouble()
+            is GraphQLInteger -> it.value.toDouble()
+            else -> throw IllegalArgumentException(
+                "Expected GraphQLDecimal but got ${it.javaClass.simpleName}"
+            )
         }
-        it.value.toDouble()
     }
     encode {
         GraphQLDecimal(it.toBigDecimal())
@@ -122,7 +125,7 @@ val GraphQLLongType: GraphQLScalarType<Long> = GraphQLScalarType("Long") {
     description { "Long" }
     decode {
         require(it is GraphQLInteger) {
-            "Expected GraphQLInt but got ${it.javaClass.simpleName}"
+            "Expected GraphQLInteger but got ${it.javaClass.simpleName}"
         }
         it.value.toLong()
     }
@@ -139,10 +142,13 @@ val GraphQLLongType: GraphQLScalarType<Long> = GraphQLScalarType("Long") {
 val GraphQLDecimalType: GraphQLScalarType<BigDecimal> = GraphQLScalarType("Decimal") {
     description { "Decimal" }
     decode {
-        require(it is GraphQLDecimal) {
-            "Expected GraphQLFloat but got ${it.javaClass.simpleName}"
+        when (it) {
+            is GraphQLDecimal -> it.value
+            is GraphQLInteger -> it.value.toBigDecimal()
+            else -> throw IllegalArgumentException(
+                "Expected GraphQLDecimal but got ${it.javaClass.simpleName}"
+            )
         }
-        it.value
     }
     encode {
         GraphQLDecimal(it)
@@ -158,7 +164,7 @@ val GraphQLIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integ
     description { "Integer" }
     decode {
         require(it is GraphQLInteger) {
-            "Expected GraphQLInt but got ${it.javaClass.simpleName}"
+            "Expected GraphQLInteger but got ${it.javaClass.simpleName}"
         }
         it.value
     }
