@@ -39,6 +39,8 @@ import graphql.language.StringValue as JavaStringValue
 import graphql.language.Value as JavaValue
 import graphql.schema.Coercing as JavaCoercing
 import graphql.schema.CoercingParseLiteralException as JavaCoercingParseLiteralException
+import graphql.schema.CoercingParseValueException as JavaCoercingParseValueException
+import graphql.schema.CoercingSerializeException as JavaCoercingSerializeException
 import graphql.schema.DataFetcher as JavaDataFetcher
 import graphql.schema.DataFetchingEnvironment as JavaDataFetchingEnvironment
 import graphql.schema.GraphQLAppliedDirective as JavaGraphQLAppliedDirective
@@ -89,21 +91,37 @@ fun <T : Any> JavaCoercing(
             // resolvers will always return the correct type: T
             @Suppress("UNCHECKED_CAST")
             val result = dataFetcherResult as T
-            return type.encode(result)
+
+            try {
+                return type.encode(result)
+            } catch (error: JavaCoercingSerializeException) {
+                throw error
+            } catch (error: Throwable) {
+                throw JavaCoercingSerializeException(error)
+            }
         }
 
         override fun parseLiteral(input: Any): T {
             input as JavaValue<*>
-            return type.decode(GraphQLScalar(input))
+
+            try {
+                return type.decode(GraphQLScalar(input))
+            } catch (error: JavaCoercingParseLiteralException) {
+                throw error
+            } catch (error: Throwable) {
+                throw JavaCoercingParseLiteralException(error)
+            }
         }
 
         override fun parseValue(input: Any): T {
             val scalar = dynamicDecodeScalar(input)
 
-            return try {
-                type.decode(scalar)
-            } catch (e: Throwable) {
-                throw JavaCoercingParseLiteralException(e)
+            try {
+                return type.decode(scalar)
+            } catch (error: JavaCoercingParseValueException) {
+                throw error
+            } catch (error: Throwable) {
+                throw JavaCoercingParseValueException(error)
             }
         }
 
@@ -111,13 +129,9 @@ fun <T : Any> JavaCoercing(
             // variables will always be of type GraphQLScalar
             input as GraphQLScalar<*>
 
-            return try {
-                // invoking this was just to comply with the specs
-                type.decode(input)
-                JavaValue(input)
-            } catch (e: Throwable) {
-                throw JavaCoercingParseLiteralException(e)
-            }
+            // invoking this was just to comply with the specs
+            type.decode(input)
+            return JavaValue(input)
         }
     }
 }
