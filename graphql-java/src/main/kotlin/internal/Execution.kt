@@ -136,7 +136,7 @@ fun GraphQLError(
     val extensions = dynamicEncodeToJsonElement(error.extensions) as? JsonObject
     val cause = when (error) {
         is ExceptionWhileDataFetching -> error.exception
-        else -> null
+        else -> error
     }
 
     return GraphQLError(
