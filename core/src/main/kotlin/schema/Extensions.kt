@@ -55,3 +55,52 @@ operator fun <T : Any> GraphQLInputObjectType<T>.getValue(
 ): GraphQLInputObjectType<T> {
     return this
 }
+
+/**
+ * Wrap the given [type] with a [GraphQLNullableType].
+ */
+val <T> GraphQLType<T>.nullable: GraphQLNullableType<T>
+    get() = GraphQLNullableType(this)
+
+
+/**
+ * Wrap the given [type] with a [GraphQLInputNullableType].
+ */
+val <T> GraphQLInputType<T>.nullable: GraphQLInputNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLOutputNullableType].
+ */
+val <T> GraphQLOutputType<T>.nullable: GraphQLOutputNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputOutputNullableType].
+ */
+val <T> GraphQLInputOutputType<T>.nullable: GraphQLInputOutputNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLArrayType].
+ */
+val <T> GraphQLType<T>.array: GraphQLArrayType<T>
+    get() = GraphQLArrayType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputArrayType].
+ */
+val <T> GraphQLInputType<T>.array: GraphQLInputArrayType<T>
+    get() = GraphQLArrayType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLOutputArrayType].
+ */
+val <T> GraphQLOutputType<T>.array: GraphQLOutputArrayType<T>
+    get() = GraphQLArrayType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputOutputArrayType].
+ */
+val <T> GraphQLInputOutputType<T>.array: GraphQLInputOutputArrayType<T>
+    get() = GraphQLArrayType(this)
