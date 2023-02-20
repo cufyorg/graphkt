@@ -16,6 +16,7 @@ dependencies {
 
     implementation(Dependencies.Kotlin.coroutines_core)
     implementation(Dependencies.Kotlin.coroutines_reactive)
+    implementation(Dependencies.Kotlin.coroutines_jdk8)
     implementation(Dependencies.Kotlin.serialization)
     implementation(Dependencies.Kotlin.reflect)
 

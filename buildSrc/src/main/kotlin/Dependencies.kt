@@ -6,6 +6,7 @@ object Dependencies {
         const val serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
         const val coroutines_core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
         const val coroutines_reactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4"
+        const val coroutines_jdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"
         const val reflect = "org.jetbrains.kotlin:kotlin-reflect:1.7.22"
     }
 
