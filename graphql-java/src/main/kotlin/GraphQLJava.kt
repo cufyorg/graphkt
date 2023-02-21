@@ -17,6 +17,9 @@ package org.cufy.graphkt.java
 
 import graphql.schema.idl.SchemaPrinter
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.future.asDeferred
 import org.cufy.graphkt.*
 import org.cufy.graphkt.java.internal.GraphQLResponse
 import org.cufy.graphkt.java.internal.JavaExecutionInput
@@ -29,35 +32,46 @@ import graphql.GraphQL as JavaGraphQL
 
 /* ============= - EngineFactory  - ============= */
 
+private lateinit var singletonOfGraphQLJava: GraphQLJava
+
 /**
  * The `graphql-java` implementation of [GraphktEngineFactory].
  *
  * @author LSafer
  * @since 2.0.0
  */
-object GraphQLJava : GraphktEngineFactory<GraphQLJavaConfiguration> {
-    @OptIn(AdvancedGraphktApi::class, InternalGraphktApi::class)
-    override fun invoke(
-        schema: GraphQLSchema,
-        block: GraphQLJavaConfiguration.() -> Unit
-    ): GraphktEngine {
-        val configuration = GraphQLJavaConfiguration()
-        configuration.apply(block)
-        configuration.deferred.forEach { it() }
-        configuration.deferred.clear()
-
-        val schemaBlock = configuration.schemaBlock.toList()
-        val graphqlBlock = configuration.graphqlBlock.toList()
-
+class GraphQLJava(
+    val configuration: GraphQLJavaConfiguration
+) : GraphktEngineFactory {
+    @OptIn(InternalGraphktApi::class)
+    override fun invoke(schema: GraphQLSchema): GraphktEngine {
         val javaSchema = JavaGraphQLSchema(schema)
-            .transform { s -> schemaBlock.forEach { it(s) } }
+            .transform { configuration.schemaBlock(it) }
 
         val graphql = JavaGraphQL.newGraphQL(javaSchema)
             .build()
-            .transform { g -> graphqlBlock.forEach { it(g) } }
+            .transform { configuration.graphqlBlock(it) }
 
         return GraphQLJavaEngine(graphql, configuration)
     }
+}
+
+/**
+ * Obtain the default `graphql-java` engine factory.
+ */
+fun GraphQLJava(): GraphQLJava {
+    if (!::singletonOfGraphQLJava.isInitialized)
+        singletonOfGraphQLJava = GraphQLJava { }
+
+    return singletonOfGraphQLJava
+}
+
+/**
+ * Create a new [singletonOfGraphQLJava] instance configured
+ * with the given configuration [block].
+ */
+fun GraphQLJava(block: GraphQLJavaConfigurationBuilder.() -> Unit): GraphQLJava {
+    return GraphQLJava(GraphQLJavaConfiguration(block))
 }
 
 /* ============= ----- Engine ----- ============= */
@@ -76,11 +90,8 @@ class GraphQLJavaEngine(
     /**
      * The configuration.
      */
-    configuration: GraphQLJavaConfiguration
+    val configuration: GraphQLJavaConfiguration
 ) : GraphktEngine {
-    @OptIn(AdvancedGraphktApi::class)
-    private val executionInputBlock = configuration.executionInputBlock.toList()
-
     override fun printSchema(out: PrintStream) {
         val printer = SchemaPrinter()
         val result = printer.print(graphql.graphQLSchema)
@@ -95,14 +106,17 @@ class GraphQLJavaEngine(
         local: Map<Any?, Any?>
     ): Flow<GraphQLResponse> {
         val input = JavaExecutionInput(request, context, local)
-            .transform { i -> executionInputBlock.forEach { it(i) } }
+            .transform { configuration.executionInputBlock(it) }
 
-        val result = graphql.execute(input)
+        val resultFlow = graphql.executeAsync(input).asDeferred()
 
-        return GraphQLResponse(result)
+        return flow {
+            val result = resultFlow.await()
+
+            emitAll(GraphQLResponse(result))
+        }
     }
 }
-
 
 /**
  * Set the engine factory to be [GraphQLJava].
@@ -111,17 +125,15 @@ class GraphQLJavaEngine(
  * @since 2.0.0
  */
 @Suppress("FunctionName")
-fun WithEngine<GraphQLJavaConfiguration>.`graphql-java`(
-    block: GraphQLJavaConfiguration.() -> Unit
-) {
-    engine(GraphQLJava, block)
+fun WithEngine.`graphql-java`(block: GraphQLJavaConfigurationBuilder.() -> Unit) {
+    engine = GraphQLJava(block)
 }
 
 /**
- * Set the engine factory to be [GraphQLJava].
+ * Set the engine factory to be [singletonOfGraphQLJava].
  *
  * @since 2.0.0
  */
 @Suppress("ObjectPropertyName")
-val WithEngine<GraphQLJavaConfiguration>.`graphql-java`
-    get() = `graphql-java` {}
+val WithEngine.`graphql-java`: Unit
+    get() = run { engine = GraphQLJava() }

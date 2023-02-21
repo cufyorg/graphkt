@@ -24,22 +24,17 @@ import java.io.PrintStream
 /**
  * An instance used to construct new graphql engines.
  *
- * @param TConfiguration the engine's configuration type.
  * @author LSafer
  * @since 2.0.0
  */
-interface GraphktEngineFactory<TConfiguration> {
+interface GraphktEngineFactory {
     /**
      * Create a new engine instance.
      *
      * @param schema the engine's schema.
-     * @param block the configuration block.
      * @since 2.0.0
      */
-    operator fun invoke(
-        schema: GraphQLSchema,
-        block: TConfiguration.() -> Unit = {}
-    ): GraphktEngine
+    operator fun invoke(schema: GraphQLSchema): GraphktEngine
 }
 
 /**
@@ -84,42 +79,9 @@ interface GraphktEngine {
  * @author LSafer
  * @since 2.0.0
  */
-interface WithEngine<TConfiguration> {
+interface WithEngine {
     /**
      * The engine factory.
      */
-    @AdvancedGraphktApi("Use `engine()` instead")
-    var engineFactory: GraphktEngineFactory<TConfiguration>? // REQUIRED
-
-    /**
-     * Code to be executed to configure the engine.
-     */
-    @AdvancedGraphktApi("Use `engine()` instead")
-    val engineBlock: MutableList<TConfiguration.() -> Unit>
-}
-
-/**
- * Set the engine factory.
- *
- * @param factory the engine factory.
- * @param block the engine configuration.
- * @since 2.0.0
- */
-@OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> WithEngine<TConfiguration>.engine(
-    factory: GraphktEngineFactory<TConfiguration>,
-    block: TConfiguration.() -> Unit = {}
-) {
-    engineFactory = factory
-    engineBlock += block
-}
-
-/**
- * Configure the engine with the given [block].
- */
-@OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> WithEngine<TConfiguration>.engine(
-    block: TConfiguration.() -> Unit
-) {
-    engineBlock += block
+    var engine: GraphktEngineFactory? // REQUIRED
 }

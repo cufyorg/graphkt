@@ -30,13 +30,13 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.cufy.graphkt.InternalGraphktApi
+import org.cufy.graphkt.ktor.Configuration
 import org.cufy.graphkt.schema.GraphQLPacket
 import org.cufy.graphkt.schema.GraphQLPacketType
 import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.time.Duration
 
 internal object GraphQLLegacyPacketType {
     /**
@@ -87,7 +87,7 @@ internal fun SubscriberAlreadyExists(uniqueOperationId: String) =
 @InternalGraphktApi
 internal fun Route.graphqlWebsocket(
     path: String,
-    connectionInitWaitTimeout: Duration?,
+    configuration: Configuration,
     handler: suspend DefaultWebSocketServerSession.(GraphQLRequest) -> Flow<GraphQLResponse>
 ) {
     /*
@@ -99,9 +99,9 @@ internal fun Route.graphqlWebsocket(
         val initialized = AtomicBoolean(false)
         val subscriptions: MutableMap<String, Job> = ConcurrentHashMap()
 
-        if (connectionInitWaitTimeout != null) {
+        if (configuration.connectionInitWaitTimeout != null) {
             launch {
-                delay(connectionInitWaitTimeout)
+                delay(configuration.connectionInitWaitTimeout)
 
                 if (!initialized.get()) {
                     close(ConnectionInitialisationTimeout)

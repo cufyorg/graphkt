@@ -32,6 +32,14 @@ import kotlin.time.Duration
  */
 class ConfigurationScope(
     /**
+     * The execution context.
+     */
+    val context: MutableMap<Any?, Any?>,
+    /**
+     * The execution local.
+     */
+    val local: MutableMap<Any?, Any?>,
+    /**
      * The application call instance.
      *
      * @since 2.0.0
@@ -40,15 +48,31 @@ class ConfigurationScope(
 )
 
 /**
- * The configuration for creating a graphql ktor route.
+ * Configuration of graphql ktor route.
  *
- * @param TConfiguration the engine configuration type.
  * @author LSafer
  * @since 2.0.0
  */
-class Configuration<TConfiguration> :
-    WithEngine<TConfiguration>,
-    WithDeferredBuilder {
+class Configuration(
+    val websocket: Boolean,
+    val connectionInitWaitTimeout: Duration?,
+    val engine: GraphktEngineFactory,
+    val schemaBlock: GraphQLSchemaBuilderBlock,
+    val beforeBlock: suspend ConfigurationScope.() -> Unit,
+    val afterBlock: suspend ConfigurationScope.() -> Unit,
+    val requestBlock: suspend ConfigurationScope.(GraphQLRequest) -> GraphQLRequest,
+    val responseBlock: suspend ConfigurationScope.(GraphQLResponse) -> GraphQLResponse,
+)
+
+/**
+ * The configuration for creating a graphql ktor route.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+class ConfigurationBuilder : WithEngine, WithDeferredBuilder {
+    override var engine: GraphktEngineFactory? = null
+
     /**
      * True, to enable `graphql-ws` implementation.
      *
@@ -63,52 +87,96 @@ class Configuration<TConfiguration> :
      */
     var connectionInitWaitTimeout: Duration? = null
 
-    @AdvancedGraphktApi("Use `engine()` instead")
-    override var engineFactory: GraphktEngineFactory<TConfiguration>? = null
-
     /* blocks */
-
-    @AdvancedGraphktApi("Use `engine()` instead")
-    override val engineBlock: MutableList<TConfiguration.() -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to configure the schema.
      */
     @AdvancedGraphktApi("Use `schema()` instead")
-    val schemaBlock: MutableList<GraphQLSchemaBuilderBlock> = mutableListOf()
+    val schemaBlocks: MutableList<GraphQLSchemaBuilderBlock> = mutableListOf()
 
     /**
-     * Code to be executed to configure execution context.
+     * Code to be executed before execution.
      */
-    @AdvancedGraphktApi("Use `context()` instead")
-    val contextBlock: MutableList<suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
+    @AdvancedGraphktApi("Use `before()` instead")
+    val beforeBlocks: MutableList<suspend ConfigurationScope.() -> Unit> = mutableListOf()
 
     /**
-     * Code to be executed to configure initial execution local.
+     * Code to be executed after execution (but before awaiting results).
      */
-    @AdvancedGraphktApi("Use `local()` instead")
-    val localBlock: MutableList<suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit> = mutableListOf()
+    @AdvancedGraphktApi("Use `after()` instead")
+    val afterBlocks: MutableList<suspend ConfigurationScope.() -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to transform request.
      */
     @AdvancedGraphktApi("Use `transformRequest()` instead")
-    val requestBlock: MutableList<suspend ConfigurationScope.(GraphQLRequest) -> GraphQLRequest> = mutableListOf()
+    val requestBlocks: MutableList<suspend ConfigurationScope.(GraphQLRequest) -> GraphQLRequest> = mutableListOf()
 
     /**
      * Code to be executed to transform response.
      */
     @AdvancedGraphktApi("Use `transformResponse()` instead")
-    val responseBlock: MutableList<suspend ConfigurationScope.(GraphQLResponse) -> GraphQLResponse> = mutableListOf()
+    val responseBlocks: MutableList<suspend ConfigurationScope.(GraphQLResponse) -> GraphQLResponse> = mutableListOf()
 
     @AdvancedGraphktApi("Use `deferred()` instead")
     override val deferred: MutableList<() -> Unit> = mutableListOf()
+
+    /**
+     * Build the configuration.
+     *
+     * This will invoke the deferred code and
+     * removes it.
+     *
+     * @since 2.0.0
+     */
+    @OptIn(AdvancedGraphktApi::class)
+    fun build(): Configuration {
+        deferred.forEach { it() }
+        deferred.clear()
+        return Configuration(
+            websocket = websocket,
+            connectionInitWaitTimeout = connectionInitWaitTimeout,
+            engine = engine
+                ?: error("Graphkt Engine was not specified."),
+            schemaBlock = schemaBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            beforeBlock = beforeBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            afterBlock = afterBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            requestBlock = requestBlocks.toList().let {
+                { req -> it.fold(req) { r, t -> t(r) } }
+            },
+            responseBlock = responseBlocks.toList().let {
+                { res -> it.fold(res) { r, t -> t(r) } }
+            }
+        )
+    }
+}
+
+/**
+ * Construct a new [Configuration] with the given
+ * builder [block].
+ *
+ * @param block the builder block.
+ * @since 2.0.0
+ */
+fun Configuration(
+    block: ConfigurationBuilder.() -> Unit = {}
+): Configuration {
+    val builder = ConfigurationBuilder()
+    builder.apply(block)
+    return builder.build()
 }
 
 /**
  * Disable the websocket implementation.
  */
-fun <TConfiguration> Configuration<TConfiguration>.disableWebsocket() {
+fun ConfigurationBuilder.disableWebsocket() {
     websocket = false
 }
 
@@ -116,30 +184,50 @@ fun <TConfiguration> Configuration<TConfiguration>.disableWebsocket() {
  * Configure the schema with the given [block].
  */
 @OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.schema(
+fun ConfigurationBuilder.schema(
     block: GraphQLSchemaBuilderBlock
 ) {
-    schemaBlock += block
+    schemaBlocks += block
 }
 
 /**
  * Add the given [block] to configure execution context.
  */
-@OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.context(
+@Deprecated("context block was replaced with before block", ReplaceWith("before { context.apply(block) }"))
+fun ConfigurationBuilder.context(
     block: suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
 ) {
-    contextBlock += block
+    before { block(context) }
 }
 
 /**
  * Add the given [block] to configure initial local.
  */
-@OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.local(
+@Deprecated("local block was replaced with before block", ReplaceWith("before { local.apply(block) }"))
+fun ConfigurationBuilder.local(
     block: suspend ConfigurationScope.(MutableMap<Any?, Any?>) -> Unit
 ) {
-    localBlock += block
+    before { block(local) }
+}
+
+/**
+ * Add the given [block] to be invoked before execution.
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun ConfigurationBuilder.before(
+    block: suspend ConfigurationScope.() -> Unit
+) {
+    beforeBlocks += block
+}
+
+/**
+ * Add the given [block] to be invoked after execution. (but before awaiting results)
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun ConfigurationBuilder.after(
+    block: suspend ConfigurationScope.() -> Unit
+) {
+    afterBlocks += block
 }
 
 /**
@@ -147,10 +235,10 @@ fun <TConfiguration> Configuration<TConfiguration>.local(
  * before the execution.
  */
 @OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.transformRequest(
+fun ConfigurationBuilder.transformRequest(
     block: suspend ConfigurationScope.(GraphQLRequest) -> GraphQLRequest
 ) {
-    requestBlock += block
+    requestBlocks += block
 }
 
 /**
@@ -158,17 +246,17 @@ fun <TConfiguration> Configuration<TConfiguration>.transformRequest(
  * before sending it to the client.
  */
 @OptIn(AdvancedGraphktApi::class)
-fun <TConfiguration> Configuration<TConfiguration>.transformResponse(
+fun ConfigurationBuilder.transformResponse(
     block: suspend ConfigurationScope.(GraphQLResponse) -> GraphQLResponse
 ) {
-    responseBlock += block
+    responseBlocks += block
 }
 
 /**
  * Add the given [block] to transform the response
  * errors before sending it to the client.
  */
-fun <TConfiguration> Configuration<TConfiguration>.transformError(
+fun ConfigurationBuilder.transformError(
     block: suspend ConfigurationScope.(GraphQLError) -> GraphQLError
 ) {
     transformResponse {

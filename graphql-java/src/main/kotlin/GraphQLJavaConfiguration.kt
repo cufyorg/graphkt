@@ -22,32 +22,84 @@ import org.cufy.graphkt.AdvancedGraphktApi
 import org.cufy.graphkt.schema.WithDeferredBuilder
 
 /**
+ * Configuration of graphql-java engine.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+class GraphQLJavaConfiguration(
+    val schemaBlock: GraphQLSchema.Builder.() -> Unit,
+    val graphqlBlock: GraphQL.Builder.() -> Unit,
+    val executionInputBlock: ExecutionInput.Builder.() -> Unit
+)
+
+/**
  * The configuration for creating graphql-java engine.
  *
  * @author LSafer
  * @since 2.0.0
  */
-class GraphQLJavaConfiguration : WithDeferredBuilder {
+class GraphQLJavaConfigurationBuilder : WithDeferredBuilder {
     /**
      * Code to be executed to transform graphql schema.
      */
     @AdvancedGraphktApi("Use `transformSchema()` instead")
-    val schemaBlock: MutableList<GraphQLSchema.Builder.() -> Unit> = mutableListOf()
+    val schemaBlocks: MutableList<GraphQLSchema.Builder.() -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to transform graphql instance.
      */
     @AdvancedGraphktApi("Use `transformInstance()` instead")
-    val graphqlBlock: MutableList<GraphQL.Builder.() -> Unit> = mutableListOf()
+    val graphqlBlocks: MutableList<GraphQL.Builder.() -> Unit> = mutableListOf()
 
     /**
      * Code to be executed to transform execution input.
      */
     @AdvancedGraphktApi("Use `transformInput()` instead")
-    val executionInputBlock: MutableList<ExecutionInput.Builder.() -> Unit> = mutableListOf()
+    val executionInputBlocks: MutableList<ExecutionInput.Builder.() -> Unit> = mutableListOf()
 
     @AdvancedGraphktApi("Use `deferred()` instead")
     override val deferred: MutableList<() -> Unit> = mutableListOf()
+
+    /**
+     * Build the configuration.
+     *
+     * This will invoke the deferred code and
+     * removes it.
+     *
+     * @since 2.0.0
+     */
+    @OptIn(AdvancedGraphktApi::class)
+    fun build(): GraphQLJavaConfiguration {
+        deferred.forEach { it() }
+        deferred.clear()
+        return GraphQLJavaConfiguration(
+            schemaBlock = schemaBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            graphqlBlock = graphqlBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            executionInputBlock = executionInputBlocks.toList().let {
+                { it.forEach { it() } }
+            }
+        )
+    }
+}
+
+/**
+ * Construct a new [GraphQLJavaConfiguration] with
+ * the given builder [block].
+ *
+ * @param block the builder block.
+ * @since 2.0.0
+ */
+fun GraphQLJavaConfiguration(
+    block: GraphQLJavaConfigurationBuilder.() -> Unit = {}
+): GraphQLJavaConfiguration {
+    val builder = GraphQLJavaConfigurationBuilder()
+    builder.apply(block)
+    return builder.build()
 }
 
 // schemaBlock
@@ -58,10 +110,10 @@ class GraphQLJavaConfiguration : WithDeferredBuilder {
  * and before being used.
  */
 @OptIn(AdvancedGraphktApi::class)
-fun GraphQLJavaConfiguration.transformSchema(
+fun GraphQLJavaConfigurationBuilder.transformSchema(
     block: GraphQLSchema.Builder.() -> Unit
 ) {
-    schemaBlock += block
+    schemaBlocks += block
 }
 
 // graphqlBlock
@@ -72,10 +124,10 @@ fun GraphQLJavaConfiguration.transformSchema(
  * and before being used.
  */
 @OptIn(AdvancedGraphktApi::class)
-fun GraphQLJavaConfiguration.transformInstance(
+fun GraphQLJavaConfigurationBuilder.transformInstance(
     block: GraphQL.Builder.() -> Unit
 ) {
-    graphqlBlock += block
+    graphqlBlocks += block
 }
 
 // executionInputBlock
@@ -86,8 +138,8 @@ fun GraphQLJavaConfiguration.transformInstance(
  * and before being used.
  */
 @OptIn(AdvancedGraphktApi::class)
-fun GraphQLJavaConfiguration.transformInput(
+fun GraphQLJavaConfigurationBuilder.transformInput(
     block: ExecutionInput.Builder.() -> Unit
 ) {
-    executionInputBlock += block
+    executionInputBlocks += block
 }
