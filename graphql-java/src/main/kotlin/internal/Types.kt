@@ -35,13 +35,30 @@ import graphql.schema.GraphQLUnionType as JavaGraphQLUnionType
 
 @InternalGraphktApi
 fun <T> TransformContext.addType(
-    type: GraphQLType<T>
+    type: GraphQLType<T>,
+    nullable: Boolean = false
 ): JavaGraphQLType {
-    return when (type) {
-        is GraphQLOutputType<*> -> addOutputType(type)
-        is GraphQLInputType<*> -> addInputType(type)
+    val java = when (type) {
+        is GraphQLNullableType<*> ->
+            return addType(type.type, true)
+
+        is GraphQLArrayType<*> ->
+            JavaGraphQLList.list(addType(type.type))
+        is GraphQLTypeReference<*> ->
+            JavaGraphQLTypeReference.typeRef(type.name)
+
+        is GraphQLOutputType<*> ->
+            return addOutputType(type, nullable)
+        is GraphQLInputType<*> ->
+            return addInputType(type, nullable)
+
         else -> error("Unexpected Type $type")
     }
+
+    if (nullable)
+        return java
+
+    return JavaGraphQLNonNull.nonNull(java)
 }
 
 /* ============= ------------------ ============= */
@@ -56,36 +73,31 @@ fun <T> TransformContext.addType(
  */
 @InternalGraphktApi
 fun <T> TransformContext.addOutputType(
-    type: GraphQLOutputType<T>
+    type: GraphQLOutputType<T>,
+    nullable: Boolean = false
 ): JavaGraphQLOutputType {
-    if (type is GraphQLOutputNullableType<*>)
-        return doAddOutputType(type.type)
+    val java = when (type) {
+        is GraphQLOutputNullableType<*> ->
+            return addOutputType(type.type, true)
 
-    return JavaGraphQLNonNull.nonNull(doAddOutputType(type))
-}
+        is GraphQLOutputArrayType<*> ->
+            JavaGraphQLList.list(addOutputType(type.type))
+        is GraphQLTypeReference<*> ->
+            JavaGraphQLTypeReference.typeRef(type.name)
 
-@InternalGraphktApi
-private fun <T> TransformContext.doAddOutputType(
-    type: GraphQLOutputType<T>
-): JavaGraphQLOutputType {
-    // double-wrapped; first wrap already handled in 'addOutputType'
-    if (type is GraphQLOutputNullableType<*>)
-        return doAddOutputType(type.type)
-
-    if (type is GraphQLOutputArrayType<*>)
-        return JavaGraphQLList.list(addOutputType(type.type))
-
-    if (type is GraphQLTypeReference<T>)
-        return JavaGraphQLTypeReference.typeRef(type.name)
-
-    return when (type) {
         is GraphQLUnionType<*> -> addUnionType(type)
         is GraphQLEnumType<*> -> addEnumType(type)
         is GraphQLScalarType<*> -> addScalarType(type)
         is GraphQLInterfaceType<*> -> addInterfaceType(type)
         is GraphQLObjectType<*> -> addObjectType(type)
+
         else -> error("Unexpected Output Type $type")
     }
+
+    if (nullable)
+        return java
+
+    return JavaGraphQLNonNull.nonNull(java)
 }
 
 /* ============= ------------------ ============= */
@@ -99,34 +111,29 @@ private fun <T> TransformContext.doAddOutputType(
  */
 @InternalGraphktApi
 fun <T> TransformContext.addInputType(
-    type: GraphQLInputType<T>
+    type: GraphQLInputType<T>,
+    nullable: Boolean = false
 ): JavaGraphQLInputType {
-    if (type is GraphQLInputNullableType<*>)
-        return doAddInputType(type.type)
+    val java = when (type) {
+        is GraphQLInputNullableType<*> ->
+            return addInputType(type.type, true)
 
-    return JavaGraphQLNonNull.nonNull(doAddInputType(type))
-}
+        is GraphQLInputArrayType<*> ->
+            JavaGraphQLList.list(addInputType(type.type))
+        is GraphQLTypeReference<*> ->
+            JavaGraphQLTypeReference.typeRef(type.name)
 
-@InternalGraphktApi
-private fun <T> TransformContext.doAddInputType(
-    type: GraphQLInputType<T>
-): JavaGraphQLInputType {
-    // double-wrapped; first wrap already handled in 'addInputType'
-    if (type is GraphQLInputNullableType<*>)
-        return doAddInputType(type.type)
-
-    if (type is GraphQLInputArrayType<*>)
-        return JavaGraphQLList.list(addInputType(type.type))
-
-    if (type is GraphQLTypeReference<T>)
-        return JavaGraphQLTypeReference.typeRef(type.name)
-
-    return when (type) {
         is GraphQLEnumType<*> -> addEnumType(type)
         is GraphQLScalarType<*> -> addScalarType(type)
         is GraphQLInputObjectType<*> -> addInputObjectType(type)
+
         else -> error("Unexpected Input Type Type $type")
     }
+
+    if (nullable)
+        return java
+
+    return JavaGraphQLNonNull.nonNull(java)
 }
 
 /* ============= ------------------ ============= */
