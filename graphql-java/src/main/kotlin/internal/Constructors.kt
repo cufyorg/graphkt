@@ -18,9 +18,8 @@ package org.cufy.graphkt.java.internal
 import graphql.language.OperationDefinition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asPublisher
 import org.cufy.graphkt.InternalGraphktApi
@@ -287,66 +286,66 @@ fun TransformRuntimeContext.GraphQLDirective(
 @InternalGraphktApi
 fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
     getter: GraphQLFlowGetter<T, M>,
-    getterBlocks: List<GraphQLGetterBlock<T, *>>,
-    field: GraphQLFieldDefinition<T, M>,
+    onGetBlocks: List<GraphQLGetterBlock<T, M>>,
+    onGetBlockingBlocks: List<GraphQLGetterBlockingBlock<T, M>>,
+    definition: GraphQLFieldDefinition<T, M>,
 ): JavaDataFetcher<*> {
     return JavaDataFetcher { environment ->
-        /*
-        The driver expects a CompletableFuture with
-        the actual value for Queries and Mutations
-        (and non-root Subscription fields)
+        val scope = GraphQLGetterScope(environment, definition)
 
-        And a CompletableFuture with a Publisher of
-        the value for Subscriptions
-        */
+        onGetBlockingBlocks.forEach {
+            it(scope)
+        }
 
         val future = CompletableFuture<Any?>()
 
         CoroutineScope(Dispatchers.Default).launch {
-            val scope = GraphQLGetterScope(environment, field)
-
             val flow = try {
-                getterBlocks.forEach {
+                onGetBlocks.forEach {
                     it(scope)
                 }
 
-                @Suppress("UNCHECKED_CAST")
-                getter(scope) as Flow<M & Any>
+                getter(scope).map {
+                    JavaDataFetcherResult(it, scope.supLocal + scope.subLocal)
+                }
             } catch (error: Throwable) {
                 future.completeExceptionally(error)
                 return@launch
             }
 
-            when {
-                environment.operationDefinition.operation ==
-                        OperationDefinition.Operation.SUBSCRIPTION &&
-                        environment.executionStepInfo.path.parent.isRootPath -> {
-                    // for root subscription fields
+            /*
+            The driver expects a CompletableFuture with
+            the actual value for Queries and Mutations
+            (and non-root Subscription fields)
 
-                    val result = flow.map {
-                        JavaDataFetcherResult.newResult<Any?>()
-                            .data(it)
-                            .localContext(scope.supLocal + scope.subLocal)
-                            .build()
-                    }
-
-                    future.complete(result.asPublisher())
-                }
-                else -> {
-                    // for none root subscription fields
-
-                    val result = JavaDataFetcherResult.newResult<Any?>()
-                        .data(flow.single())
-                        .localContext(scope.supLocal + scope.subLocal)
-                        .build()
-
-                    future.complete(result)
-                }
-            }
+            And a CompletableFuture with a Publisher of
+            the value for Subscriptions
+            */
+            if (environment.canReturnPublisher())
+                future.complete(flow.asPublisher())
+            else
+                future.complete(flow.singleOrNull() ?: error(
+                    "None Subscription root fields are expected to return a single value."
+                ))
         }
 
         future
     }
+}
+
+private fun JavaDataFetchingEnvironment.canReturnPublisher(): Boolean {
+    return operationDefinition.operation == OperationDefinition.Operation.SUBSCRIPTION &&
+            executionStepInfo.path.parent.isRootPath
+}
+
+private fun <T> JavaDataFetcherResult(
+    data: T,
+    local: Map<Any?, Any?>
+): JavaDataFetcherResult<T> {
+    return JavaDataFetcherResult.newResult<T>()
+        .data(data)
+        .localContext(local)
+        .build()
 }
 
 @InternalGraphktApi

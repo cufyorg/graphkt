@@ -29,7 +29,8 @@ open class GraphQLInterfaceTypeImpl<T : Any>(
     override val interfaces: List<GraphQLInterfaceType<in T>>,
     override val directives: List<GraphQLDirective>,
     override val typeGetter: GraphQLTypeGetter<T>,
-    override val getter: GraphQLGetterBlock<T, Any?>
+    override val onGet: GraphQLGetterBlock<T, Any?>,
+    override val onGetBlocking: GraphQLGetterBlockingBlock<T, Any?>
 ) : GraphQLInterfaceType<T> {
     override fun toString(): String = "GraphQLInterfaceType($name)"
 }
@@ -58,7 +59,8 @@ open class GraphQLObjectTypeImpl<T : Any>(
     override val fields: List<GraphQLFieldDefinition<T, *>>,
     override val interfaces: List<GraphQLInterfaceType<in T>>,
     override val directives: List<GraphQLDirective>,
-    override val getter: GraphQLGetterBlock<T, Any?>
+    override val onGet: GraphQLGetterBlock<T, Any?>,
+    override val onGetBlocking: GraphQLGetterBlockingBlock<T, Any?>
 ) : GraphQLObjectType<T> {
     override fun toString(): String = "GraphQLObjectType($name)"
 }
@@ -73,6 +75,8 @@ open class GraphQLFieldDefinitionImpl<T : Any, M>(
     override val arguments: List<GraphQLArgumentDefinition<*>>,
     override val directives: List<GraphQLDirective>,
     override val getter: GraphQLFlowGetter<T, M>,
+    override val onGet: GraphQLGetterBlock<T, M>,
+    override val onGetBlocking: GraphQLGetterBlockingBlock<T, M>,
     lazyType: Lazy<GraphQLOutputType<M>>
 ) : GraphQLFieldDefinition<T, M> {
     override val type: GraphQLOutputType<M> by lazyType

@@ -370,8 +370,12 @@ fun <T : Any> TransformContext.addObjectType(
     }.flatten().toSet()
 
     @Suppress("UNCHECKED_CAST")
-    val allGetterBlocks = (allInterfaces.map { it.getter } + type.getter)
+    val allGetterBlocks = (allInterfaces.map { it.onGet } + type.onGet)
             as List<GraphQLGetterBlock<T, *>>
+
+    @Suppress("UNCHECKED_CAST")
+    val allGetterBlockingBlocks = (allInterfaces.map { it.onGetBlocking } + type.onGetBlocking)
+            as List<GraphQLGetterBlockingBlock<T, *>>
 
     val allFields = (allInterfaces.flatMap { it.fields } + type.fields)
 
@@ -380,7 +384,14 @@ fun <T : Any> TransformContext.addObjectType(
         it as GraphQLFieldDefinition<T, Any?>
 
         val coordinates = JavaFieldCoordinates.coordinates(type.name, it.name)
-        val fetcher = with(runtime) { JavaDataFetcher(it.getter, allGetterBlocks, it) }
+        val fetcher = with(runtime) {
+            JavaDataFetcher(
+                getter = it.getter,
+                onGetBlocks = allGetterBlocks + it.onGet,
+                onGetBlockingBlocks = allGetterBlockingBlocks + it.onGetBlocking,
+                definition = it
+            )
+        }
 
         codeRegistry.dataFetcher(coordinates, fetcher)
     }

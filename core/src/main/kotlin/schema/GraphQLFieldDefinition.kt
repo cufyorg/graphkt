@@ -41,6 +41,22 @@ interface GraphQLFieldDefinition<T : Any, M> : WithName, WithArgumentDefinitions
     val type: GraphQLOutputType<M>
 
     /**
+     * A block of code to be invoked before the
+     * getter.
+     *
+     * @since 2.0.0
+     */
+    val onGet: GraphQLGetterBlock<T, M>
+
+    /**
+     * A blocking block of code to be invoked
+     * before the getter.
+     *
+     * @since 2.0.0
+     */
+    val onGetBlocking: GraphQLGetterBlockingBlock<T, M>
+
+    /**
      * The field resolver.
      *
      * @since 2.0.0
@@ -168,6 +184,17 @@ typealias GraphQLGetterBlock<T, M> =
         suspend GraphQLGetterScope<T, M>.() -> Unit
 
 /**
+ * A value getter block function type.
+ *
+ * @param T the instance type.
+ * @param M the value type.
+ * @author LSafer
+ * @since 2.0.0
+ */
+typealias GraphQLGetterBlockingBlock<T, M> =
+        GraphQLGetterScope<T, M>.() -> Unit
+
+/**
  * A block of code invoked to fill in options in
  * [GraphQLFieldDefinitionBuilder].
  */
@@ -191,13 +218,20 @@ interface GraphQLFieldDefinitionBuilder<T : Any, M> :
      * invoking the getter.
      */
     @AdvancedGraphktApi("Use `onGet()` instead")
-    val getterBlocks: MutableList<GraphQLGetterBlock<T, M>>
+    val onGetBlocks: MutableList<GraphQLGetterBlock<T, M>>
 
     /**
-     * The value getter.
+     * Blocks of blocking code to be invoked before
+     * invoking the getter.
+     */
+    @AdvancedGraphktApi("Use `onGetBlocking()` instead")
+    val onGetBlockingBlocks: MutableList<GraphQLGetterBlockingBlock<T, M>>
+
+    /**
+     * The value getter. (default should throw an error)
      */
     @AdvancedGraphktApi("Use `get()` instead")
-    var getter: GraphQLFlowGetter<T, M>? // REQUIRED
+    var getter: GraphQLFlowGetter<T, M>?
 
     /**
      * Build the definition.
@@ -318,7 +352,23 @@ fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.property(
 fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.onGet(
     block: GraphQLGetterBlock<T, M>
 ) {
-    this.getterBlocks += block
+    this.onGetBlocks += block
+}
+
+// getterBlockingBlocks
+
+/**
+ * Add the given [block] to be invoked before
+ * invoking the getter.
+ *
+ * Blocking onGet blocks are invoked before
+ * non-blocking onGet blocks.
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.onGetBlocking(
+    block: GraphQLGetterBlockingBlock<T, M>
+) {
+    this.onGetBlockingBlocks += block
 }
 
 // getter
@@ -336,6 +386,8 @@ fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.onGet(
  * caught and sent to the client. But, the errors
  * from the flow returned from the [getter] will
  * not.
+ *
+ * **The getter of interface fields will be ignored**
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.getFlow(
@@ -348,6 +400,8 @@ fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.getFlow(
  * Set the getter of this field to the given [getter].
  *
  * For root subscription fields, it is best to use [getFlow].
+ *
+ * **The getter of interface fields will be ignored**
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any, M> GraphQLFieldDefinitionBuilder<T, M>.get(

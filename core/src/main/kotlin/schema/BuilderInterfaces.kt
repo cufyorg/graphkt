@@ -373,7 +373,13 @@ interface WithFieldsBuilder<T : Any> {
      * The added getter blocks.
      */
     @AdvancedGraphktApi("Use `onGet()` instead")
-    val getterBlocks: MutableList<GraphQLGetterBlock<T, Any?>>
+    val onGetBlocks: MutableList<GraphQLGetterBlock<T, Any?>>
+
+    /**
+     * The added blocking getter blocks.
+     */
+    @AdvancedGraphktApi("Use `onGetBlocking()` instead")
+    val onGetBlockingBlocks: MutableList<GraphQLGetterBlockingBlock<T, Any?>>
 
     /**
      * The added fields.
@@ -384,13 +390,28 @@ interface WithFieldsBuilder<T : Any> {
 
 /**
  * Add the given [block] to be invoked before
- * *every* field getter.
+ * *every* field getter and non-blocking onGet
+ * block.
  */
 @OptIn(AdvancedGraphktApi::class)
 fun <T : Any> WithFieldsBuilder<T>.onGet(
     block: GraphQLGetterBlock<T, Any?>
 ) {
-    getterBlocks += block
+    onGetBlocks += block
+}
+
+/**
+ * Add the given [block] to be invoked before
+ * *every* field getter and onGet block.
+ *
+ * Blocking onGet blocks are invoked before
+ * non-blocking onGet blocks.
+ */
+@OptIn(AdvancedGraphktApi::class)
+fun <T : Any> WithFieldsBuilder<T>.onGetBlocking(
+    block: GraphQLGetterBlockingBlock<T, Any?>
+) {
+    onGetBlockingBlocks += block
 }
 
 /**

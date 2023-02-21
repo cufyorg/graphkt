@@ -136,12 +136,18 @@ interface WithArguments {
  */
 interface WithFieldDefinitions<T : Any> {
     /**
-     * A block of code to be invoked on every
-     * field getter.
+     * A block of code to be invoked before every
+     * field getter and non-blocking onGet blocks.
      *
      * @since 2.0.0
      */
-    val getter: GraphQLGetterBlock<T, Any?>
+    val onGet: GraphQLGetterBlock<T, Any?>
+
+    /**
+     * A blocking block of code to be invoked before
+     * every field getter and onGet blocks.
+     */
+    val onGetBlocking: GraphQLGetterBlockingBlock<T, Any?>
 
     /**
      * The fields of the type.

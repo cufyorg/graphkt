@@ -43,14 +43,15 @@ open class GraphQLInterfaceTypeBuilderImpl<T : Any> :
     override var typeGetter: GraphQLTypeGetter<T>? = null
 
     @AdvancedGraphktApi
-    override val getterBlocks: MutableList<GraphQLGetterBlock<T, Any?>> = mutableListOf()
+    override val onGetBlocks: MutableList<GraphQLGetterBlock<T, Any?>> = mutableListOf()
+
+    @AdvancedGraphktApi
+    override val onGetBlockingBlocks: MutableList<GraphQLGetterBlockingBlock<T, Any?>> = mutableListOf()
 
     @OptIn(AdvancedGraphktApi::class)
     override fun build(): GraphQLInterfaceType<T> {
         deferred.forEach { it() }
         deferred.clear()
-
-        val getterBlocks = getterBlocks.toList()
 
         return GraphQLInterfaceTypeImpl(
             name = name
@@ -61,8 +62,11 @@ open class GraphQLInterfaceTypeBuilderImpl<T : Any> :
             fields = fields.toList(),
             typeGetter = typeGetter
                 ?: error("typeGetter is required but was not provided."),
-            getter = {
-                getterBlocks.forEach { it() }
+            onGet = onGetBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            onGetBlocking = onGetBlockingBlocks.toList().let {
+                { it.forEach { it() } }
             }
         )
     }
@@ -90,7 +94,10 @@ open class GraphQLObjectTypeBuilderImpl<T : Any> :
     override val deferred: MutableList<() -> Unit> = mutableListOf()
 
     @AdvancedGraphktApi
-    override val getterBlocks: MutableList<GraphQLGetterBlock<T, Any?>> = mutableListOf()
+    override val onGetBlocks: MutableList<GraphQLGetterBlock<T, Any?>> = mutableListOf()
+
+    @AdvancedGraphktApi
+    override val onGetBlockingBlocks: MutableList<GraphQLGetterBlockingBlock<T, Any?>> = mutableListOf()
 
     @OptIn(AdvancedGraphktApi::class)
     override fun build(): GraphQLObjectType<T> {
@@ -100,8 +107,6 @@ open class GraphQLObjectTypeBuilderImpl<T : Any> :
         if (fields.isEmpty() && interfaces.isEmpty())
             error("\"$name\" must define one or more fields.")
 
-        val getterBlocks = getterBlocks.toList()
-
         return GraphQLObjectTypeImpl(
             name = name
                 ?: error("name is required but was not provided."),
@@ -109,8 +114,11 @@ open class GraphQLObjectTypeBuilderImpl<T : Any> :
             fields = fields.toList(),
             interfaces = interfaces.toList(),
             directives = directives.toList(),
-            getter = {
-                getterBlocks.forEach { it() }
+            onGet = onGetBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            onGetBlocking = onGetBlockingBlocks.toList().let {
+                { it.forEach { it() } }
             }
         )
     }
@@ -129,7 +137,10 @@ open class GraphQLFieldDefinitionBuilderImpl<T : Any, M> :
     override val arguments: MutableList<GraphQLArgumentDefinition<*>> = mutableListOf()
 
     @AdvancedGraphktApi
-    override val getterBlocks: MutableList<GraphQLGetterBlock<T, M>> = mutableListOf()
+    override val onGetBlocks: MutableList<GraphQLGetterBlock<T, M>> = mutableListOf()
+
+    @AdvancedGraphktApi
+    override val onGetBlockingBlocks: MutableList<GraphQLGetterBlockingBlock<T, M>> = mutableListOf()
 
     @AdvancedGraphktApi
     override var getter: GraphQLFlowGetter<T, M>? = null
@@ -148,9 +159,6 @@ open class GraphQLFieldDefinitionBuilderImpl<T : Any, M> :
         deferred.forEach { it() }
         deferred.clear()
 
-        val getter = getter ?: error("getter is required but was not provided.")
-        val getterBlocks = getterBlocks.toList()
-
         return GraphQLFieldDefinitionImpl(
             name = name
                 ?: error("name is required but was not provided."),
@@ -159,9 +167,13 @@ open class GraphQLFieldDefinitionBuilderImpl<T : Any, M> :
                 ?: error("type is required but was not provided."),
             arguments = arguments.toList(),
             directives = directives.toList(),
-            getter = {
-                getterBlocks.forEach { it() }
-                getter()
+            getter = getter ?: NotImplementedError("Getter was not implemented of field: $name")
+                .let { throw it },
+            onGet = onGetBlocks.toList().let {
+                { it.forEach { it() } }
+            },
+            onGetBlocking = onGetBlockingBlocks.toList().let {
+                { it.forEach { it() } }
             }
         )
     }
