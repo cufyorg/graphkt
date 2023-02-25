@@ -18,7 +18,7 @@ package org.cufy.graphkt.schema
 import java.math.BigDecimal
 import java.math.BigInteger
 
-//
+// Standard
 
 /**
  * A scalar type for [Int] and [GraphQLInteger].
@@ -113,10 +113,10 @@ val GraphQLIDType: GraphQLScalarType<String> = GraphQLScalarType("ID") {
     }
 }
 
-//
+// Powerful
 
 /**
- * A scalar type for [Long] and [GraphQLInteger].
+ * A non-standard scalar type for [Long] and [GraphQLInteger].
  *
  * @since 2.0.0
  */
@@ -135,7 +135,7 @@ val GraphQLLongType: GraphQLScalarType<Long> = GraphQLScalarType("Long") {
 }
 
 /**
- * A scalar type for [BigDecimal] and [GraphQLDecimal].
+ * A non-standard scalar type for [BigDecimal] and [GraphQLDecimal].
  *
  * @since 2.0.0
  */
@@ -156,7 +156,7 @@ val GraphQLDecimalType: GraphQLScalarType<BigDecimal> = GraphQLScalarType("Decim
 }
 
 /**
- * A scalar type for [BigInteger] and [GraphQLInteger].
+ * A non-standard scalar type for [BigInteger] and [GraphQLInteger].
  *
  * @since 2.0.0
  */
@@ -171,4 +171,15 @@ val GraphQLIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integ
     encode {
         GraphQLInteger(it)
     }
+}
+
+/**
+ * A non-standard scalar type that returns nothing. (like [Unit] or [Void])
+ *
+ * @since 2.0.0
+ */
+val GraphQLVoidType = GraphQLScalarType<Unit>("Void") {
+    description { "Void" }
+    decode { }
+    encode { GraphQLBoolean(true) }
 }
