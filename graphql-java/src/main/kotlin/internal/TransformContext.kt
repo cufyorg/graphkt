@@ -17,6 +17,7 @@ package org.cufy.graphkt.java.internal
 
 import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.*
+import graphql.Directives as JavaDirectives
 import graphql.Scalars as JavaScalars
 import graphql.schema.GraphQLCodeRegistry as JavaGraphQLCodeRegistry
 import graphql.schema.GraphQLDirective as JavaGraphQLDirective
@@ -34,7 +35,12 @@ class TransformContext {
 
     //
 
-    val directives: MutableMap<GraphQLDirectiveDefinition, JavaGraphQLDirective?> = mutableMapOf()
+    val directives: MutableMap<GraphQLDirectiveDefinition, JavaGraphQLDirective?> = mutableMapOf(
+        GraphQLIncludeDirective to JavaDirectives.IncludeDirective,
+        GraphQLSkipDirective to JavaDirectives.SkipDirective,
+        GraphQLSpecifiedByDirective to JavaDirectives.SpecifiedByDirective,
+        GraphQLDeprecatedDirective to JavaDirectives.DeprecatedDirective
+    )
 
     //
 
