@@ -57,7 +57,7 @@ val GraphQLSpecifiedByDirective = GraphQLDirectiveDefinition("specifiedBy") {
 /**
  * Directs the executor to include this field or fragment only when the `if` argument is true.
  */
-val IncludeDirective = GraphQLDirectiveDefinition("include") {
+val GraphQLIncludeDirective = GraphQLDirectiveDefinition("include") {
     description { "Directs the executor to include this field or fragment only when the `if` argument is true." }
     argument("if", GraphQLBooleanType) {
         description { "Included when true." }
@@ -70,7 +70,7 @@ val IncludeDirective = GraphQLDirectiveDefinition("include") {
 /**
  * Directs the executor to skip this field or fragment when the `if`'argument is true.
  */
-val SkipDirective = GraphQLDirectiveDefinition("skip") {
+val GraphQLSkipDirective = GraphQLDirectiveDefinition("skip") {
     description { "Directs the executor to skip this field or fragment when the `if`'argument is true." }
     argument("if", GraphQLBooleanType) {
         description { "Skipped when true." }
