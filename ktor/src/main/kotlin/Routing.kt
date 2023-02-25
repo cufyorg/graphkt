@@ -23,9 +23,7 @@ import kotlinx.coroutines.flow.map
 import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.ktor.internal.graphqlHttp
 import org.cufy.graphkt.ktor.internal.graphqlWebsocket
-import org.cufy.graphkt.schema.GraphQLRequest
-import org.cufy.graphkt.schema.GraphQLResponse
-import org.cufy.graphkt.schema.GraphQLSchema
+import org.cufy.graphkt.schema.*
 
 /**
  * Handle graphql requests to the given [path].
@@ -62,6 +60,13 @@ fun Route.graphql(
     /* prepare base arguments */
 
     val schema = GraphQLSchema {
+        if (configuration.builtins) {
+            additionalType(GraphQLLongType)
+            additionalType(GraphQLDecimalType)
+            additionalType(GraphQLIntegerType)
+            additionalType(GraphQLVoidType)
+        }
+
         configuration.schemaBlock(this)
     }
 

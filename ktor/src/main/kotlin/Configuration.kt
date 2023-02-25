@@ -55,6 +55,7 @@ class ConfigurationScope(
  */
 class Configuration(
     val websocket: Boolean,
+    val builtins: Boolean,
     val connectionInitWaitTimeout: Duration?,
     val engine: GraphktEngineFactory,
     val schemaBlock: GraphQLSchemaBuilderBlock,
@@ -79,6 +80,15 @@ class ConfigurationBuilder : WithEngine, WithDeferredBuilder {
      * @since 2.0.0
      */
     var websocket: Boolean = true
+
+    /**
+     * True, to add all the non-standard builtin scalars as additional types.
+     *
+     * Standard built-in scalars are added anyway.
+     *
+     * @since 2.0.0
+     */
+    var builtins: Boolean = true
 
     /**
      * Websocket connection initialization timeout.
@@ -135,6 +145,7 @@ class ConfigurationBuilder : WithEngine, WithDeferredBuilder {
         deferred.forEach { it() }
         deferred.clear()
         return Configuration(
+            builtins = builtins,
             websocket = websocket,
             connectionInitWaitTimeout = connectionInitWaitTimeout,
             engine = engine
