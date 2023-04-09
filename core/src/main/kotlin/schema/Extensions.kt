@@ -112,6 +112,7 @@ val <T> GraphQLInputOutputType<T>.Array: GraphQLInputOutputArrayType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Nullable", "org.cufy.graphkt.schema.Nullable"
 ))
+@get:JvmName("getNullableDeprecated")
 val <T> GraphQLType<T>.nullable: GraphQLNullableType<T>
     get() = GraphQLNullableType(this)
 
@@ -121,6 +122,7 @@ val <T> GraphQLType<T>.nullable: GraphQLNullableType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Nullable", "org.cufy.graphkt.schema.Nullable"
 ))
+@get:JvmName("getNullableDeprecated")
 val <T> GraphQLInputType<T>.nullable: GraphQLInputNullableType<T>
     get() = GraphQLNullableType(this)
 
@@ -130,6 +132,7 @@ val <T> GraphQLInputType<T>.nullable: GraphQLInputNullableType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Nullable", "org.cufy.graphkt.schema.Nullable"
 ))
+@get:JvmName("getNullableDeprecated")
 val <T> GraphQLOutputType<T>.nullable: GraphQLOutputNullableType<T>
     get() = GraphQLNullableType(this)
 
@@ -139,6 +142,7 @@ val <T> GraphQLOutputType<T>.nullable: GraphQLOutputNullableType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Nullable", "org.cufy.graphkt.schema.Nullable"
 ))
+@get:JvmName("getNullableDeprecated")
 val <T> GraphQLInputOutputType<T>.nullable: GraphQLInputOutputNullableType<T>
     get() = GraphQLNullableType(this)
 
@@ -148,6 +152,7 @@ val <T> GraphQLInputOutputType<T>.nullable: GraphQLInputOutputNullableType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Array", "org.cufy.graphkt.schema.Array"
 ))
+@get:JvmName("getArrayDeprecated")
 val <T> GraphQLType<T>.array: GraphQLArrayType<T>
     get() = GraphQLArrayType(this)
 
@@ -157,6 +162,7 @@ val <T> GraphQLType<T>.array: GraphQLArrayType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Array", "org.cufy.graphkt.schema.Array"
 ))
+@get:JvmName("getArrayDeprecated")
 val <T> GraphQLInputType<T>.array: GraphQLInputArrayType<T>
     get() = GraphQLArrayType(this)
 
@@ -166,6 +172,7 @@ val <T> GraphQLInputType<T>.array: GraphQLInputArrayType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Array", "org.cufy.graphkt.schema.Array"
 ))
+@get:JvmName("getArrayDeprecated")
 val <T> GraphQLOutputType<T>.array: GraphQLOutputArrayType<T>
     get() = GraphQLArrayType(this)
 
@@ -175,5 +182,6 @@ val <T> GraphQLOutputType<T>.array: GraphQLOutputArrayType<T>
 @Deprecated("Use uppercase version", ReplaceWith(
     "this.Array", "org.cufy.graphkt.schema.Array"
 ))
+@get:JvmName("getArrayDeprecated")
 val <T> GraphQLInputOutputType<T>.array: GraphQLInputOutputArrayType<T>
     get() = GraphQLArrayType(this)
