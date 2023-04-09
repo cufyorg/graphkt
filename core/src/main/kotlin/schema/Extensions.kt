@@ -59,48 +59,121 @@ operator fun <T : Any> GraphQLInputObjectType<T>.getValue(
 /**
  * Wrap the given [type] with a [GraphQLNullableType].
  */
-val <T> GraphQLType<T>.nullable: GraphQLNullableType<T>
+val <T> GraphQLType<T>.Nullable: GraphQLNullableType<T>
     get() = GraphQLNullableType(this)
-
 
 /**
  * Wrap the given [type] with a [GraphQLInputNullableType].
  */
+val <T> GraphQLInputType<T>.Nullable: GraphQLInputNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLOutputNullableType].
+ */
+val <T> GraphQLOutputType<T>.Nullable: GraphQLOutputNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputOutputNullableType].
+ */
+val <T> GraphQLInputOutputType<T>.Nullable: GraphQLInputOutputNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLArrayType].
+ */
+val <T> GraphQLType<T>.Array: GraphQLArrayType<T>
+    get() = GraphQLArrayType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputArrayType].
+ */
+val <T> GraphQLInputType<T>.Array: GraphQLInputArrayType<T>
+    get() = GraphQLArrayType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLOutputArrayType].
+ */
+val <T> GraphQLOutputType<T>.Array: GraphQLOutputArrayType<T>
+    get() = GraphQLArrayType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputOutputArrayType].
+ */
+val <T> GraphQLInputOutputType<T>.Array: GraphQLInputOutputArrayType<T>
+    get() = GraphQLArrayType(this)
+
+// Lowercase Versions (deprecated)
+
+/**
+ * Wrap the given [type] with a [GraphQLNullableType].
+ */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Nullable", "org.cufy.graphkt.schema.Nullable"
+))
+val <T> GraphQLType<T>.nullable: GraphQLNullableType<T>
+    get() = GraphQLNullableType(this)
+
+/**
+ * Wrap the given [type] with a [GraphQLInputNullableType].
+ */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Nullable", "org.cufy.graphkt.schema.Nullable"
+))
 val <T> GraphQLInputType<T>.nullable: GraphQLInputNullableType<T>
     get() = GraphQLNullableType(this)
 
 /**
  * Wrap the given [type] with a [GraphQLOutputNullableType].
  */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Nullable", "org.cufy.graphkt.schema.Nullable"
+))
 val <T> GraphQLOutputType<T>.nullable: GraphQLOutputNullableType<T>
     get() = GraphQLNullableType(this)
 
 /**
  * Wrap the given [type] with a [GraphQLInputOutputNullableType].
  */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Nullable", "org.cufy.graphkt.schema.Nullable"
+))
 val <T> GraphQLInputOutputType<T>.nullable: GraphQLInputOutputNullableType<T>
     get() = GraphQLNullableType(this)
 
 /**
  * Wrap the given [type] with a [GraphQLArrayType].
  */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Array", "org.cufy.graphkt.schema.Array"
+))
 val <T> GraphQLType<T>.array: GraphQLArrayType<T>
     get() = GraphQLArrayType(this)
 
 /**
  * Wrap the given [type] with a [GraphQLInputArrayType].
  */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Array", "org.cufy.graphkt.schema.Array"
+))
 val <T> GraphQLInputType<T>.array: GraphQLInputArrayType<T>
     get() = GraphQLArrayType(this)
 
 /**
  * Wrap the given [type] with a [GraphQLOutputArrayType].
  */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Array", "org.cufy.graphkt.schema.Array"
+))
 val <T> GraphQLOutputType<T>.array: GraphQLOutputArrayType<T>
     get() = GraphQLArrayType(this)
 
 /**
  * Wrap the given [type] with a [GraphQLInputOutputArrayType].
  */
+@Deprecated("Use uppercase version", ReplaceWith(
+    "this.Array", "org.cufy.graphkt.schema.Array"
+))
 val <T> GraphQLInputOutputType<T>.array: GraphQLInputOutputArrayType<T>
     get() = GraphQLArrayType(this)
