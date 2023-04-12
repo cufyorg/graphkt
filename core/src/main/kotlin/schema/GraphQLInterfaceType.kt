@@ -61,7 +61,7 @@ interface GraphQLTypeGetterScope<T : Any> {
      * The context variables that have been
      * provided before the execution of the query.
      */
-    val context: Map<*, *>
+    val context: Map<Any?, Any?>
 }
 
 /**
