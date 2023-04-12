@@ -40,6 +40,17 @@ interface GraphQLObjectType<T : Any> : WithName, WithFieldDefinitions<T>, WithDi
  * A block of code invoked to fill in options in
  * [GraphQLObjectTypeBuilder].
  */
+typealias GraphQLObjectTypeBlock<T> =
+        GraphQLObjectTypeBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLObjectTypeBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLObjectTypeBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLObjectTypeBlock"
+))
 typealias GraphQLObjectTypeBuilderBlock<T> =
         GraphQLObjectTypeBuilder<T>.() -> Unit
 
@@ -100,7 +111,7 @@ fun <T : Any> GraphQLObjectTypeBuilder(): GraphQLObjectTypeBuilder<T> {
  */
 fun <T : Any> GraphQLObjectType(
     name: String? = null,
-    block: GraphQLObjectTypeBuilderBlock<T> = {}
+    block: GraphQLObjectTypeBlock<T> = {}
 ): GraphQLObjectType<T> {
     val builder = GraphQLObjectTypeBuilder<T>()
     name?.let { builder.name(it) }

@@ -198,6 +198,17 @@ typealias GraphQLGetterBlockingBlock<T, M> =
  * A block of code invoked to fill in options in
  * [GraphQLFieldDefinitionBuilder].
  */
+typealias GraphQLFieldDefinitionBlock<T, M> =
+        GraphQLFieldDefinitionBuilder<T, M>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLFieldDefinitionBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLFieldDefinitionBlock<T, M>",
+    "org.cufy.graphkt.schema.GraphQLFieldDefinitionBlock"
+))
 typealias GraphQLFieldDefinitionBuilderBlock<T, M> =
         GraphQLFieldDefinitionBuilder<T, M>.() -> Unit
 
@@ -292,7 +303,7 @@ fun <T : Any, M> GraphQLFieldDefinitionBuilder(): GraphQLFieldDefinitionBuilder<
 fun <T : Any, M> GraphQLFieldDefinition(
     name: String? = null,
     type: GraphQLOutputType<M>? = null,
-    block: GraphQLFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLFieldDefinitionBlock<T, M> = {}
 ): GraphQLFieldDefinition<T, M> {
     val builder = GraphQLFieldDefinitionBuilder<T, M>()
     name?.let { builder.name(it) }
@@ -315,7 +326,7 @@ fun <T : Any, M> GraphQLFieldDefinition(
 fun <T : Any, M> GraphQLPropertyFieldDefinition(
     property: KProperty1<in T, M>,
     type: GraphQLOutputType<M>? = null,
-    block: GraphQLFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLFieldDefinitionBlock<T, M> = {}
 ): GraphQLFieldDefinition<T, M> {
     val builder = GraphQLFieldDefinitionBuilder<T, M>()
     type?.let { builder.type { it } }

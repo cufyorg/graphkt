@@ -39,6 +39,17 @@ interface GraphQLEnumType<T> : WithName, WithDirectives, GraphQLInputOutputType<
  * A block of code invoked to fill in options in
  * [GraphQLEnumTypeBuilder].
  */
+typealias GraphQLEnumTypeBlock<T> =
+        GraphQLEnumTypeBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLEnumTypeBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLEnumTypeBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLEnumTypeBlock"
+))
 typealias GraphQLEnumTypeBuilderBlock<T> =
         GraphQLEnumTypeBuilder<T>.() -> Unit
 
@@ -93,7 +104,7 @@ fun <T> GraphQLEnumTypeBuilder(): GraphQLEnumTypeBuilder<T> {
  */
 fun <T> GraphQLEnumType(
     name: String? = null,
-    block: GraphQLEnumTypeBuilderBlock<T> = {}
+    block: GraphQLEnumTypeBlock<T> = {}
 ): GraphQLEnumType<T> {
     val builder = GraphQLEnumTypeBuilder<T>()
     name?.let { builder.name(it) }
@@ -126,7 +137,7 @@ fun <T> GraphQLEnumTypeBuilder<T>.value(
 fun <T> GraphQLEnumTypeBuilder<T>.value(
     name: String? = null,
     value: T? = null,
-    block: GraphQLEnumValueDefinitionBuilderBlock<T> = {}
+    block: GraphQLEnumValueDefinitionBlock<T> = {}
 ) {
     value(GraphQLEnumValueDefinition(name, value, block))
 }

@@ -55,6 +55,17 @@ typealias GraphQLInputConstructor<T> =
  * A block of code invoked to fill in options in
  * [GraphQLInputObjectTypeBuilder].
  */
+typealias GraphQLInputObjectTypeBlock<T> =
+        GraphQLInputObjectTypeBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLInputObjectTypeBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLInputObjectTypeBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLInputObjectTypeBlock"
+))
 typealias GraphQLInputObjectTypeBuilderBlock<T> =
         GraphQLInputObjectTypeBuilder<T>.() -> Unit
 
@@ -120,7 +131,7 @@ fun <T : Any> GraphQLInputObjectTypeBuilder(): GraphQLInputObjectTypeBuilder<T> 
 fun <T : Any> GraphQLInputObjectType(
     name: String? = null,
     constructor: GraphQLInputConstructor<T>? = null,
-    block: GraphQLInputObjectTypeBuilderBlock<T>
+    block: GraphQLInputObjectTypeBlock<T>
 ): GraphQLInputObjectType<T> {
     val builder = GraphQLInputObjectTypeBuilder<T>()
     name?.let { builder.name(it) }

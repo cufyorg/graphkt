@@ -53,6 +53,17 @@ typealias GraphQLScalarEncoder<T> = (T) -> GraphQLScalar<*>
  * A block of code invoked to fill in options in
  * [GraphQLScalarTypeBuilder].
  */
+typealias GraphQLScalarTypeBlock<T> =
+        GraphQLScalarTypeBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLScalarTypeBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLScalarTypeBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLScalarTypeBlock"
+))
 typealias GraphQLScalarTypeBuilderBlock<T> =
         GraphQLScalarTypeBuilder<T>.() -> Unit
 
@@ -113,7 +124,7 @@ fun <T : Any> GraphQLScalarTypeBuilder(): GraphQLScalarTypeBuilder<T> {
  */
 fun <T : Any> GraphQLScalarType(
     name: String? = null,
-    block: GraphQLScalarTypeBuilderBlock<T> = {}
+    block: GraphQLScalarTypeBlock<T> = {}
 ): GraphQLScalarType<T> {
     val builder = GraphQLScalarTypeBuilder<T>()
     name?.let { builder.name(it) }

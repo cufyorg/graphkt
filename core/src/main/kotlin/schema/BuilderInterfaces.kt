@@ -75,7 +75,7 @@ fun <T> WithArgumentDefinitionsBuilder.argument(
 fun <T> WithArgumentDefinitionsBuilder.argument(
     name: String? = null,
     type: GraphQLInputType<T>? = null,
-    block: GraphQLArgumentDefinitionBuilderBlock<T> = {}
+    block: GraphQLArgumentDefinitionBlock<T> = {}
 ): GraphQLArgumentDefinition<T> {
     return argument(GraphQLArgumentDefinition(name, type, block))
 }
@@ -290,7 +290,7 @@ interface WithDirectivesBuilder {
      * with the given [block].
      */
     operator fun GraphQLDirectiveDefinition.invoke(
-        block: GraphQLDirectiveBuilderBlock = {}
+        block: GraphQLDirectiveBlock = {}
     ) {
         directive(GraphQLDirective(this, block = block))
     }
@@ -439,7 +439,7 @@ fun <T : Any, M> WithFieldsBuilder<T>.field(
 fun <T : Any, M> WithFieldsBuilder<T>.field(
     name: String? = null,
     type: GraphQLOutputType<M>? = null,
-    block: GraphQLFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLFieldDefinitionBlock<T, M> = {}
 ) {
     field(GraphQLFieldDefinition(name, type, block))
 }
@@ -456,7 +456,7 @@ fun <T : Any, M> WithFieldsBuilder<T>.field(
 fun <T : Any, M> WithFieldsBuilder<T>.field(
     property: KProperty1<in T, M>,
     type: GraphQLOutputType<M>? = null,
-    block: GraphQLFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLFieldDefinitionBlock<T, M> = {}
 ) {
     field(GraphQLPropertyFieldDefinition(property, type, block))
 }
@@ -506,7 +506,7 @@ fun <T : Any, M> WithInputFieldsBuilder<T>.field(
 fun <T : Any, M> WithInputFieldsBuilder<T>.field(
     name: String? = null,
     type: GraphQLInputType<M>? = null,
-    block: GraphQLInputFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLInputFieldDefinitionBlock<T, M> = {}
 ) {
     field(GraphQLInputFieldDefinition(name, type, block))
 }
@@ -522,7 +522,7 @@ fun <T : Any, M> WithInputFieldsBuilder<T>.field(
 fun <T : Any, M> WithInputFieldsBuilder<T>.field(
     property: KMutableProperty1<in T, M>,
     type: GraphQLInputType<M>? = null,
-    block: GraphQLInputFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLInputFieldDefinitionBlock<T, M> = {}
 ) {
     field(GraphQLPropertyInputFieldDefinition(property, type, block))
 }

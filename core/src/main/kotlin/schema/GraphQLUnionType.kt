@@ -48,6 +48,17 @@ interface GraphQLUnionType<T : Any> : WithName, WithDirectives, GraphQLOutputTyp
  * A block of code invoked to fill in options in
  * [GraphQLUnionTypeBuilder].
  */
+typealias GraphQLUnionTypeBlock<T> =
+        GraphQLUnionTypeBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLUnionTypeBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLUnionTypeBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLUnionTypeBlock"
+))
 typealias GraphQLUnionTypeBuilderBlock<T> =
         GraphQLUnionTypeBuilder<T>.() -> Unit
 
@@ -105,7 +116,7 @@ fun <T : Any> GraphQLUnionTypeBuilder(): GraphQLUnionTypeBuilder<T> {
 fun <T : Any> GraphQLUnionType(
     name: String? = null,
     vararg types: GraphQLObjectType<out T>,
-    block: GraphQLUnionTypeBuilderBlock<T>
+    block: GraphQLUnionTypeBlock<T>
 ): GraphQLUnionType<T> {
     val builder = GraphQLUnionTypeBuilder<T>()
     name?.let { builder.name(it) }

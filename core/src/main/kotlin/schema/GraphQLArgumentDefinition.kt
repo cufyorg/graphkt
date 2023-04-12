@@ -39,6 +39,17 @@ interface GraphQLArgumentDefinition<T> : WithName, WithDirectives {
  * A block of code invoked to fill in options in
  * [GraphQLArgumentDefinitionBuilder].
  */
+typealias GraphQLArgumentDefinitionBlock<T> =
+        GraphQLArgumentDefinitionBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLArgumentDefinitionBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLArgumentDefinitionBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLArgumentDefinitionBlock"
+))
 typealias GraphQLArgumentDefinitionBuilderBlock<T> =
         GraphQLArgumentDefinitionBuilder<T>.() -> Unit
 
@@ -90,7 +101,7 @@ fun <T> GraphQLArgumentDefinitionBuilder(): GraphQLArgumentDefinitionBuilder<T> 
 fun <T> GraphQLArgumentDefinition(
     name: String? = null,
     type: GraphQLInputType<T>? = null,
-    block: GraphQLArgumentDefinitionBuilderBlock<T> = {}
+    block: GraphQLArgumentDefinitionBlock<T> = {}
 ): GraphQLArgumentDefinition<T> {
     val builder = GraphQLArgumentDefinitionBuilder<T>()
     name?.let { builder.name(it) }

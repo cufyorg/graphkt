@@ -76,6 +76,17 @@ typealias GraphQLInputGetter<T, M> =
  * A block of code invoked to fill in options in
  * [GraphQLInputFieldDefinitionBuilder].
  */
+typealias GraphQLInputFieldDefinitionBlock<T, M> =
+        GraphQLInputFieldDefinitionBuilder<T, M>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLInputFieldDefinitionBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLInputFieldDefinitionBlock<T, M>",
+    "org.cufy.graphkt.schema.GraphQLInputFieldDefinitionBlock"
+))
 typealias GraphQLInputFieldDefinitionBuilderBlock<T, M> =
         GraphQLInputFieldDefinitionBuilder<T, M>.() -> Unit
 
@@ -139,7 +150,7 @@ fun <T : Any, M> GraphQLInputFieldDefinitionBuilder(): GraphQLInputFieldDefiniti
 fun <T : Any, M> GraphQLInputFieldDefinition(
     name: String? = null,
     type: GraphQLInputType<M>? = null,
-    block: GraphQLInputFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLInputFieldDefinitionBlock<T, M> = {}
 ): GraphQLInputFieldDefinition<T, M> {
     val builder = GraphQLInputFieldDefinitionBuilder<T, M>()
     name?.let { builder.name(it) }
@@ -162,7 +173,7 @@ fun <T : Any, M> GraphQLInputFieldDefinition(
 fun <T : Any, M> GraphQLPropertyInputFieldDefinition(
     property: KMutableProperty1<in T, M>,
     type: GraphQLInputType<M>? = null,
-    block: GraphQLInputFieldDefinitionBuilderBlock<T, M> = {}
+    block: GraphQLInputFieldDefinitionBlock<T, M> = {}
 ): GraphQLInputFieldDefinition<T, M> {
     val builder = GraphQLInputFieldDefinitionBuilder<T, M>()
     type?.let { builder.type { it } }

@@ -39,6 +39,17 @@ interface GraphQLEnumValueDefinition<T> : WithName, WithDirectives {
  * A block of code invoked to fill in options in
  * [GraphQLEnumValueDefinitionBuilder].
  */
+typealias GraphQLEnumValueDefinitionBlock<T> =
+        GraphQLEnumValueDefinitionBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLEnumValueDefinitionBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLEnumValueDefinitionBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLEnumValueDefinitionBlock"
+))
 typealias GraphQLEnumValueDefinitionBuilderBlock<T> =
         GraphQLEnumValueDefinitionBuilder<T>.() -> Unit
 
@@ -97,7 +108,7 @@ fun <T> GraphQLEnumValueDefinitionBuilder(): GraphQLEnumValueDefinitionBuilder<T
 fun <T> GraphQLEnumValueDefinition(
     name: String? = null,
     value: T? = null,
-    block: GraphQLEnumValueDefinitionBuilderBlock<T> = {}
+    block: GraphQLEnumValueDefinitionBlock<T> = {}
 ): GraphQLEnumValueDefinition<T> {
     val builder = GraphQLEnumValueDefinitionBuilder<T>()
     name?.let { builder.name(it) }

@@ -81,6 +81,17 @@ enum class GraphQLDirectiveLocation {
  * A block of code invoked to fill in options in
  * [GraphQLDirectiveDefinitionBuilder].
  */
+typealias GraphQLDirectiveDefinitionBlock =
+        GraphQLDirectiveDefinitionBuilder.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLDirectiveDefinitionBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLDirectiveDefinitionBlock",
+    "org.cufy.graphkt.schema.GraphQLDirectiveDefinitionBlock"
+))
 typealias GraphQLDirectiveDefinitionBuilderBlock =
         GraphQLDirectiveDefinitionBuilder.() -> Unit
 
@@ -141,7 +152,7 @@ fun GraphQLDirectiveDefinitionBuilder(): GraphQLDirectiveDefinitionBuilder {
  */
 fun GraphQLDirectiveDefinition(
     name: String? = null,
-    block: GraphQLDirectiveDefinitionBuilderBlock = {}
+    block: GraphQLDirectiveDefinitionBlock = {}
 ): GraphQLDirectiveDefinition {
     val builder = GraphQLDirectiveDefinitionBuilder()
     name?.let { builder.name(it) }
@@ -196,6 +207,17 @@ interface GraphQLDirective : WithArguments {
  * A block of code invoked to fill in options in
  * [GraphQLDirectiveBuilder].
  */
+typealias GraphQLDirectiveBlock =
+        GraphQLDirectiveBuilder.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLDirectiveBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLDirectiveBlock",
+    "org.cufy.graphkt.schema.GraphQLDirectiveBlock"
+))
 typealias GraphQLDirectiveBuilderBlock =
         GraphQLDirectiveBuilder.() -> Unit
 
@@ -252,7 +274,7 @@ fun GraphQLDirectiveBuilder(): GraphQLDirectiveBuilder {
 fun GraphQLDirective(
     definition: GraphQLDirectiveDefinition? = null,
     vararg arguments: GraphQLArgument<*>,
-    block: GraphQLDirectiveBuilderBlock
+    block: GraphQLDirectiveBlock
 ): GraphQLDirective {
     val builder = GraphQLDirectiveBuilder()
     definition?.let { builder.definition(it) }

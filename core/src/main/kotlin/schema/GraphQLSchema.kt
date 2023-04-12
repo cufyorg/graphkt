@@ -68,6 +68,17 @@ interface GraphQLSchema : WithDescription, WithDirectives {
  * A block of code invoked to fill in options in
  * [GraphQLSchemaBuilder].
  */
+typealias GraphQLSchemaBlock =
+        GraphQLSchemaBuilder.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLSchemaBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLSchemaBlock",
+    "org.cufy.graphkt.schema.GraphQLSchemaBlock"
+))
 typealias GraphQLSchemaBuilderBlock =
         GraphQLSchemaBuilder.() -> Unit
 
@@ -154,7 +165,7 @@ fun GraphQLSchemaBuilder(): GraphQLSchemaBuilder {
  * @since 2.0.0
  */
 fun GraphQLSchema(
-    block: GraphQLSchemaBuilderBlock = {}
+    block: GraphQLSchemaBlock = {}
 ): GraphQLSchema {
     val builder = GraphQLSchemaBuilder()
     builder.apply(block)
@@ -171,7 +182,7 @@ fun GraphQLSchema(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun GraphQLSchemaBuilder.query(
-    block: GraphQLObjectTypeBuilderBlock<Unit>
+    block: GraphQLObjectTypeBlock<Unit>
 ) {
     query.apply(block)
 }
@@ -184,7 +195,7 @@ fun GraphQLSchemaBuilder.query(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun GraphQLSchemaBuilder.mutation(
-    block: GraphQLObjectTypeBuilderBlock<Unit>
+    block: GraphQLObjectTypeBlock<Unit>
 ) {
     mutation.apply(block)
 }
@@ -197,7 +208,7 @@ fun GraphQLSchemaBuilder.mutation(
  */
 @OptIn(AdvancedGraphktApi::class)
 fun GraphQLSchemaBuilder.subscription(
-    block: GraphQLObjectTypeBuilderBlock<Unit>
+    block: GraphQLObjectTypeBlock<Unit>
 ) {
     subscription.apply(block)
 }

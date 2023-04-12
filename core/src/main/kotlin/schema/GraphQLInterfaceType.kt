@@ -78,6 +78,17 @@ typealias GraphQLTypeGetter<T> =
  * A block of code invoked to fill in options in
  * [GraphQLInterfaceTypeBuilder].
  */
+typealias GraphQLInterfaceTypeBlock<T> =
+        GraphQLInterfaceTypeBuilder<T>.() -> Unit
+
+/**
+ * A block of code invoked to fill in options in
+ * [GraphQLInterfaceTypeBuilder].
+ */
+@Deprecated("Use shorter name instead", ReplaceWith(
+    "GraphQLInterfaceTypeBlock<T>",
+    "org.cufy.graphkt.schema.GraphQLInterfaceTypeBlock"
+))
 typealias GraphQLInterfaceTypeBuilderBlock<T> =
         GraphQLInterfaceTypeBuilder<T>.() -> Unit
 
@@ -152,7 +163,7 @@ fun <T : Any> GraphQLInterfaceTypeBuilder(): GraphQLInterfaceTypeBuilder<T> {
  */
 fun <T : Any> GraphQLInterfaceType(
     name: String? = null,
-    block: GraphQLInterfaceTypeBuilderBlock<T>
+    block: GraphQLInterfaceTypeBlock<T>
 ): GraphQLInterfaceType<T> {
     val builder = GraphQLInterfaceTypeBuilder<T>()
     name?.let { builder.name(it) }
