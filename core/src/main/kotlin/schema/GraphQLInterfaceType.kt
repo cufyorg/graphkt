@@ -126,7 +126,7 @@ interface GraphQLInterfaceTypeBuilder<T : Any> :
 @OptIn(InternalGraphktApi::class)
 fun <T : Any> GraphQLTypeGetterScope(
     instance: T,
-    context: Map<*, *>,
+    context: Map<Any?, Any?>,
 ): GraphQLTypeGetterScope<T> {
     return GraphQLTypeGetterScopeImpl(
         instance,
