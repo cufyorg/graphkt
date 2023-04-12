@@ -36,5 +36,5 @@ open class GraphQLGetterScopeImpl<T : Any, M>(
 @InternalGraphktApi
 open class GraphQLTypeGetterScopeImpl<T : Any>(
     override val instance: T,
-    override val context: Map<*, *>
+    override val context: Map<Any?, Any?>
 ) : GraphQLTypeGetterScope<T>
