@@ -27,14 +27,14 @@ import java.io.PrintStream
  * @author LSafer
  * @since 2.0.0
  */
-interface GraphktEngineFactory {
+interface GraphQLEngineFactory {
     /**
      * Create a new engine instance.
      *
      * @param schema the engine's schema.
      * @since 2.0.0
      */
-    operator fun invoke(schema: GraphQLSchema): GraphktEngine
+    operator fun invoke(schema: GraphQLSchema): GraphQLEngine
 }
 
 /**
@@ -44,7 +44,7 @@ interface GraphktEngineFactory {
  * @author LSafer
  * @since 2.0.0
  */
-interface GraphktEngine {
+interface GraphQLEngine {
     /**
      * Print the schema to the given [out].
      *
@@ -68,7 +68,7 @@ interface GraphktEngine {
 }
 
 /**
- * An interface for builders with graphkt engine.
+ * An interface for instances with graphkt engine.
  *
  * Important Note: these interface might change in
  * the future. It was made to make it easier to
@@ -79,9 +79,27 @@ interface GraphktEngine {
  * @author LSafer
  * @since 2.0.0
  */
-interface WithEngine {
+interface GraphQLElementWithEngine {
     /**
      * The engine factory.
      */
-    var engine: GraphktEngineFactory? // REQUIRED
+    val engine: GraphQLEngineFactory
+}
+
+/**
+ * A mutable variant of [GraphQLElementWithEngine].
+ *
+ * Important Note: these interface might change in
+ * the future. It was made to make it easier to
+ * implement features for different kids of tweaks
+ * with less code and not to be used by regular
+ * users.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+interface GraphQLMutableElementWithEngine
+    : GraphQLElementWithEngine {
+
+    override /* lateinit */ var engine: GraphQLEngineFactory
 }

@@ -21,10 +21,19 @@ import org.cufy.graphkt.schema.GraphQLInputObjectType
 import org.cufy.graphkt.schema.GraphQLInputSetter
 import org.cufy.graphkt.schema.GraphQLInputType
 
+/*
+These functions are responsible for the encoding/decoding
+of input object types to type `T` since graphql-java does
+not support that.
+
+The encoding/decoding of scalar types are support by graphql-java
+thus not implemented here.
+*/
+
 //
 
 @InternalGraphktApi
-fun <T> GraphQLInputType<T>.decode(rawValue: Any?): T {
+fun <T> GraphQLInputType<T>.furtherDecodeArgumentValue(rawValue: Any?): T {
     if (rawValue == null) {
         @Suppress("UNCHECKED_CAST")
         return null as T
@@ -36,19 +45,19 @@ fun <T> GraphQLInputType<T>.decode(rawValue: Any?): T {
 
             @Suppress("UNCHECKED_CAST")
             val rawMap = rawValue as? Map<String, Any?>
-                ?: error("Expected a map for the value but got $rawValue")
+                    ?: error("Expected a map for the value but got $rawValue")
 
-            type.decode(rawMap)
+            type.furtherDecodeArgumentValue(rawMap)
         }
         is GraphQLInputArrayType<*> -> {
             @Suppress("UNCHECKED_CAST")
             val type = this as GraphQLInputArrayType<Any?>
 
             val rawList = rawValue as? List<Any?>
-                ?: error("Expected a list for the value but got $rawValue")
+                    ?: error("Expected a list for the value but got $rawValue")
 
             @Suppress("UNCHECKED_CAST")
-            type.decode(rawList) as T
+            type.furtherDecodeArgumentValue(rawList) as T
         }
         else -> {
             @Suppress("UNCHECKED_CAST")
@@ -58,12 +67,12 @@ fun <T> GraphQLInputType<T>.decode(rawValue: Any?): T {
 }
 
 @InternalGraphktApi
-fun <T> GraphQLInputArrayType<T>.decode(rawList: List<Any?>): List<T> {
-    return rawList.map { type.decode(it) }
+fun <T> GraphQLInputArrayType<T>.furtherDecodeArgumentValue(rawList: List<Any?>): List<T> {
+    return rawList.map { type.furtherDecodeArgumentValue(it) }
 }
 
 @InternalGraphktApi
-fun <T : Any> GraphQLInputObjectType<T>.decode(rawMap: Map<String, Any?>): T {
+fun <T : Any> GraphQLInputObjectType<T>.furtherDecodeArgumentValue(rawMap: Map<String, Any?>): T {
     val instance = this.constructor.invoke()
     this.fields.forEach {
         val name = it.name
@@ -74,7 +83,7 @@ fun <T : Any> GraphQLInputObjectType<T>.decode(rawMap: Map<String, Any?>): T {
         val setter = it.setter as GraphQLInputSetter<T, Any?>
 
         val rawValue = rawMap[name]
-        val value = type.decode(rawValue)
+        val value = type.value.furtherDecodeArgumentValue(rawValue)
 
         setter(instance, value)
     }
@@ -84,7 +93,7 @@ fun <T : Any> GraphQLInputObjectType<T>.decode(rawMap: Map<String, Any?>): T {
 //
 
 @InternalGraphktApi
-fun <T> GraphQLInputType<T>.encode(value: T): Any? {
+fun <T> GraphQLInputType<T>.furtherEncodeArgumentValue(value: T): Any? {
     if (value == null) {
         return null
     }
@@ -93,7 +102,7 @@ fun <T> GraphQLInputType<T>.encode(value: T): Any? {
             @Suppress("UNCHECKED_CAST")
             val type = this as GraphQLInputObjectType<T & Any>
 
-            type.encode(value)
+            type.furtherEncodeArgumentValue(value)
         }
         is GraphQLInputArrayType<*> -> {
             @Suppress("UNCHECKED_CAST")
@@ -101,7 +110,7 @@ fun <T> GraphQLInputType<T>.encode(value: T): Any? {
 
             val list = value as List<Any?>
 
-            type.encode(list)
+            type.furtherEncodeArgumentValue(list)
         }
         else -> {
             value
@@ -110,12 +119,12 @@ fun <T> GraphQLInputType<T>.encode(value: T): Any? {
 }
 
 @InternalGraphktApi
-fun <T> GraphQLInputArrayType<T>.encode(list: List<T>): List<Any?> {
-    return list.map { type.encode(it) }
+fun <T> GraphQLInputArrayType<T>.furtherEncodeArgumentValue(list: List<T>): List<Any?> {
+    return list.map { type.furtherEncodeArgumentValue(it) }
 }
 
 @InternalGraphktApi
-fun <T : Any> GraphQLInputObjectType<T>.encode(instance: T): Map<String, Any?> {
+fun <T : Any> GraphQLInputObjectType<T>.furtherEncodeArgumentValue(instance: T): Map<String, Any?> {
     val rawMap = mutableMapOf<String, Any?>()
     this.fields.forEach {
         val name = it.name
@@ -126,7 +135,7 @@ fun <T : Any> GraphQLInputObjectType<T>.encode(instance: T): Map<String, Any?> {
         val getter = it.getter
 
         val value = getter(instance)
-        val rawValue = type.encode(value)
+        val rawValue = type.furtherEncodeArgumentValue(value)
 
         rawMap[name] = rawValue
     }

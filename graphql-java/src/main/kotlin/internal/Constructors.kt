@@ -53,9 +53,7 @@ import graphql.schema.TypeResolver as JavaTypeResolver
 /* ============= ----- Scalar ----- ============= */
 
 @InternalGraphktApi
-fun GraphQLScalar(
-    value: JavaValue<*>
-): GraphQLScalar<*> {
+fun transformToGraphQLScalar(value: JavaValue<*>): GraphQLScalar<*> {
     return when (value) {
         is JavaIntValue -> GraphQLInteger(value.value)
         is JavaFloatValue -> GraphQLDecimal(value.value)
@@ -66,9 +64,7 @@ fun GraphQLScalar(
 }
 
 @InternalGraphktApi
-fun JavaValue(
-    scalar: GraphQLScalar<*>
-): JavaValue<*> {
+fun transformGraphQLScalar(scalar: GraphQLScalar<*>): JavaValue<*> {
     return when (scalar) {
         is GraphQLInteger -> JavaIntValue.newIntValue(scalar.value).build()
         is GraphQLDecimal -> JavaFloatValue.newFloatValue(scalar.value).build()
@@ -81,9 +77,7 @@ fun JavaValue(
 /* ============= -- JavaCoercing -- ============= */
 
 @InternalGraphktApi
-fun <T : Any> JavaCoercing(
-    type: GraphQLScalarType<T>,
-): JavaCoercing<T, GraphQLScalar<*>> {
+fun <T : Any> createJavaCoercing(type: GraphQLScalarType<T>): JavaCoercing<T, GraphQLScalar<*>> {
     // TODO: testing
     return object : JavaCoercing<T, GraphQLScalar<*>> {
         override fun serialize(dataFetcherResult: Any): GraphQLScalar<*> {
@@ -92,7 +86,7 @@ fun <T : Any> JavaCoercing(
             val result = dataFetcherResult as T
 
             try {
-                return type.encode(result)
+                return type.encoder(result)
             } catch (error: JavaCoercingSerializeException) {
                 throw error
             } catch (error: Throwable) {
@@ -104,7 +98,7 @@ fun <T : Any> JavaCoercing(
             input as JavaValue<*>
 
             try {
-                return type.decode(GraphQLScalar(input))
+                return type.decoder(transformToGraphQLScalar(input))
             } catch (error: JavaCoercingParseLiteralException) {
                 throw error
             } catch (error: Throwable) {
@@ -116,7 +110,7 @@ fun <T : Any> JavaCoercing(
             val scalar = dynamicDecodeScalar(input)
 
             try {
-                return type.decode(scalar)
+                return type.decoder(scalar)
             } catch (error: JavaCoercingParseValueException) {
                 throw error
             } catch (error: Throwable) {
@@ -129,8 +123,8 @@ fun <T : Any> JavaCoercing(
             input as GraphQLScalar<*>
 
             // invoking this was just to comply with the specs
-            type.decode(input)
-            return JavaValue(input)
+            type.decoder(input)
+            return transformGraphQLScalar(input)
         }
     }
 }
@@ -138,7 +132,7 @@ fun <T : Any> JavaCoercing(
 /* =========== - DirectiveLocation  - =========== */
 
 @InternalGraphktApi
-fun JavaDirectiveLocation(
+fun transformGraphQLDirectiveLocation(
     location: GraphQLDirectiveLocation
 ): JavaDirectiveLocation {
     return when (location) {
@@ -187,12 +181,12 @@ fun JavaDirectiveLocation(
 /* ============= ---- Argument ---- ============= */
 
 @InternalGraphktApi
-fun <T> GraphQLArgument(
+fun <T> createGraphQLArgument(
     argument: JavaQueryAppliedDirectiveArgument,
     definition: GraphQLArgumentDefinition<T>
 ): GraphQLArgument<T> {
     val rawValue = argument.getValue<Any?>()
-    val value = definition.type.decode(rawValue)
+    val value = definition.type.value.furtherDecodeArgumentValue(rawValue)
 
     return GraphQLArgument(
         definition,
@@ -201,11 +195,11 @@ fun <T> GraphQLArgument(
 }
 
 @InternalGraphktApi
-fun <T> GraphQLArgument(
+fun <T> createGraphQLArgument(
     rawValue: Any?,
     definition: GraphQLArgumentDefinition<T>
 ): GraphQLArgument<T> {
-    val value = definition.type.decode(rawValue)
+    val value = definition.type.value.furtherDecodeArgumentValue(rawValue)
 
     return GraphQLArgument(
         definition,
@@ -220,11 +214,11 @@ fun <T> GraphQLArgument(
 /* ============= ---- Argument ---- ============= */
 
 @InternalGraphktApi
-fun <T> TransformContext.JavaGraphQLAppliedDirectiveArgument(
+fun <T> TransformContext.transformGraphQLArgument(
     argument: GraphQLArgument<T>
 ): JavaGraphQLAppliedDirectiveArgument {
-    val definition = JavaGraphQLArgument(argument.definition)
-    val rawValue = argument.definition.type.encode(argument.value)
+    val definition = transformGraphQLArgumentDefinition(argument.definition)
+    val rawValue = argument.definition.type.value.furtherEncodeArgumentValue(argument.value)
 
     return JavaGraphQLAppliedDirectiveArgument
         .newArgument()
@@ -238,7 +232,7 @@ fun <T> TransformContext.JavaGraphQLAppliedDirectiveArgument(
 /* ============= --- Directive  --- ============= */
 
 @InternalGraphktApi
-fun TransformContext.JavaGraphQLAppliedDirective(
+fun TransformContext.transformGraphQLDirective(
     directive: GraphQLDirective
 ): JavaGraphQLAppliedDirective {
     addDirectiveDefinition(directive.definition)
@@ -246,7 +240,7 @@ fun TransformContext.JavaGraphQLAppliedDirective(
     val name = directive.definition.name
     val description = directive.definition.name
     val arguments = directive.arguments.map {
-        JavaGraphQLAppliedDirectiveArgument(it)
+        transformGraphQLArgument(it)
     }
 
     return JavaGraphQLAppliedDirective
@@ -264,7 +258,7 @@ fun TransformContext.JavaGraphQLAppliedDirective(
 /* ============= --- Directive  --- ============= */
 
 @InternalGraphktApi
-fun TransformRuntimeContext.GraphQLDirective(
+fun TransformRuntimeContext.transformToGraphQLDirective(
     directive: JavaQueryAppliedDirective
 ): GraphQLDirective {
     val name = directive.name
@@ -272,7 +266,7 @@ fun TransformRuntimeContext.GraphQLDirective(
     val arguments = directive.arguments.map { argument ->
         val argumentDefinition = definition.arguments.first { it.name == argument.name }
 
-        GraphQLArgument(argument, argumentDefinition)
+        createGraphQLArgument(argument, argumentDefinition)
     }
 
     return GraphQLDirective(
@@ -284,14 +278,14 @@ fun TransformRuntimeContext.GraphQLDirective(
 /* ============= ----- Getter ----- ============= */
 
 @InternalGraphktApi
-fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
+fun <T : Any, M> TransformRuntimeContext.createJavaDataFetcher(
     getter: GraphQLFlowGetter<T, M>,
     onGetBlocks: List<GraphQLGetterBlock<T, M>>,
     onGetBlockingBlocks: List<GraphQLGetterBlockingBlock<T, M>>,
     definition: GraphQLFieldDefinition<T, M>,
 ): JavaDataFetcher<*> {
     return JavaDataFetcher { environment ->
-        val scope = GraphQLGetterScope(environment, definition)
+        val scope = createGraphQLGetterScope(environment, definition)
 
         onGetBlockingBlocks.forEach {
             it(scope)
@@ -306,7 +300,7 @@ fun <T : Any, M> TransformRuntimeContext.JavaDataFetcher(
                 }
 
                 getter(scope).map {
-                    JavaDataFetcherResult(it, scope.supLocal + scope.subLocal)
+                    createJavaDataFetcherResult(it, scope.supLocal + scope.subLocal)
                 }
             } catch (error: Throwable) {
                 future.completeExceptionally(error)
@@ -338,7 +332,7 @@ private fun JavaDataFetchingEnvironment.canReturnPublisher(): Boolean {
             executionStepInfo.path.parent.isRootPath
 }
 
-private fun <T> JavaDataFetcherResult(
+private fun <T> createJavaDataFetcherResult(
     data: T,
     local: Map<Any?, Any?>
 ): JavaDataFetcherResult<T> {
@@ -349,31 +343,31 @@ private fun <T> JavaDataFetcherResult(
 }
 
 @InternalGraphktApi
-private fun <T : Any, M> TransformRuntimeContext.GraphQLGetterScope(
+private fun <T : Any, M> TransformRuntimeContext.createGraphQLGetterScope(
     environment: JavaDataFetchingEnvironment,
     definition: GraphQLFieldDefinition<T, M>,
 ): GraphQLGetterScope<T, M> {
     val instance = environment.getSource<T>()
     val arguments = definition.arguments.map {
-        GraphQLArgument(rawValue = environment.getArgument(it.name), it)
+        createGraphQLArgument(rawValue = environment.getArgument(it.name), it)
     }
     val directives = environment
         .queryDirectives
         .immediateAppliedDirectivesByName
         .values
         .flatten()
-        .map { GraphQLDirective(it) }
+        .map { transformToGraphQLDirective(it) }
     val graphQlContext = environment
         .graphQlContext
         .get<Map<Any?, Any?>>("graphkt")
-        ?: emptyMap()
+            ?: emptyMap()
     val supLocal = environment
         .getLocalContext() as? Map<Any?, Any?>
-        ?: emptyMap()
+            ?: emptyMap()
     val subLocal = mutableMapOf<Any?, Any?>()
 
     @Suppress("UNCHECKED_CAST")
-    return GraphQLGetterScope(
+    return GraphQLGetterScopeImpl(
         instance ?: Unit as T,
         arguments,
         directives,
@@ -383,14 +377,26 @@ private fun <T : Any, M> TransformRuntimeContext.GraphQLGetterScope(
     )
 }
 
+@InternalGraphktApi
+open class GraphQLGetterScopeImpl<T : Any, M>(
+    override val instance: T,
+    override val arguments: List<GraphQLArgument<*>>,
+    override val directives: List<GraphQLDirective>,
+    override val context: Map<Any?, Any?>,
+    override val supLocal: Map<Any?, Any?>,
+    override val subLocal: MutableMap<Any?, Any?>
+) : GraphQLGetterScope<T, M> {
+    override val local: MutableMap<Any?, Any?> = mutableMapOf()
+}
+
 /* ============= --- TypeGetter --- ============= */
 
 @InternalGraphktApi
-fun <T : Any> TransformRuntimeContext.JavaTypeResolver(
+fun <T : Any> TransformRuntimeContext.createJavaTypeResolver(
     getter: GraphQLTypeGetter<T>
 ): JavaTypeResolver {
     return JavaTypeResolver { environment ->
-        val scope = GraphQLTypeGetterScope<T>(environment)
+        val scope = createGraphQLTypeGetterScope<T>(environment)
         val data = getter(scope)
 
         val type = getObjectType(data)
@@ -399,8 +405,9 @@ fun <T : Any> TransformRuntimeContext.JavaTypeResolver(
     }
 }
 
+@Suppress("UnusedReceiverParameter")
 @InternalGraphktApi
-private fun <T : Any> TransformRuntimeContext.GraphQLTypeGetterScope(
+private fun <T : Any> TransformRuntimeContext.createGraphQLTypeGetterScope(
     environment: JavaTypeResolutionEnvironment
 ): GraphQLTypeGetterScope<T> {
     val instance = environment.getObject<T>()
@@ -410,8 +417,14 @@ private fun <T : Any> TransformRuntimeContext.GraphQLTypeGetterScope(
         .asSequence()
         .associate { it.key to it.value }
 
-    return GraphQLTypeGetterScope(
+    return GraphQLTypeGetterScopeImpl(
         instance,
         graphQlContext
     )
 }
+
+@InternalGraphktApi
+open class GraphQLTypeGetterScopeImpl<T : Any>(
+    override val instance: T,
+    override val context: Map<Any?, Any?>
+) : GraphQLTypeGetterScope<T>

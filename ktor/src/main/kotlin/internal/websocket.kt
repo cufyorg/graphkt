@@ -17,7 +17,6 @@ package org.cufy.graphkt.ktor.internal
 
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import io.ktor.util.collections.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -30,7 +29,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.cufy.graphkt.InternalGraphktApi
-import org.cufy.graphkt.ktor.Configuration
+import org.cufy.graphkt.ktor.GraphQLKtorConfiguration
 import org.cufy.graphkt.schema.GraphQLPacket
 import org.cufy.graphkt.schema.GraphQLPacketType
 import org.cufy.graphkt.schema.GraphQLRequest
@@ -87,7 +86,7 @@ internal fun SubscriberAlreadyExists(uniqueOperationId: String) =
 @InternalGraphktApi
 internal fun Route.graphqlWebsocket(
     path: String,
-    configuration: Configuration,
+    configuration: GraphQLKtorConfiguration,
     handler: suspend DefaultWebSocketServerSession.(GraphQLRequest) -> Flow<GraphQLResponse>
 ) {
     /*
@@ -98,10 +97,11 @@ internal fun Route.graphqlWebsocket(
     webSocket(path) {
         val initialized = AtomicBoolean(false)
         val subscriptions: MutableMap<String, Job> = ConcurrentHashMap()
+        val connectionInitWaitTimeout = configuration.connectionInitWaitTimeout
 
-        if (configuration.connectionInitWaitTimeout != null) {
+        if (connectionInitWaitTimeout != null) {
             launch {
-                delay(configuration.connectionInitWaitTimeout)
+                delay(connectionInitWaitTimeout)
 
                 if (!initialized.get()) {
                     close(ConnectionInitialisationTimeout)

@@ -20,37 +20,41 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.asDeferred
-import org.cufy.graphkt.*
-import org.cufy.graphkt.java.internal.GraphQLResponse
-import org.cufy.graphkt.java.internal.JavaExecutionInput
-import org.cufy.graphkt.java.internal.JavaGraphQLSchema
+import org.cufy.graphkt.GraphQLEngine
+import org.cufy.graphkt.GraphQLEngineFactory
+import org.cufy.graphkt.GraphQLMutableElementWithEngine
+import org.cufy.graphkt.InternalGraphktApi
+import org.cufy.graphkt.java.internal.createJavaExecutionInput
+import org.cufy.graphkt.java.internal.transformGraphQLSchema
+import org.cufy.graphkt.java.internal.transformToGraphQLResponseFlow
 import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 import org.cufy.graphkt.schema.GraphQLSchema
 import java.io.PrintStream
 import graphql.GraphQL as JavaGraphQL
 
-/* ============= - EngineFactory  - ============= */
+// GraphQL Java Engine Factory
 
-private lateinit var singletonOfGraphQLJava: GraphQLJava
+private val singletonOfGraphQLJava by lazy { GraphQLJava { } }
 
 /**
- * The `graphql-java` implementation of [GraphktEngineFactory].
+ * The `graphql-java` implementation of [GraphQLEngineFactory].
  *
  * @author LSafer
  * @since 2.0.0
  */
 class GraphQLJava(
+    @Suppress("MemberVisibilityCanBePrivate")
     val configuration: GraphQLJavaConfiguration
-) : GraphktEngineFactory {
+) : GraphQLEngineFactory {
     @OptIn(InternalGraphktApi::class)
-    override fun invoke(schema: GraphQLSchema): GraphktEngine {
-        val javaSchema = JavaGraphQLSchema(schema)
-            .transform { configuration.schemaBlock(it) }
+    override fun invoke(schema: GraphQLSchema): GraphQLEngine {
+        val javaSchema = transformGraphQLSchema(schema)
+            .transform { configuration.schemaTransformers.forEach { block -> block(it) } }
 
         val graphql = JavaGraphQL.newGraphQL(javaSchema)
             .build()
-            .transform { configuration.graphqlBlock(it) }
+            .transform { configuration.graphqlTransformers.forEach { block -> block(it) } }
 
         return GraphQLJavaEngine(graphql, configuration)
     }
@@ -60,9 +64,6 @@ class GraphQLJava(
  * Obtain the default `graphql-java` engine factory.
  */
 fun GraphQLJava(): GraphQLJava {
-    if (!::singletonOfGraphQLJava.isInitialized)
-        singletonOfGraphQLJava = GraphQLJava { }
-
     return singletonOfGraphQLJava
 }
 
@@ -70,14 +71,14 @@ fun GraphQLJava(): GraphQLJava {
  * Create a new [singletonOfGraphQLJava] instance configured
  * with the given configuration [block].
  */
-fun GraphQLJava(block: GraphQLJavaConfigurationBuilder.() -> Unit): GraphQLJava {
+fun GraphQLJava(block: GraphQLJavaConfigurationBlock): GraphQLJava {
     return GraphQLJava(GraphQLJavaConfiguration(block))
 }
 
-/* ============= ----- Engine ----- ============= */
+// GraphQL Java Engine
 
 /**
- * The `graphql-java` implementation of [GraphktEngine].
+ * The `graphql-java` implementation of [GraphQLEngine].
  *
  * @author LSafer
  * @since 2.0.0
@@ -90,8 +91,9 @@ class GraphQLJavaEngine(
     /**
      * The configuration.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     val configuration: GraphQLJavaConfiguration
-) : GraphktEngine {
+) : GraphQLEngine {
     override fun printSchema(out: PrintStream) {
         val printer = SchemaPrinter()
         val result = printer.print(graphql.graphQLSchema)
@@ -105,18 +107,20 @@ class GraphQLJavaEngine(
         context: Map<Any?, Any?>,
         local: Map<Any?, Any?>
     ): Flow<GraphQLResponse> {
-        val input = JavaExecutionInput(request, context, local)
-            .transform { configuration.executionInputBlock(it) }
+        val input = createJavaExecutionInput(request, context, local)
+            .transform { configuration.executionInputTransformers.forEach { block -> block(it) } }
 
         val resultFlow = graphql.executeAsync(input).asDeferred()
 
         return flow {
             val result = resultFlow.await()
 
-            emitAll(GraphQLResponse(result))
+            emitAll(transformToGraphQLResponseFlow(result))
         }
     }
 }
+
+// Extensions
 
 /**
  * Set the engine factory to be [GraphQLJava].
@@ -125,7 +129,7 @@ class GraphQLJavaEngine(
  * @since 2.0.0
  */
 @Suppress("FunctionName")
-fun WithEngine.`graphql-java`(block: GraphQLJavaConfigurationBuilder.() -> Unit) {
+fun GraphQLMutableElementWithEngine.`graphql-java`(block: GraphQLJavaConfigurationBlock) {
     engine = GraphQLJava(block)
 }
 
@@ -135,5 +139,5 @@ fun WithEngine.`graphql-java`(block: GraphQLJavaConfigurationBuilder.() -> Unit)
  * @since 2.0.0
  */
 @Suppress("ObjectPropertyName")
-val WithEngine.`graphql-java`: Unit
+val GraphQLMutableElementWithEngine.`graphql-java`: Unit
     get() = run { engine = GraphQLJava() }

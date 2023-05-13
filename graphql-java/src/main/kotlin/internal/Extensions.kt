@@ -1,10 +1,10 @@
 package org.cufy.graphkt.java.internal
 
 import org.cufy.graphkt.InternalGraphktApi
-import org.cufy.graphkt.schema.WithDirectives
+import org.cufy.graphkt.schema.GraphQLElementWithDirectives
 
 @InternalGraphktApi
-fun WithDirectives.javaDeprecationReason(): String? {
+fun GraphQLElementWithDirectives.obtainDeprecationReason(): String? {
     return directives
         .firstOrNull { it.definition.name == "deprecated" }
         ?.arguments
@@ -13,7 +13,7 @@ fun WithDirectives.javaDeprecationReason(): String? {
 }
 
 @InternalGraphktApi
-fun WithDirectives.javaSpecifiedByUrl(): String? {
+fun GraphQLElementWithDirectives.obtainSpecifiedByUrl(): String? {
     return directives
         .firstOrNull { it.definition.name == "specifiedBy" }
         ?.arguments

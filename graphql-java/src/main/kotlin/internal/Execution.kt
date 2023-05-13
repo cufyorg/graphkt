@@ -35,7 +35,7 @@ import graphql.schema.GraphQLObjectType as JavaGraphQLObjectType
 import graphql.schema.GraphQLSchema as JavaGraphQLSchema
 
 @InternalGraphktApi
-fun JavaGraphQLSchema(
+fun transformGraphQLSchema(
     schema: GraphQLSchema
 ): JavaGraphQLSchema {
     val context = TransformContext()
@@ -48,7 +48,7 @@ fun JavaGraphQLSchema(
     val subscriptionType = schema.subscription?.let { context.addObjectType(it) as JavaGraphQLObjectType }
     val additionalTypes = schema.additionalTypes.mapTo(mutableSetOf()) { context.addType(it) }
     val additionalDirectives = schema.additionalDirectives.mapTo(mutableSetOf()) { context.addDirectiveDefinition(it) }
-    val directives = schema.directives.map { context.JavaGraphQLAppliedDirective(it) }
+    val directives = schema.directives.map { context.transformGraphQLDirective(it) }
 
     val builtDirectives = context.directives.values.filterNotNullTo(mutableSetOf())
 
@@ -76,7 +76,7 @@ fun JavaGraphQLSchema(
 }
 
 @InternalGraphktApi
-fun JavaExecutionInput(
+fun createJavaExecutionInput(
     request: GraphQLRequest,
     context: Map<Any?, Any?>,
     local: Map<Any?, Any?>
@@ -99,9 +99,8 @@ fun JavaExecutionInput(
         .build()
 }
 
-@Suppress("FunctionName")
 @InternalGraphktApi
-fun GraphQLResponse(
+fun transformToGraphQLResponseFlow(
     result: JavaExecutionResult
 ): Flow<GraphQLResponse> {
     val sourceData = result.getData<Any>() ?: null
@@ -109,12 +108,12 @@ fun GraphQLResponse(
     if (sourceData is Publisher<*>) {
         return sourceData.asFlow().map {
             it as ExecutionResult
-            GraphQLResponse(it).single()
+            transformToGraphQLResponseFlow(it).single()
         }
     }
 
     val data = dynamicEncodeToJsonElement(sourceData) as? JsonObject
-    val errors = result.errors.map { GraphQLError(it) }
+    val errors = result.errors.map { transformToGraphQLError(it) }
     val extensions = dynamicEncodeToJsonElement(result.extensions) as? JsonObject
 
     return flowOf(
@@ -127,11 +126,11 @@ fun GraphQLResponse(
 }
 
 @InternalGraphktApi
-fun GraphQLError(
+fun transformToGraphQLError(
     error: JavaGraphQLError
 ): GraphQLError {
     val message = error.message ?: ""
-    val locations = error.locations?.map { GraphQLErrorLocation(it) } ?: emptyList()
+    val locations = error.locations?.map { transformToGraphQLErrorLocation(it) } ?: emptyList()
     val path = error.path?.map { if (it is Number) JsonPrimitive(it) else JsonPrimitive("$it") }
     val extensions = dynamicEncodeToJsonElement(error.extensions) as? JsonObject
     val cause = when (error) {
@@ -150,7 +149,7 @@ fun GraphQLError(
 }
 
 @InternalGraphktApi
-fun GraphQLErrorLocation(
+fun transformToGraphQLErrorLocation(
     location: JavaSourceLocation
 ): GraphQLErrorLocation {
     val line = location.line

@@ -35,7 +35,7 @@ import org.cufy.graphkt.schema.*
 @KtorDsl
 fun Application.graphql(
     path: String = "/graphql",
-    block: ConfigurationBuilder.() -> Unit = {}
+    block: GraphQLKtorMutableConfiguration.() -> Unit = {}
 ) {
     routing {
         graphql(path, block)
@@ -53,9 +53,9 @@ fun Application.graphql(
 @OptIn(InternalGraphktApi::class)
 fun Route.graphql(
     path: String = "/graphql",
-    block: ConfigurationBuilder.() -> Unit = {}
+    block: GraphQLKtorMutableConfiguration.() -> Unit = {}
 ) {
-    val configuration = Configuration(block)
+    val configuration = GraphQLKtorConfiguration(block)
 
     /* prepare base arguments */
 
@@ -67,7 +67,7 @@ fun Route.graphql(
             additionalType(GraphQLVoidType)
         }
 
-        configuration.schemaBlock(this)
+        configuration.schemaBlocks.forEach { it(this) }
     }
 
     val engine = configuration.engine(schema)
@@ -83,21 +83,21 @@ fun Route.graphql(
 
         context["call"] = call
 
-        val scope = ConfigurationScope(context, local, call)
+        val scope = GraphQLKtorExecutionScope(context, local, call)
 
-        configuration.beforeBlock(scope)
+        configuration.beforeBlocks.forEach { it(scope) }
 
-        val transformedRequest =
-            configuration.requestBlock(scope, request)
+        val transformedRequest = configuration.requestTransformers
+            .fold(request) { it, block -> block(scope, it) }
 
         // actual execution
         val responseFlow = engine.execute(transformedRequest, context, local)
 
-        configuration.afterBlock(scope)
+        configuration.afterBlocks.forEach { it(scope) }
 
         return responseFlow.map { response ->
-            val transformedResponse =
-                configuration.responseBlock(scope, response)
+            val transformedResponse = configuration.responseTransformers
+                .fold(response) { it, block -> block(scope, it) }
 
             transformedResponse
         }

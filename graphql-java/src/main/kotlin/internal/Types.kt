@@ -16,7 +16,6 @@
 package org.cufy.graphkt.java.internal
 
 import org.cufy.graphkt.InternalGraphktApi
-import org.cufy.graphkt.java.*
 import org.cufy.graphkt.schema.*
 import graphql.schema.FieldCoordinates as JavaFieldCoordinates
 import graphql.schema.GraphQLDirective as JavaGraphQLDirective
@@ -141,7 +140,6 @@ fun <T> TransformContext.addInputType(
 /* ============= ------------------ ============= */
 
 @InternalGraphktApi
-@Suppress("UNCHECKED_CAST")
 fun <T : Any> TransformContext.addScalarType(
     type: GraphQLScalarType<T>
 ): JavaGraphQLScalarType {
@@ -154,11 +152,11 @@ fun <T : Any> TransformContext.addScalarType(
 
     val name = type.name
     val description = type.description
-    val coercing = JavaCoercing(type)
+    val coercing = createJavaCoercing(type)
     val directives = type.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
-    val specifiedByUrl = type.javaSpecifiedByUrl()
+    val specifiedByUrl = type.obtainSpecifiedByUrl()
 
     //
 
@@ -193,10 +191,10 @@ fun <T, R> TransformContext.addEnumType(
     val name = type.name
     val description = type.description
     val values = type.values.map {
-        JavaGraphQLEnumValueDefinition(it)
+        transformGraphQLEnumValueDefinition(it)
     }
     val directives = type.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
 
     //
@@ -232,10 +230,10 @@ fun <T : Any> TransformContext.addInputObjectType(
     val name = type.name
     val description = type.description
     val fields = type.fields.map {
-        JavaGraphQLInputObjectField(it)
+        transformGraphQLInputFieldDefinition(it)
     }
     val directives = type.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
 
     //
@@ -271,7 +269,7 @@ fun <T : Any> TransformContext.addUnionType(
     val description = type.description
     val types = type.types.map { addObjectType(it) }
     val directives = type.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
 
     addTypeGetters(type)
@@ -297,7 +295,7 @@ fun <T : Any> TransformContext.addUnionType(
 private fun <T : Any> TransformContext.addTypeGetters(
     type: GraphQLUnionType<T>
 ) {
-    val typeResolver = with(runtime) { JavaTypeResolver(type.typeGetter) }
+    val typeResolver = with(runtime) { createJavaTypeResolver(type.typeGetter) }
 
     codeRegistry.typeResolver(type.name, typeResolver)
 }
@@ -315,7 +313,7 @@ fun <T : Any> TransformContext.addInterfaceType(
 
     //
 
-    val typeResolver = with(runtime) { JavaTypeResolver(type.typeGetter) }
+    val typeResolver = with(runtime) { createJavaTypeResolver(type.typeGetter) }
 
     codeRegistry.typeResolver(type.name, typeResolver)
 
@@ -327,10 +325,10 @@ fun <T : Any> TransformContext.addInterfaceType(
         addInterfaceType(it)
     }
     val fields = type.fields.map {
-        JavaGraphQLFieldDefinition(it)
+        transformGraphQLFieldDefinition(it)
     }
     val directives = type.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
 
     //
@@ -365,16 +363,16 @@ fun <T : Any> TransformContext.addObjectType(
     //
 
     // collect all the interfaces (recursively)
-    val allInterfaces = generateSequence(type.interfaces) {
-        it.flatMap { it.interfaces }.takeIf { it.isNotEmpty() }
+    val allInterfaces = generateSequence(type.interfaces) { anInterface ->
+        anInterface.flatMap { it.interfaces }.takeIf { it.isNotEmpty() }
     }.flatten().toSet()
 
     @Suppress("UNCHECKED_CAST")
-    val allGetterBlocks = (allInterfaces.map { it.onGet } + type.onGet)
+    val allGetterBlocks = (allInterfaces.map { it.onGetBlocks } + type.onGetBlocks)
             as List<GraphQLGetterBlock<T, *>>
 
     @Suppress("UNCHECKED_CAST")
-    val allGetterBlockingBlocks = (allInterfaces.map { it.onGetBlocking } + type.onGetBlocking)
+    val allGetterBlockingBlocks = (allInterfaces.map { it.onGetBlockingBlocks } + type.onGetBlockingBlocks)
             as List<GraphQLGetterBlockingBlock<T, *>>
 
     val allFields = (allInterfaces.flatMap { it.fields } + type.fields)
@@ -385,10 +383,10 @@ fun <T : Any> TransformContext.addObjectType(
 
         val coordinates = JavaFieldCoordinates.coordinates(type.name, it.name)
         val fetcher = with(runtime) {
-            JavaDataFetcher(
+            createJavaDataFetcher(
                 getter = it.getter,
-                onGetBlocks = allGetterBlocks + it.onGet,
-                onGetBlockingBlocks = allGetterBlockingBlocks + it.onGetBlocking,
+                onGetBlocks = allGetterBlocks + it.onGetBlocks,
+                onGetBlockingBlocks = allGetterBlockingBlocks + it.onGetBlockingBlocks,
                 definition = it
             )
         }
@@ -404,10 +402,10 @@ fun <T : Any> TransformContext.addObjectType(
         addInterfaceType(it)
     }
     val fields = allFields.map {
-        JavaGraphQLFieldDefinition(it)
+        transformGraphQLFieldDefinition(it)
     }
     val directives = type.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
 
     //
@@ -445,10 +443,10 @@ fun TransformContext.addDirectiveDefinition(
     val description = definition.description
     val repeatable = definition.repeatable
     val locations = definition.locations.map {
-        JavaDirectiveLocation(it)
+        transformGraphQLDirectiveLocation(it)
     }
     val arguments = definition.arguments.map {
-        JavaGraphQLArgument(it)
+        transformGraphQLArgumentDefinition(it)
     }
 
     //

@@ -48,7 +48,7 @@ fun Application.playground(
 fun Route.playground(
     path: String = "/graphql"
 ) {
-    val classloader = Configuration::class.java.classLoader
+    val classloader = GraphQLKtorConfiguration::class.java.classLoader
     val resource = classloader.getResource("playground.html")!!
 
     get(path) {
@@ -87,7 +87,7 @@ fun Application.sandbox(
 fun Route.sandbox(
     path: String = "/graphql"
 ) {
-    val classloader = Configuration::class.java.classLoader
+    val classloader = GraphQLKtorConfiguration::class.java.classLoader
     val resource = classloader.getResource("sandbox.html")!!
 
     get(path) {
@@ -124,7 +124,7 @@ fun Application.graphiql(
 fun Route.graphiql(
     path: String = "/graphql"
 ) {
-    val classloader = Configuration::class.java.classLoader
+    val classloader = GraphQLKtorConfiguration::class.java.classLoader
     val resource = classloader.getResource("graphiql.html")!!
 
     get(path) {

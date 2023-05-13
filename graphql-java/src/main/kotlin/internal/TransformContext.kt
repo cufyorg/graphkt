@@ -84,7 +84,7 @@ class TransformRuntimeContext {
 @InternalGraphktApi
 fun TransformRuntimeContext.getDirective(name: String): GraphQLDirectiveDefinition {
     return directives.entries.firstOrNull { it.key.name == name }?.key
-        ?: error("Directive was not registered: $name")
+            ?: error("Directive was not registered: $name")
 }
 
 //
@@ -92,37 +92,37 @@ fun TransformRuntimeContext.getDirective(name: String): GraphQLDirectiveDefiniti
 @InternalGraphktApi
 fun TransformRuntimeContext.getUnionType(type: GraphQLUnionType<*>): JavaGraphQLUnionType {
     return unionTypes[type]
-        ?: error("Type was not registered: ${type.name}")
+            ?: error("Type was not registered: ${type.name}")
 }
 
 @InternalGraphktApi
 fun TransformRuntimeContext.getInterfaceType(type: GraphQLInterfaceType<*>): JavaGraphQLInterfaceType {
     return interfaceTypes[type]
-        ?: error("Interface was not registered: ${type.name}")
+            ?: error("Interface was not registered: ${type.name}")
 }
 
 @InternalGraphktApi
 fun TransformRuntimeContext.getEnumType(type: GraphQLEnumType<*>): JavaGraphQLEnumType {
     return enumTypes[type]
-        ?: error("Enum was not registered: ${type.name}")
+            ?: error("Enum was not registered: ${type.name}")
 }
 
 @InternalGraphktApi
 fun TransformRuntimeContext.getInputObjectType(type: GraphQLInputObjectType<*>): JavaGraphQLInputObjectType {
     return inputObjectTypes[type]
-        ?: error("Type was not registered: ${type.name}")
+            ?: error("Type was not registered: ${type.name}")
 }
 
 @InternalGraphktApi
 fun TransformRuntimeContext.getObjectType(type: GraphQLObjectType<*>): JavaGraphQLObjectType {
     return objectTypes[type]
-        ?: error("Type was not registered")
+            ?: error("Type was not registered")
 }
 
 @InternalGraphktApi
 fun TransformRuntimeContext.getScalarType(type: GraphQLScalarType<*>): JavaGraphQLScalarType {
     return scalarTypes[type]
-        ?: error("Type was not registered: $type")
+            ?: error("Type was not registered: $type")
 }
 
 @InternalGraphktApi

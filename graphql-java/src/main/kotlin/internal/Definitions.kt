@@ -25,16 +25,16 @@ import graphql.schema.GraphQLInputObjectField as JavaGraphQLInputObjectField
 /* =========== - ArgumentDefinition - =========== */
 
 @InternalGraphktApi
-fun <T> TransformContext.JavaGraphQLArgument(
+fun <T> TransformContext.transformGraphQLArgumentDefinition(
     definition: GraphQLArgumentDefinition<T>
 ): JavaGraphQLArgument {
     val name = definition.name
     val description = definition.description
-    val type = addInputType(definition.type)
+    val type = addInputType(definition.type.value)
     val directives = definition.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
-    val deprecationReason = definition.javaDeprecationReason()
+    val deprecationReason = definition.obtainDeprecationReason()
 
     //
 
@@ -51,16 +51,16 @@ fun <T> TransformContext.JavaGraphQLArgument(
 /* ========== - EnumValueDefinition  - ========== */
 
 @InternalGraphktApi
-fun <T> TransformContext.JavaGraphQLEnumValueDefinition(
+fun <T> TransformContext.transformGraphQLEnumValueDefinition(
     definition: GraphQLEnumValueDefinition<T>
 ): JavaGraphQLEnumValueDefinition {
     val name = definition.name
     val description = definition.description
     val value = definition.value
     val directives = definition.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
-    val deprecationReason = definition.javaDeprecationReason()
+    val deprecationReason = definition.obtainDeprecationReason()
 
     //
 
@@ -77,19 +77,19 @@ fun <T> TransformContext.JavaGraphQLEnumValueDefinition(
 /* ============ - FieldDefinition  - ============ */
 
 @InternalGraphktApi
-fun <T : Any, M> TransformContext.JavaGraphQLFieldDefinition(
+fun <T : Any, M> TransformContext.transformGraphQLFieldDefinition(
     definition: GraphQLFieldDefinition<T, M>
 ): JavaGraphQLFieldDefinition {
     val name = definition.name
     val description = definition.description
-    val type = addOutputType(definition.type)
+    val type = addOutputType(definition.type.value)
     val arguments = definition.arguments.map {
-        JavaGraphQLArgument(it)
+        transformGraphQLArgumentDefinition(it)
     }
     val directives = definition.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
-    val deprecationReason = definition.javaDeprecationReason()
+    val deprecationReason = definition.obtainDeprecationReason()
 
     //
 
@@ -107,16 +107,16 @@ fun <T : Any, M> TransformContext.JavaGraphQLFieldDefinition(
 /* ========== - InputFieldDefinition - ========== */
 
 @InternalGraphktApi
-fun <T : Any, M> TransformContext.JavaGraphQLInputObjectField(
+fun <T : Any, M> TransformContext.transformGraphQLInputFieldDefinition(
     definition: GraphQLInputFieldDefinition<T, M>
 ): JavaGraphQLInputObjectField {
     val name = definition.name
     val description = definition.description
-    val type = addInputType(definition.type)
+    val type = addInputType(definition.type.value)
     val directives = definition.directives.map {
-        JavaGraphQLAppliedDirective(it)
+        transformGraphQLDirective(it)
     }
-    val deprecationReason = definition.javaDeprecationReason()
+    val deprecationReason = definition.obtainDeprecationReason()
 
     //
 

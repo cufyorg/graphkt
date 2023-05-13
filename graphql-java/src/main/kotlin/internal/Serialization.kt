@@ -53,9 +53,9 @@ fun dynamicDecodeFromJsonElement(value: JsonElement): Any? {
         is JsonNull -> null
         is JsonPrimitive -> {
             value.content.takeIf { value.isString }
-                ?: value.booleanOrNull
-                ?: value.content.toBigIntegerOrNull()
-                ?: value.content.toBigDecimalOrNull()
+                    ?: value.booleanOrNull
+                    ?: value.content.toBigIntegerOrNull()
+                    ?: value.content.toBigDecimalOrNull()
         }
         is JsonObject -> buildMap {
             value.forEach { key, value ->

@@ -26,7 +26,7 @@ annotation class GraphQLDsl
 /**
  * The scope for any graphql routing.
  */
-typealias GraphQLRoute<T> = WithFieldsBuilder<T>
+typealias GraphQLRoute<T> = GraphQLMutableElementWithFieldDefinitions<T>
 
 /**
  * A block of code invoked to fill in options in
@@ -37,7 +37,7 @@ typealias GraphQLRouteBlock<T> = GraphQLRoute<T>.() -> Unit
 /**
  * The scope for graphql interface routing.
  */
-typealias GraphQLInterfaceRoute<T> = GraphQLInterfaceTypeBuilder<T>
+typealias GraphQLInterfaceRoute<T> = GraphQLMutableInterfaceType<T>
 
 /**
  * A block of code invoked to fill in options in
@@ -48,7 +48,7 @@ typealias GraphQLInterfaceRouteBlock<T> = GraphQLInterfaceRoute<T>.() -> Unit
 /**
  * The scope for graphql interface routing.
  */
-typealias GraphQLObjectRoute<T> = GraphQLObjectTypeBuilder<T>
+typealias GraphQLObjectRoute<T> = GraphQLMutableObjectType<T>
 
 /**
  * A block of code invoked to fill in options in
