@@ -750,6 +750,15 @@ fun <T : Any> GraphQLMutableElementWithInterfaces<T>.implement(
     interfaces += block()
 }
 
+/**
+ * Add the given [interfaces].
+ */
+fun <T : Any> GraphQLMutableElementWithInterfaces<T>.implement(
+    vararg interfaces: GraphQLInterfaceType<in T>
+) {
+    this.interfaces += interfaces
+}
+
 /* ============================================== */
 /* ========|                            |======== */
 /* ========| w/ Type Getter             |======== */
