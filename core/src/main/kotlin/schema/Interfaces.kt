@@ -786,7 +786,7 @@ interface GraphQLElementWithTypeGetter<T : Any> {
  */
 interface GraphQLMutableElementWithTypeGetter<T : Any> :
     GraphQLElementWithTypeGetter<T> {
-    override /* lateinit */ var typeGetter: GraphQLTypeGetter<T>
+    override var typeGetter: GraphQLTypeGetter<T> /* = { throw NotImplementedError() } */
 }
 
 /* ---------------------------------------------- */

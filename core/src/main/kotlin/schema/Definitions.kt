@@ -786,7 +786,7 @@ interface GraphQLMutableFieldDefinition<T : Any, M> :
 
     override val onGetBlocks: MutableList<GraphQLGetterBlock<T, M>> /* = mutableListOf() */
     override val onGetBlockingBlocks: MutableList<GraphQLGetterBlockingBlock<T, M>> /* = mutableListOf() */
-    override /* lateinit */ var getter: GraphQLFlowGetter<T, M>
+    override var getter: GraphQLFlowGetter<T, M> /* = { throw NotImplementedError() } */
 }
 
 /**
@@ -828,7 +828,7 @@ fun <T : Any, M> GraphQLMutableFieldDefinition(): GraphQLMutableFieldDefinition<
         override val arguments = mutableListOf<GraphQLArgumentDefinition<*>>()
         override val onGetBlocks = mutableListOf<GraphQLGetterBlock<T, M>>()
         override val onGetBlockingBlocks = mutableListOf<GraphQLGetterBlockingBlock<T, M>>()
-        override lateinit var getter: GraphQLFlowGetter<T, M>
+        override var getter: GraphQLFlowGetter<T, M> = { throw NotImplementedError("Getter of field $name was not implemented.") }
     }
 }
 
@@ -1405,7 +1405,7 @@ fun <T : Any> GraphQLMutableInterfaceType(): GraphQLMutableInterfaceType<T> {
         override val onGetBlocks = mutableListOf<GraphQLGetterBlock<T, *>>()
         override val onGetBlockingBlocks = mutableListOf<GraphQLGetterBlockingBlock<T, *>>()
         override val fields = mutableListOf<GraphQLFieldDefinition<T, *>>()
-        override lateinit var typeGetter: GraphQLTypeGetter<T>
+        override var typeGetter: GraphQLTypeGetter<T> = { throw NotImplementedError("Type getter of interface $name was not implemented.") }
     }
 }
 
@@ -2075,7 +2075,7 @@ fun <T : Any> GraphQLMutableUnionType(): GraphQLMutableUnionType<T> {
         override lateinit var name: String
         override var description: String = ""
         override val directives = mutableListOf<GraphQLDirective>()
-        override lateinit var typeGetter: GraphQLTypeGetter<T>
+        override var typeGetter: GraphQLTypeGetter<T> = { throw NotImplementedError("Type getter of union $name was not implemented.") }
         override val types = mutableListOf<GraphQLObjectType<out T>>()
     }
 }
