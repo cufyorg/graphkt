@@ -313,6 +313,10 @@ fun <T : Any> TransformContext.addInterfaceType(
 
     //
 
+    val allInterfaces = type.generateAllInterfacesSequence().toList()
+
+    val allFields = (allInterfaces.flatMap { it.fields } + type.fields)
+
     val typeResolver = with(runtime) { createJavaTypeResolver(type.typeGetter) }
 
     codeRegistry.typeResolver(type.name, typeResolver)
@@ -324,7 +328,7 @@ fun <T : Any> TransformContext.addInterfaceType(
     val interfaces = type.interfaces.map {
         addInterfaceType(it)
     }
-    val fields = type.fields.map {
+    val fields = allFields.map {
         transformGraphQLFieldDefinition(it)
     }
     val directives = type.directives.map {
@@ -362,10 +366,7 @@ fun <T : Any> TransformContext.addObjectType(
 
     //
 
-    // collect all the interfaces (recursively)
-    val allInterfaces = generateSequence(type.interfaces) { anInterface ->
-        anInterface.flatMap { it.interfaces }.takeIf { it.isNotEmpty() }
-    }.flatten().toSet()
+    val allInterfaces = type.generateAllInterfacesSequence().toList()
 
     @Suppress("UNCHECKED_CAST")
     val allGetterBlocks = (allInterfaces.map { it.onGetBlocks } + type.onGetBlocks)
