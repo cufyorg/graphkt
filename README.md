@@ -18,7 +18,10 @@ repositories {
 
 dependencies {
     // Replace TAG with the desired version
-    implementation("org.cufy:graphkt:TAG")
+    val graphkt_version = "TAG"
+    implementation("org.cufy.graphkt:core:$graphkt_version")
+    implementation("org.cufy.graphkt:ktor:$graphkt_version")
+    implementation("org.cufy.graphkt:graphql-java:$graphkt_version")
 }
 ```
 
@@ -31,14 +34,17 @@ data class Entity(
     val name: String
 )
 
-val EntityObjectType = GraphQLObjectType<Entity>("Entity") {
+val EntityObjectType: GraphQLObjectType<Entity> = GraphQLObjectType {
+    name("Entity")
     description { "Some entity." }
 
-    field(Entity::name, GraphQLStringType) {
+    field(Entity::name) {
+        type { GraphQLStringType }
         description { "The name of the entity." }
     }
 
-    field("nameWithCustomVar", GraphQLNullableType(GraphQLStringType)) {
+    field("nameWithCustomVar") {
+        type { GraphQLStringType.Nullable }
         description { "The name of the entity with the customVar in the context." }
 
         get {
@@ -61,18 +67,20 @@ fun Application.configureGraphQL() {
             // engine-specific configuration
         }
 
-        context {
-            it["myCustomVar"] = Math.random()
+        before {
+            context["myCustomVar"] = Math.random()
         }
 
         schema {
             query {
                 description { "The root query." }
 
-                field("getEntityWithName", EntityObjectType) {
+                field("getEntityWithName") {
+                    type { EntityObjectType }
                     description { "Get an entity instance." }
 
-                    val nameArg = argument<String>("name", GraphQLStringType) {
+                    val nameArg = argument<String>("name") {
+                        type { GraphQLStringType }
                         description { "The name of the entity." }
                     }
 
@@ -82,10 +90,12 @@ fun Application.configureGraphQL() {
             mutation {
                 description { "The root mutation" }
 
-                field("pushEntity", EntityObjectType) {
+                field("pushEntity") {
+                    type { EntityObjectType }
                     description { "Push an entity to subscribers" }
 
-                    val nameArg = argument<String>("name", GraphQLStringType) {
+                    val nameArg = argument<String>("name") {
+                        type { GraphQLStringType }
                         description { "The name of the entity." }
                     }
 
@@ -99,7 +109,8 @@ fun Application.configureGraphQL() {
             subscription {
                 description { "The root subscription" }
 
-                field("subscribeToEntities", EntityObjectType) {
+                field("subscribeToEntities") {
+                    type { EntityObjectType }
                     description { "Subscribe to pushed entities" }
 
                     getFlow { EntitiesFlow }
