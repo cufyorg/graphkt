@@ -95,6 +95,11 @@ interface GraphQLKtorConfiguration :
     val builtins: Boolean
 
     /**
+     * The path of the endpoint to print the schema to.
+     */
+    val graphqls: String?
+
+    /**
      * Websocket connection initialization timeout.
      *
      * @since 2.0.0
@@ -138,6 +143,7 @@ interface GraphQLKtorMutableConfiguration :
     GraphQLKtorConfiguration {
     override var websocket: Boolean /* = true */
     override var builtins: Boolean /* = true */
+    override var graphqls: String? /* = null */
     override var connectionInitWaitTimeout: Duration? /* = null */
     override val schemaBlocks: MutableList<GraphQLSchemaBlock> /* = mutableListOf() */
     override val beforeBlocks: MutableList<GraphQLKtorExecutionBlock> /* = mutableListOf() */
@@ -153,6 +159,7 @@ fun GraphQLKtorConfiguration(
     engine: GraphQLEngineFactory,
     websocket: Boolean,
     builtins: Boolean,
+    graphqls: String?,
     connectionInitWaitTimeout: Duration?,
     schemaBlocks: List<GraphQLSchemaBlock>,
     beforeBlocks: List<GraphQLKtorExecutionBlock>,
@@ -164,6 +171,7 @@ fun GraphQLKtorConfiguration(
         override val engine = engine
         override val websocket = websocket
         override val builtins = builtins
+        override val graphqls = graphqls
         override val connectionInitWaitTimeout = connectionInitWaitTimeout
         override val schemaBlocks = schemaBlocks
         override val beforeBlocks = beforeBlocks
@@ -181,6 +189,7 @@ fun GraphQLKtorMutableConfiguration(): GraphQLKtorMutableConfiguration {
         override lateinit var engine: GraphQLEngineFactory
         override var websocket: Boolean = true
         override var builtins: Boolean = true
+        override var graphqls: String? = null
         override var connectionInitWaitTimeout: Duration? = null
         override val schemaBlocks = mutableListOf<GraphQLSchemaBlock>()
         override val beforeBlocks = mutableListOf<GraphQLKtorExecutionBlock>()
@@ -197,6 +206,7 @@ fun GraphQLKtorConfiguration.copy(
     engine: GraphQLEngineFactory = this.engine,
     websocket: Boolean = this.websocket,
     builtins: Boolean = this.builtins,
+    graphqls: String? = this.graphqls,
     connectionInitWaitTimeout: Duration? = this.connectionInitWaitTimeout,
     schemaBlocks: List<GraphQLSchemaBlock> = this.schemaBlocks,
     beforeBlocks: List<GraphQLKtorExecutionBlock> = this.beforeBlocks,
@@ -208,6 +218,7 @@ fun GraphQLKtorConfiguration.copy(
         engine = engine,
         websocket = websocket,
         builtins = builtins,
+        graphqls = graphqls,
         connectionInitWaitTimeout = connectionInitWaitTimeout,
         schemaBlocks = schemaBlocks,
         beforeBlocks = beforeBlocks,
@@ -248,6 +259,13 @@ fun GraphQLKtorConfiguration(
  */
 fun GraphQLKtorMutableConfiguration.disableWebsocket() {
     websocket = false
+}
+
+/**
+ * Add an endpoint to obtain the schema from at `/graphqls`
+ */
+fun GraphQLKtorMutableConfiguration.enableGraphQLS() {
+    graphqls = "/graphqls"
 }
 
 /**

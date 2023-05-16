@@ -15,11 +15,15 @@
  */
 package org.cufy.graphkt.ktor
 
+import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.ktor.internal.graphqlHttp
 import org.cufy.graphkt.ktor.internal.graphqlWebsocket
@@ -109,5 +113,19 @@ fun Route.graphql(
 
     if (configuration.websocket) {
         graphqlWebsocket(path, configuration) { handleRequest(it, call) }
+    }
+
+    val graphqls = configuration.graphqls
+
+    if (graphqls != null) {
+        get(graphqls) {
+            call.respondTextWriter(ContentType.Text.Plain) {
+                val input = withContext(Dispatchers.IO) {
+                    engine.obtainSchemaReader()
+                }
+
+                input.use { it.copyTo(this) }
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ import io.ktor.server.websocket.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import org.cufy.graphkt.java.`graphql-java`
+import org.cufy.graphkt.ktor.enableGraphQLS
 import org.cufy.graphkt.ktor.graphql
 import org.cufy.graphkt.ktor.playground
 import org.cufy.graphkt.ktor.schema
@@ -73,6 +74,8 @@ fun Application.myApplicationModule() {
 //    graphiql()
     graphql {
         `graphql-java`
+
+        enableGraphQLS()
 
         schema {
             query {
