@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 import org.cufy.graphkt.schema.GraphQLSchema
-import java.io.PrintStream
+import java.io.Reader
 
 /**
  * An instance used to construct new graphql engines.
@@ -46,11 +46,9 @@ interface GraphQLEngineFactory {
  */
 interface GraphQLEngine {
     /**
-     * Print the schema to the given [out].
-     *
-     * @since 2.0.0
+     * Obtain a reader that reads the schema definition.
      */
-    fun printSchema(out: PrintStream = System.out)
+    fun obtainSchemaReader(): Reader
 
     /**
      * Execute the given [request].

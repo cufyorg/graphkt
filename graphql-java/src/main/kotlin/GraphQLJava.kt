@@ -30,7 +30,7 @@ import org.cufy.graphkt.java.internal.transformToGraphQLResponseFlow
 import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 import org.cufy.graphkt.schema.GraphQLSchema
-import java.io.PrintStream
+import java.io.Reader
 import graphql.GraphQL as JavaGraphQL
 
 // GraphQL Java Engine Factory
@@ -94,11 +94,10 @@ class GraphQLJavaEngine(
     @Suppress("MemberVisibilityCanBePrivate")
     val configuration: GraphQLJavaConfiguration
 ) : GraphQLEngine {
-    override fun printSchema(out: PrintStream) {
+    override fun obtainSchemaReader(): Reader {
         val printer = SchemaPrinter()
-        val result = printer.print(graphql.graphQLSchema)
-
-        out.print(result)
+        val out = printer.print(graphql.graphQLSchema)
+        return out.reader()
     }
 
     @OptIn(InternalGraphktApi::class)
