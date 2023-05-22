@@ -82,9 +82,8 @@ package org.cufy.graphkt.schema
  * @since 2.0.0
  */
 abstract class GraphQLObjectClass<T : Any>(
-    name: String? = null,
     block: GraphQLObjectTypeBlock<T>
-) : GraphQLObjectType<T> by GraphQLObjectType(name, block)
+) : GraphQLObjectType<T> by GraphQLObjectType(null, block)
 
 /**
  * A convenient class for defining graphql interface
@@ -96,9 +95,8 @@ abstract class GraphQLObjectClass<T : Any>(
  * @since 2.0.0
  */
 abstract class GraphQLInterfaceClass<T : Any>(
-    name: String? = null,
     block: GraphQLInterfaceTypeBlock<T>
-) : GraphQLInterfaceType<T> by GraphQLInterfaceType(name, block)
+) : GraphQLInterfaceType<T> by GraphQLInterfaceType(null, block)
 
 /**
  * A convenient class for defining graphql input object
@@ -110,7 +108,5 @@ abstract class GraphQLInterfaceClass<T : Any>(
  * @since 2.0.0
  */
 abstract class GraphQLInputObjectClass<T : Any>(
-    name: String? = null,
-    constructor: GraphQLInputConstructor<T>? = null,
     block: GraphQLInputObjectTypeBlock<T>
-) : GraphQLInputObjectType<T> by GraphQLInputObjectType(name, constructor, block)
+) : GraphQLInputObjectType<T> by GraphQLInputObjectType(null, null, block)
