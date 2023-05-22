@@ -34,7 +34,7 @@ val CustomScalarType = GraphQLScalarType<CustomScalar> {
     }
 }
 
-val CustomObjectType: GraphQLObjectType<CustomObject> = GraphQLObjectType {
+object CustomObjectType : GraphQLObjectClass<CustomObject>({
     name("Custom")
     description { "An example of a custom object type." }
     field(CustomObject::name) {
@@ -45,7 +45,28 @@ val CustomObjectType: GraphQLObjectType<CustomObject> = GraphQLObjectType {
         type { GraphQLStringType }
         description { "The value of the object." }
     }
-}
+    field("this") {
+        type { CustomObjectType }
+        description { "This" }
+        get { instance }
+    }
+    field("copycatOfThis") {
+        type { CustomObjectTypeCopyCat }
+        description { "This but as the copycat version." }
+        get { instance }
+    }
+})
+
+object CustomObjectTypeCopyCat : GraphQLObjectClass<CustomObject>({
+    name("CustomCopyCat")
+    description { "An example of a custom object type copying another type." }
+
+    directives += CustomObjectType.directives
+    interfaces += CustomObjectType.interfaces
+    onGetBlocks += CustomObjectType.onGetBlocks
+    onGetBlockingBlocks += CustomObjectType.onGetBlockingBlocks
+    fields += CustomObjectType.fields
+})
 
 fun main() {
     embeddedServer(
