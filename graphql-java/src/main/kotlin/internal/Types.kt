@@ -369,11 +369,11 @@ fun <T : Any> TransformContext.addObjectType(
     val allInterfaces = type.generateAllInterfacesSequence().toList()
 
     @Suppress("UNCHECKED_CAST")
-    val allGetterBlocks = (allInterfaces.map { it.onGetBlocks } + type.onGetBlocks)
+    val allGetterBlocks = (allInterfaces.flatMap { it.onGetBlocks } + type.onGetBlocks)
             as List<GraphQLGetterBlock<T, *>>
 
     @Suppress("UNCHECKED_CAST")
-    val allGetterBlockingBlocks = (allInterfaces.map { it.onGetBlockingBlocks } + type.onGetBlockingBlocks)
+    val allGetterBlockingBlocks = (allInterfaces.flatMap { it.onGetBlockingBlocks } + type.onGetBlockingBlocks)
             as List<GraphQLGetterBlockingBlock<T, *>>
 
     val allFields = (allInterfaces.flatMap { it.fields } + type.fields)
