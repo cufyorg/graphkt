@@ -1,30 +1,20 @@
 plugins {
-    kotlin("jvm") version kotlin_version apply false
-    kotlin("plugin.serialization") version kotlin_version apply false
-    id("maven-publish")
+    kotlin("jvm") version libs.versions.kotlin apply false
+    kotlin("plugin.serialization") version libs.versions.kotlin apply false
 }
 
 group = "org.cufy"
 version = "2.0.0"
 
+tasks.wrapper {
+    gradleVersion = "8.2.1"
+}
+
 subprojects {
-    repositories {
-        mavenCentral()
-        maven { url = uri("https://jitpack.io") }
-    }
-
-    if (name == "example") return@subprojects
-
     group = "org.cufy.graphkt"
 
-    afterEvaluate {
-        publishing {
-            publications {
-                create<MavenPublication>("maven") {
-                    from(components["java"])
-                    artifactId = project.name
-                }
-            }
-        }
+    repositories {
+        mavenCentral()
+        maven("https://jitpack.io")
     }
 }

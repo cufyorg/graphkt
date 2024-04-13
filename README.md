@@ -19,9 +19,9 @@ repositories {
 dependencies {
     // Replace TAG with the desired version
     val graphkt_version = "TAG"
-    implementation("org.cufy.graphkt:core:$graphkt_version")
-    implementation("org.cufy.graphkt:ktor:$graphkt_version")
-    implementation("org.cufy.graphkt:graphql-java:$graphkt_version")
+    implementation("org.cufy.graphkt:graphkt-core:$graphkt_version")
+    implementation("org.cufy.graphkt:graphkt-ktor:$graphkt_version")
+    implementation("org.cufy.graphkt:graphkt-graphql-java:$graphkt_version")
 }
 ```
 

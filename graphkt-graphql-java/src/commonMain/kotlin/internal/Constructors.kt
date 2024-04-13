@@ -138,41 +138,58 @@ fun transformGraphQLDirectiveLocation(
     return when (location) {
         GraphQLDirectiveLocation.QUERY ->
             JavaDirectiveLocation.QUERY
+
         GraphQLDirectiveLocation.MUTATION ->
             JavaDirectiveLocation.MUTATION
+
         GraphQLDirectiveLocation.SUBSCRIPTION ->
             JavaDirectiveLocation.SUBSCRIPTION
+
         GraphQLDirectiveLocation.FIELD ->
             JavaDirectiveLocation.FIELD
+
         GraphQLDirectiveLocation.FRAGMENT_DEFINITION ->
             JavaDirectiveLocation.FRAGMENT_DEFINITION
+
         GraphQLDirectiveLocation.FRAGMENT_SPREAD ->
             JavaDirectiveLocation.FRAGMENT_SPREAD
+
         GraphQLDirectiveLocation.INLINE_FRAGMENT ->
             JavaDirectiveLocation.INLINE_FRAGMENT
+
         GraphQLDirectiveLocation.VARIABLE_DEFINITION ->
             JavaDirectiveLocation.VARIABLE_DEFINITION
         //
         GraphQLDirectiveLocation.SCHEMA ->
             JavaDirectiveLocation.SCHEMA
+
         GraphQLDirectiveLocation.SCALAR ->
             JavaDirectiveLocation.SCALAR
+
         GraphQLDirectiveLocation.OBJECT ->
             JavaDirectiveLocation.OBJECT
+
         GraphQLDirectiveLocation.FIELD_DEFINITION ->
             JavaDirectiveLocation.FIELD_DEFINITION
+
         GraphQLDirectiveLocation.ARGUMENT_DEFINITION ->
             JavaDirectiveLocation.ARGUMENT_DEFINITION
+
         GraphQLDirectiveLocation.INTERFACE ->
             JavaDirectiveLocation.INTERFACE
+
         GraphQLDirectiveLocation.UNION ->
             JavaDirectiveLocation.UNION
+
         GraphQLDirectiveLocation.ENUM ->
             JavaDirectiveLocation.ENUM
+
         GraphQLDirectiveLocation.ENUM_VALUE ->
             JavaDirectiveLocation.ENUM_VALUE
+
         GraphQLDirectiveLocation.INPUT_OBJECT ->
             JavaDirectiveLocation.INPUT_OBJECT
+
         GraphQLDirectiveLocation.INPUT_FIELD_DEFINITION ->
             JavaDirectiveLocation.INPUT_FIELD_DEFINITION
     }
@@ -318,9 +335,11 @@ fun <T : Any, M> TransformRuntimeContext.createJavaDataFetcher(
             if (environment.canReturnPublisher())
                 future.complete(flow.asPublisher())
             else
-                future.complete(flow.singleOrNull() ?: error(
-                    "None Subscription root fields are expected to return a single value."
-                ))
+                future.complete(
+                    flow.singleOrNull() ?: error(
+                        "None Subscription root fields are expected to return a single value."
+                    )
+                )
         }
 
         future
@@ -360,10 +379,10 @@ private fun <T : Any, M> TransformRuntimeContext.createGraphQLGetterScope(
     val graphQlContext = environment
         .graphQlContext
         .get<Map<Any?, Any?>>("graphkt")
-            ?: emptyMap()
+        ?: emptyMap()
     val supLocal = environment
         .getLocalContext() as? Map<Any?, Any?>
-            ?: emptyMap()
+        ?: emptyMap()
     val subLocal = mutableMapOf<Any?, Any?>()
 
     @Suppress("UNCHECKED_CAST")
