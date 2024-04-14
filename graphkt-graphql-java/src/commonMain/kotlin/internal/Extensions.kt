@@ -1,12 +1,10 @@
 package org.cufy.graphkt.java.internal
 
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.GraphQLElementWithDirectives
 import org.cufy.graphkt.schema.GraphQLElementWithInterfaces
 import org.cufy.graphkt.schema.GraphQLInterfaceType
 
-@InternalGraphktApi
-fun GraphQLElementWithDirectives.obtainDeprecationReason(): String? {
+internal fun GraphQLElementWithDirectives.obtainDeprecationReason(): String? {
     return directives
         .firstOrNull { it.definition.name == "deprecated" }
         ?.arguments
@@ -14,8 +12,7 @@ fun GraphQLElementWithDirectives.obtainDeprecationReason(): String? {
         ?.value as? String
 }
 
-@InternalGraphktApi
-fun GraphQLElementWithDirectives.obtainSpecifiedByUrl(): String? {
+internal fun GraphQLElementWithDirectives.obtainSpecifiedByUrl(): String? {
     return directives
         .firstOrNull { it.definition.name == "specifiedBy" }
         ?.arguments
@@ -24,7 +21,7 @@ fun GraphQLElementWithDirectives.obtainSpecifiedByUrl(): String? {
 }
 
 /** Collect all the interfaces (recursively) */
-fun <T : Any> GraphQLElementWithInterfaces<T>.generateAllInterfacesSequence(): Sequence<GraphQLInterfaceType<in T>> {
+internal fun <T : Any> GraphQLElementWithInterfaces<T>.generateAllInterfacesSequence(): Sequence<GraphQLInterfaceType<in T>> {
     return generateSequence(interfaces) { anInterface ->
         anInterface.flatMap { it.interfaces }.takeIf { it.isNotEmpty() }
     }.flatten().distinct()

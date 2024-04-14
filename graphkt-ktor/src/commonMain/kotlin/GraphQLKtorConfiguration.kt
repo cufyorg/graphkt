@@ -16,6 +16,7 @@
 package org.cufy.graphkt.ktor
 
 import io.ktor.server.application.*
+import org.cufy.graphkt.ExperimentalGraphktApi
 import org.cufy.graphkt.GraphQLElementWithEngine
 import org.cufy.graphkt.GraphQLEngineFactory
 import org.cufy.graphkt.GraphQLMutableElementWithEngine
@@ -79,11 +80,18 @@ typealias GraphQLKtorResponseTransformer =
 interface GraphQLKtorConfiguration :
     GraphQLElementWithEngine {
     /**
+     * True, to enable `http` implementation.
+     *
+     * @since 2.0.0
+     */
+    val http: Boolean /* = true */
+
+    /**
      * True, to enable `graphql-ws` implementation.
      *
      * @since 2.0.0
      */
-    val websocket: Boolean
+    val websocket: Boolean /* = true */
 
     /**
      * True, to add all the non-standard builtin scalars as additional types.
@@ -92,44 +100,44 @@ interface GraphQLKtorConfiguration :
      *
      * @since 2.0.0
      */
-    val builtins: Boolean
+    val builtins: Boolean /* = true */
 
     /**
      * The path of the endpoint to print the schema to.
      */
-    val graphqls: String?
+    val graphqls: String? /* = null */
 
     /**
      * Websocket connection initialization timeout.
      *
      * @since 2.0.0
      */
-    val connectionInitWaitTimeout: Duration?
+    val connectionInitWaitTimeout: Duration? /* = null */
 
     /**
      * Code to be executed to configure the schema.
      */
-    val schemaBlocks: List<GraphQLSchemaBlock>
+    val schemaBlocks: List<GraphQLSchemaBlock> /* = emptyList() */
 
     /**
      * Code to be executed before execution.
      */
-    val beforeBlocks: List<GraphQLKtorExecutionBlock>
+    val beforeBlocks: List<GraphQLKtorExecutionBlock> /* = emptyList() */
 
     /**
      * Code to be executed after execution (but before awaiting results).
      */
-    val afterBlocks: List<GraphQLKtorExecutionBlock>
+    val afterBlocks: List<GraphQLKtorExecutionBlock> /* = emptyList() */
 
     /**
      * Code to be executed to transform request.
      */
-    val requestTransformers: List<GraphQLKtorRequestTransformer>
+    val requestTransformers: List<GraphQLKtorRequestTransformer> /* = emptyList() */
 
     /**
      * Code to be executed to transform response.
      */
-    val responseTransformers: List<GraphQLKtorResponseTransformer>
+    val responseTransformers: List<GraphQLKtorResponseTransformer> /* = emptyList() */
 }
 
 /**
@@ -141,6 +149,7 @@ interface GraphQLKtorConfiguration :
 interface GraphQLKtorMutableConfiguration :
     GraphQLMutableElementWithEngine,
     GraphQLKtorConfiguration {
+    override var http: Boolean /* = true */
     override var websocket: Boolean /* = true */
     override var builtins: Boolean /* = true */
     override var graphqls: String? /* = null */
@@ -155,20 +164,23 @@ interface GraphQLKtorMutableConfiguration :
 /**
  * Construct a new [GraphQLKtorConfiguration] with the given arguments.
  */
+@OptIn(ExperimentalGraphktApi::class)
 fun GraphQLKtorConfiguration(
     engine: GraphQLEngineFactory,
-    websocket: Boolean,
-    builtins: Boolean,
-    graphqls: String?,
-    connectionInitWaitTimeout: Duration?,
-    schemaBlocks: List<GraphQLSchemaBlock>,
-    beforeBlocks: List<GraphQLKtorExecutionBlock>,
-    afterBlocks: List<GraphQLKtorExecutionBlock>,
-    requestTransformers: List<GraphQLKtorRequestTransformer>,
-    responseTransformers: List<GraphQLKtorResponseTransformer>
+    http: Boolean = true,
+    websocket: Boolean = true,
+    builtins: Boolean = true,
+    graphqls: String? = null,
+    connectionInitWaitTimeout: Duration? = null,
+    schemaBlocks: List<GraphQLSchemaBlock> = emptyList(),
+    beforeBlocks: List<GraphQLKtorExecutionBlock> = emptyList(),
+    afterBlocks: List<GraphQLKtorExecutionBlock> = emptyList(),
+    requestTransformers: List<GraphQLKtorRequestTransformer> = emptyList(),
+    responseTransformers: List<GraphQLKtorResponseTransformer> = emptyList(),
 ): GraphQLKtorConfiguration {
     return object : GraphQLKtorConfiguration {
         override val engine = engine
+        override val http = http
         override val websocket = websocket
         override val builtins = builtins
         override val graphqls = graphqls
@@ -184,9 +196,11 @@ fun GraphQLKtorConfiguration(
 /**
  * Construct a new [GraphQLKtorMutableConfiguration].
  */
+@OptIn(ExperimentalGraphktApi::class)
 fun GraphQLKtorMutableConfiguration(): GraphQLKtorMutableConfiguration {
     return object : GraphQLKtorMutableConfiguration {
         override lateinit var engine: GraphQLEngineFactory
+        override var http: Boolean = true
         override var websocket: Boolean = true
         override var builtins: Boolean = true
         override var graphqls: String? = null
@@ -202,6 +216,7 @@ fun GraphQLKtorMutableConfiguration(): GraphQLKtorMutableConfiguration {
 /**
  * Obtain a copy of this with the given arguments.
  */
+@OptIn(ExperimentalGraphktApi::class)
 fun GraphQLKtorConfiguration.copy(
     engine: GraphQLEngineFactory = this.engine,
     websocket: Boolean = this.websocket,
@@ -244,6 +259,7 @@ typealias GraphQLKtorConfigurationBlock =
  * @param block the builder block.
  * @since 2.0.0
  */
+@OptIn(ExperimentalGraphktApi::class)
 fun GraphQLKtorConfiguration(
     block: GraphQLKtorConfigurationBlock = {}
 ): GraphQLKtorConfiguration {
@@ -257,6 +273,8 @@ fun GraphQLKtorConfiguration(
 /**
  * Disable the websocket implementation.
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("replace with `websocket = false`")
 fun GraphQLKtorMutableConfiguration.disableWebsocket() {
     websocket = false
 }
@@ -264,6 +282,8 @@ fun GraphQLKtorMutableConfiguration.disableWebsocket() {
 /**
  * Add an endpoint to obtain the schema from at `/graphqls`
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("replace with `graphqls = \"graphqls\"`")
 fun GraphQLKtorMutableConfiguration.enableGraphQLS() {
     graphqls = "/graphqls"
 }

@@ -24,18 +24,10 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.*
 import org.reactivestreams.Publisher
-import graphql.ExecutionInput as JavaExecutionInput
-import graphql.ExecutionResult as JavaExecutionResult
-import graphql.GraphQLError as JavaGraphQLError
-import graphql.language.SourceLocation as JavaSourceLocation
-import graphql.schema.GraphQLObjectType as JavaGraphQLObjectType
-import graphql.schema.GraphQLSchema as JavaGraphQLSchema
 
-@InternalGraphktApi
-fun transformGraphQLSchema(
+internal fun transformGraphQLSchema(
     schema: GraphQLSchema
 ): JavaGraphQLSchema {
     val context = TransformContext()
@@ -75,8 +67,7 @@ fun transformGraphQLSchema(
         .build()
 }
 
-@InternalGraphktApi
-fun createJavaExecutionInput(
+internal fun createJavaExecutionInput(
     request: GraphQLRequest,
     context: Map<Any?, Any?>,
     local: Map<Any?, Any?>
@@ -99,8 +90,7 @@ fun createJavaExecutionInput(
         .build()
 }
 
-@InternalGraphktApi
-fun transformToGraphQLResponseFlow(
+internal fun transformToGraphQLResponseFlow(
     result: JavaExecutionResult
 ): Flow<GraphQLResponse> {
     val sourceData = result.getData<Any>() ?: null
@@ -125,8 +115,7 @@ fun transformToGraphQLResponseFlow(
     )
 }
 
-@InternalGraphktApi
-fun transformToGraphQLError(
+internal fun transformToGraphQLError(
     error: JavaGraphQLError
 ): GraphQLError {
     val message = error.message ?: ""
@@ -148,8 +137,7 @@ fun transformToGraphQLError(
     )
 }
 
-@InternalGraphktApi
-fun transformToGraphQLErrorLocation(
+internal fun transformToGraphQLErrorLocation(
     location: JavaSourceLocation
 ): GraphQLErrorLocation {
     val line = location.line

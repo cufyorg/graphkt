@@ -16,13 +16,11 @@
 package org.cufy.graphkt.java.internal
 
 import kotlinx.serialization.json.*
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.*
 import java.math.BigDecimal
 import java.math.BigInteger
 
-@InternalGraphktApi
-fun dynamicEncodeToJsonElement(value: Any?): JsonElement {
+internal fun dynamicEncodeToJsonElement(value: Any?): JsonElement {
     return when (value) {
         null, is GraphQLNull -> JsonNull
         is String -> JsonPrimitive(value)
@@ -38,41 +36,44 @@ fun dynamicEncodeToJsonElement(value: Any?): JsonElement {
                 put(key, dynamicEncodeToJsonElement(value))
             }
         }
+
         is List<*> -> buildJsonArray {
             value.forEach { item ->
                 add(dynamicEncodeToJsonElement(item))
             }
         }
+
         else -> error("Can't dynamically encode: $value")
     }
 }
 
-@InternalGraphktApi
-fun dynamicDecodeFromJsonElement(value: JsonElement): Any? {
+internal fun dynamicDecodeFromJsonElement(value: JsonElement): Any? {
     return when (value) {
         is JsonNull -> null
         is JsonPrimitive -> {
             value.content.takeIf { value.isString }
-                    ?: value.booleanOrNull
-                    ?: value.content.toBigIntegerOrNull()
-                    ?: value.content.toBigDecimalOrNull()
+                ?: value.booleanOrNull
+                ?: value.content.toBigIntegerOrNull()
+                ?: value.content.toBigDecimalOrNull()
         }
+
         is JsonObject -> buildMap {
             value.forEach { key, value ->
                 put(key, dynamicDecodeFromJsonElement(value))
             }
         }
+
         is JsonArray -> buildList {
             value.forEach { item ->
                 add(dynamicDecodeFromJsonElement(item))
             }
         }
+
         else -> error("Can't dynamically decode: $value")
     }
 }
 
-@InternalGraphktApi
-fun dynamicDecodeScalar(value: Any?): GraphQLScalar<*> {
+internal fun dynamicDecodeScalar(value: Any?): GraphQLScalar<*> {
     return when (value) {
         null -> GraphQLNull
         is Boolean -> GraphQLBoolean(value)

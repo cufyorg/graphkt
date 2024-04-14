@@ -35,17 +35,17 @@ data class Entity(
 )
 
 val EntityObjectType: GraphQLObjectType<Entity> = GraphQLObjectType {
-    name("Entity")
-    description { "Some entity." }
+    name = "Entity"
+    description = "Some entity."
 
     field(Entity::name) {
+        description = "The name of the entity."
         type { GraphQLStringType }
-        description { "The name of the entity." }
     }
 
     field("nameWithCustomVar") {
+        description = "The name of the entity with the customVar in the context."
         type { GraphQLStringType.Nullable }
-        description { "The name of the entity with the customVar in the context." }
 
         get {
             it.name + context["myCustomVar"]
@@ -58,8 +58,8 @@ val EntitiesFlow = MutableSharedFlow<Entity>()
 fun Application.configureGraphQL() {
     // you can choose any of these IDEs
     // graphiql()
-    // sandbox()
-    playground() // recommended
+    // apolloSandbox()
+    graphqlPlayground() // recommended
 
     graphql {
         // add import org.cufy.graphkt.java.`graphql-java`
@@ -73,30 +73,30 @@ fun Application.configureGraphQL() {
 
         schema {
             query {
-                description { "The root query." }
+                description = "The root query."
 
                 field("getEntityWithName") {
+                    description = "Get an entity instance."
                     type { EntityObjectType }
-                    description { "Get an entity instance." }
 
                     val nameArg = argument<String>("name") {
+                        description = "The name of the entity."
                         type { GraphQLStringType }
-                        description { "The name of the entity." }
                     }
 
                     get { Entity(nameArg()) }
                 }
             }
             mutation {
-                description { "The root mutation" }
+                description = "The root mutation"
 
                 field("pushEntity") {
+                    description = "Push an entity to subscribers"
                     type { EntityObjectType }
-                    description { "Push an entity to subscribers" }
 
                     val nameArg = argument<String>("name") {
+                        description = "The name of the entity."
                         type { GraphQLStringType }
-                        description { "The name of the entity." }
                     }
 
                     get {
@@ -107,11 +107,11 @@ fun Application.configureGraphQL() {
                 }
             }
             subscription {
-                description { "The root subscription" }
+                description = "The root subscription"
 
                 field("subscribeToEntities") {
+                    description = "Subscribe to pushed entities"
                     type { EntityObjectType }
-                    description { "Subscribe to pushed entities" }
 
                     getFlow { EntitiesFlow }
                 }

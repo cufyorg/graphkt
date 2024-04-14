@@ -23,53 +23,39 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.ktor.GraphQLKtorConfiguration
-import org.cufy.graphkt.schema.GraphQLPacket
-import org.cufy.graphkt.schema.GraphQLPacketType
-import org.cufy.graphkt.schema.GraphQLRequest
-import org.cufy.graphkt.schema.GraphQLResponse
+import org.cufy.graphkt.schema.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.set
 
-internal object GraphQLLegacyPacketType {
-    /**
-     * The legacy equivalent to [GraphQLPacketType.Subscribe].
-     */
-    const val Start = "start"
-
-    /**
-     * The legacy equivalent to [GraphQLPacketType.Next].
-     */
-    const val Data = "data"
-
-    /**
-     * The legacy equivalent to [GraphQLPacketType.Complete].
-     */
-    const val Stop = "stop"
-}
-
-internal val ConnectionInitialisationTimeout =
+private val Close_ConnectionInitialisationTimeout =
     CloseReason(4408, "Connection initialisation timeout")
 
-internal val TooManyInitialisationRequests =
+private val Close_TooManyInitialisationRequests =
     CloseReason(4429, "Too many initialisation requests")
 
-internal val Unauthorized =
+private val Close_Unauthorized =
     CloseReason(4401, "Unauthorized")
 
-@Suppress("FunctionName")
-internal fun InvalidMessage(errorMessage: String) =
-    CloseReason(4400, errorMessage)
+private val Close_InvalidMessage_PacketIdRequired =
+    CloseReason(4400, "packet.id is required for specified packet.type")
 
-@Suppress("FunctionName")
-internal fun SubscriberAlreadyExists(uniqueOperationId: String) =
-    CloseReason(4409, "Subscriber for $uniqueOperationId already exists")
+private val Close_InvalidMessage_PacketPayloadRequired =
+    CloseReason(4400, "packet.payload is required for specified packet.type")
+
+private val Close_InvalidMessage_PacketTypeUnexpected =
+    CloseReason(4400, "Unexpected packet.type")
+
+private val Close_SubscriberAlreadyExists =
+    CloseReason(4409, "Subscriber already exists")
+
+private val Close_Normal =
+    CloseReason(CloseReason.Codes.NORMAL, "Ok")
 
 /**
  * Add a websocket route handling graphql websocket
@@ -83,7 +69,6 @@ internal fun SubscriberAlreadyExists(uniqueOperationId: String) =
  * @param path the route path.
  * @param handler a graphql request handler.
  */
-@InternalGraphktApi
 internal fun Route.graphqlWebsocket(
     path: String,
     configuration: GraphQLKtorConfiguration,
@@ -94,109 +79,165 @@ internal fun Route.graphqlWebsocket(
     No defences nor validation has been added, yet.
     */
 
+    val connectionInitWaitTimeout = configuration.connectionInitWaitTimeout
+
     webSocket(path) {
-        val initialized = AtomicBoolean(false)
-        val subscriptions: MutableMap<String, Job> = ConcurrentHashMap()
-        val connectionInitWaitTimeout = configuration.connectionInitWaitTimeout
+        val sessionInitialized = AtomicBoolean(false)
+        val sessionSubscriptions: MutableMap<String, Job> = ConcurrentHashMap()
+        val sessionLegacySubscriptions: MutableMap<String, Job> = ConcurrentHashMap()
 
         if (connectionInitWaitTimeout != null) {
             launch {
                 delay(connectionInitWaitTimeout)
 
-                if (!initialized.get()) {
-                    close(ConnectionInitialisationTimeout)
+                if (!sessionInitialized.get()) {
+                    close(Close_ConnectionInitialisationTimeout)
                 }
             }
         }
 
         for (frame in incoming) {
-            val message = frame.readBytes().decodeToString()
-            val data = GraphktKtorJson.decodeFromString<GraphQLPacket>(message)
+            val frameInPacketString = frame.readBytes().decodeToString()
+            val frameInPacket = GraphktKtorJson.decodeFromString<GraphQLPacket>(frameInPacketString)
 
-            when (data.type) {
+            when (frameInPacket.type) {
                 GraphQLPacketType.ConnectionInit -> {
-                    if (initialized.get()) {
-                        close(TooManyInitialisationRequests)
+                    if (sessionInitialized.get()) {
+                        close(Close_TooManyInitialisationRequests)
                         return@webSocket
                     }
 
-                    initialized.set(true)
+                    sessionInitialized.set(true)
 
-                    val rData = GraphQLPacket(data.id, GraphQLPacketType.ConnectionAck)
-                    val rMessage = GraphktKtorJson.encodeToString(rData)
+                    val frameOutPacket = GraphQLPacket(frameInPacket.id, GraphQLPacketType.ConnectionAck)
+                    val frameOutMessageString = GraphktKtorJson.encodeToString(frameOutPacket)
 
-                    send(rMessage)
+                    send(frameOutMessageString)
                 }
+
                 GraphQLPacketType.Ping -> {
-                    val rData = GraphQLPacket(data.id, GraphQLPacketType.Pong)
-                    val rMessage = GraphktKtorJson.encodeToString(rData)
+                    val frameOutPacket = GraphQLPacket(frameInPacket.id, GraphQLPacketType.Pong)
+                    val frameOutPacketString = GraphktKtorJson.encodeToString(frameOutPacket)
 
-                    send(rMessage)
+                    send(frameOutPacketString)
                 }
-                GraphQLPacketType.Subscribe,
+
+                GraphQLPacketType.Subscribe -> {
+                    val subscriptionId = frameInPacket.id ?: run {
+                        close(Close_InvalidMessage_PacketIdRequired)
+                        return@webSocket
+                    }
+
+                    if (subscriptionId in sessionSubscriptions) {
+                        close(Close_SubscriberAlreadyExists)
+                        return@webSocket
+                    }
+
+                    if (!sessionInitialized.get()) {
+                        close(Close_Unauthorized)
+                    }
+
+                    val subscriptionRequestObject = frameInPacket.payload ?: run {
+                        close(Close_InvalidMessage_PacketPayloadRequired)
+                        return@webSocket
+                    }
+
+                    val subscriptionRequest =
+                        GraphktKtorJson.decodeFromJsonElement<GraphQLRequest>(subscriptionRequestObject)
+
+                    val subscriptionResponseFlow = handler(subscriptionRequest)
+
+                    val subscriptionJob = launch {
+                        subscriptionResponseFlow.collect { subscriptionResponse ->
+                            val subscriptionResponseObject =
+                                GraphktKtorJson.encodeToJsonElement(subscriptionResponse).jsonObject
+
+                            val frameOutPacket =
+                                GraphQLPacket(subscriptionId, GraphQLPacketType.Next, subscriptionResponseObject)
+                            val frameOutPacketString = GraphktKtorJson.encodeToString(frameOutPacket)
+
+                            send(frameOutPacketString)
+                        }
+                        subscriptionResponseFlow.onCompletion {
+                            val frameOutPacket = GraphQLPacket(subscriptionId, GraphQLPacketType.Complete)
+                            val frameOutPacketString = GraphktKtorJson.encodeToString(frameOutPacket)
+
+                            send(frameOutPacketString)
+                        }
+                    }
+
+                    sessionSubscriptions[subscriptionId] = subscriptionJob
+                }
+
+                GraphQLPacketType.Complete -> {
+                    val subscriptionId = frameInPacket.id ?: run {
+                        close(Close_InvalidMessage_PacketIdRequired)
+                        return@webSocket
+                    }
+
+                    sessionSubscriptions[subscriptionId]?.cancel()
+                }
+
                 GraphQLLegacyPacketType.Start -> {
-                    val rType = when (data.type) {
-                        GraphQLPacketType.Subscribe -> GraphQLPacketType.Next
-                        GraphQLLegacyPacketType.Start -> GraphQLLegacyPacketType.Data
-                        else -> error("internal error")
-                    }
-
-                    val id = data.id ?: run {
-                        close(InvalidMessage("id is required for packet type: ${data.type}"))
+                    val subscriptionId = frameInPacket.id ?: run {
+                        close(Close_InvalidMessage_PacketIdRequired)
                         return@webSocket
                     }
 
-                    if (id in subscriptions) {
-                        close(SubscriberAlreadyExists(id))
+                    if (subscriptionId in sessionLegacySubscriptions) {
+                        close(Close_SubscriberAlreadyExists)
                         return@webSocket
                     }
 
-                    if (!initialized.get()) {
-                        close(Unauthorized)
+                    if (!sessionInitialized.get()) {
+                        close(Close_Unauthorized)
                     }
 
-                    val payload = data.payload ?: run {
-                        close(InvalidMessage("payload is required for packet type: ${data.type}"))
+                    val subscriptionRequestObject = frameInPacket.payload ?: run {
+                        close(Close_InvalidMessage_PacketPayloadRequired)
                         return@webSocket
                     }
 
-                    val request = GraphktKtorJson.decodeFromJsonElement<GraphQLRequest>(payload)
-                    val response = handler(request)
+                    val subscriptionRequest =
+                        GraphktKtorJson.decodeFromJsonElement<GraphQLRequest>(subscriptionRequestObject)
 
-                    val job = launch {
-                        response.collect {
-                            val rPayload = GraphktKtorJson.encodeToJsonElement(it).jsonObject
-                            val rData = GraphQLPacket(data.id, rType, rPayload)
-                            val rMessage = GraphktKtorJson.encodeToString(rData)
+                    val subscriptionResponseFlow = handler(subscriptionRequest)
 
-                            send(rMessage)
+                    val subscriptionJob = launch {
+                        subscriptionResponseFlow.collect { subscriptionResponse ->
+                            val subscriptionResponseObject =
+                                GraphktKtorJson.encodeToJsonElement(subscriptionResponse).jsonObject
+
+                            val frameOutPacket =
+                                GraphQLPacket(subscriptionId, GraphQLLegacyPacketType.Data, subscriptionResponseObject)
+                            val frameOutPacketString = GraphktKtorJson.encodeToString(frameOutPacket)
+
+                            send(frameOutPacketString)
                         }
-                        response.onCompletion {
-                            val rData = GraphQLPacket(data.id, GraphQLPacketType.Complete)
-                            val rMessage = GraphktKtorJson.encodeToString(rData)
+                        subscriptionResponseFlow.onCompletion {
+                            val frameOutPacket = GraphQLPacket(subscriptionId, GraphQLPacketType.Complete)
+                            val frameOutPacketString = GraphktKtorJson.encodeToString(frameOutPacket)
 
-                            send(rMessage)
+                            send(frameOutPacketString)
                         }
                     }
 
-                    subscriptions[id] = job
+                    sessionLegacySubscriptions[subscriptionId] = subscriptionJob
                 }
-                GraphQLPacketType.Complete,
+
                 GraphQLLegacyPacketType.Stop -> {
-                    val id = data.id ?: run {
-                        close(InvalidMessage("id is required for packet type: ${data.type}"))
+                    val subscriptionId = frameInPacket.id ?: run {
+                        close(Close_InvalidMessage_PacketIdRequired)
                         return@webSocket
                     }
 
-                    subscriptions[id]?.cancel()
+                    sessionLegacySubscriptions[subscriptionId]?.cancel()
 
-                    // extra stuff for stop
-                    if (data.type == GraphQLLegacyPacketType.Stop) {
-                        close(CloseReason(CloseReason.Codes.NORMAL, "Ok"))
-                    }
+                    close(Close_Normal)
                 }
+
                 else -> {
-                    close(InvalidMessage("Unexpected packet type: ${data.type}"))
+                    close(Close_InvalidMessage_PacketTypeUnexpected)
                 }
             }
         }

@@ -17,9 +17,7 @@ package org.cufy.graphkt.ktor.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import org.cufy.graphkt.InternalGraphktApi
 
-@InternalGraphktApi
 @OptIn(ExperimentalSerializationApi::class)
 internal val GraphktKtorJson = Json {
     encodeDefaults = false

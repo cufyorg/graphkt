@@ -20,10 +20,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.asDeferred
+import org.cufy.graphkt.ExperimentalGraphktApi
 import org.cufy.graphkt.GraphQLEngine
 import org.cufy.graphkt.GraphQLEngineFactory
 import org.cufy.graphkt.GraphQLMutableElementWithEngine
-import org.cufy.graphkt.InternalGraphktApi
+import org.cufy.graphkt.java.internal.JavaGraphQL
 import org.cufy.graphkt.java.internal.createJavaExecutionInput
 import org.cufy.graphkt.java.internal.transformGraphQLSchema
 import org.cufy.graphkt.java.internal.transformToGraphQLResponseFlow
@@ -31,10 +32,10 @@ import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 import org.cufy.graphkt.schema.GraphQLSchema
 import java.io.Reader
-import graphql.GraphQL as JavaGraphQL
 
 // GraphQL Java Engine Factory
 
+@ExperimentalGraphktApi
 private val singletonOfGraphQLJava by lazy { GraphQLJava { } }
 
 /**
@@ -43,11 +44,11 @@ private val singletonOfGraphQLJava by lazy { GraphQLJava { } }
  * @author LSafer
  * @since 2.0.0
  */
+@ExperimentalGraphktApi
 class GraphQLJava(
     @Suppress("MemberVisibilityCanBePrivate")
     val configuration: GraphQLJavaConfiguration
 ) : GraphQLEngineFactory {
-    @OptIn(InternalGraphktApi::class)
     override fun invoke(schema: GraphQLSchema): GraphQLEngine {
         val javaSchema = transformGraphQLSchema(schema)
             .transform { configuration.schemaTransformers.forEach { block -> block(it) } }
@@ -63,6 +64,7 @@ class GraphQLJava(
 /**
  * Obtain the default `graphql-java` engine factory.
  */
+@ExperimentalGraphktApi
 fun GraphQLJava(): GraphQLJava {
     return singletonOfGraphQLJava
 }
@@ -71,6 +73,7 @@ fun GraphQLJava(): GraphQLJava {
  * Create a new [singletonOfGraphQLJava] instance configured
  * with the given configuration [block].
  */
+@ExperimentalGraphktApi
 fun GraphQLJava(block: GraphQLJavaConfigurationBlock): GraphQLJava {
     return GraphQLJava(GraphQLJavaConfiguration(block))
 }
@@ -83,6 +86,7 @@ fun GraphQLJava(block: GraphQLJavaConfigurationBlock): GraphQLJava {
  * @author LSafer
  * @since 2.0.0
  */
+@ExperimentalGraphktApi
 class GraphQLJavaEngine(
     /**
      * The graphql instance.
@@ -100,7 +104,6 @@ class GraphQLJavaEngine(
         return out.reader()
     }
 
-    @OptIn(InternalGraphktApi::class)
     override fun execute(
         request: GraphQLRequest,
         context: Map<Any?, Any?>,
@@ -127,6 +130,7 @@ class GraphQLJavaEngine(
  * @param block the engine configuration.
  * @since 2.0.0
  */
+@OptIn(ExperimentalGraphktApi::class)
 @Suppress("FunctionName")
 fun GraphQLMutableElementWithEngine.`graphql-java`(block: GraphQLJavaConfigurationBlock) {
     engine = GraphQLJava(block)
@@ -137,6 +141,7 @@ fun GraphQLMutableElementWithEngine.`graphql-java`(block: GraphQLJavaConfigurati
  *
  * @since 2.0.0
  */
+@OptIn(ExperimentalGraphktApi::class)
 @Suppress("ObjectPropertyName")
 val GraphQLMutableElementWithEngine.`graphql-java`: Unit
     get() = run { engine = GraphQLJava() }

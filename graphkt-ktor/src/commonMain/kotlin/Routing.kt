@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import org.cufy.graphkt.InternalGraphktApi
+import org.cufy.graphkt.ExperimentalGraphktApi
 import org.cufy.graphkt.ktor.internal.graphqlHttp
 import org.cufy.graphkt.ktor.internal.graphqlWebsocket
 import org.cufy.graphkt.schema.*
@@ -53,8 +53,8 @@ fun Application.graphql(
  * @param block configuration block.
  * @since 2.0.0
  */
+@OptIn(ExperimentalGraphktApi::class)
 @KtorDsl
-@OptIn(InternalGraphktApi::class)
 fun Route.graphql(
     path: String = "/graphql",
     block: GraphQLKtorMutableConfiguration.() -> Unit = {}
@@ -85,6 +85,7 @@ fun Route.graphql(
         val context = mutableMapOf<Any?, Any?>()
         val local = mutableMapOf<Any?, Any?>()
 
+        // making `call` extension available in getter scope
         context["call"] = call
 
         val scope = GraphQLKtorExecutionScope(context, local, call)
@@ -109,7 +110,9 @@ fun Route.graphql(
 
     // add the routes (the listeners)
 
-    graphqlHttp(path) { handleRequest(it, call) }
+    if (configuration.http) {
+        graphqlHttp(path) { handleRequest(it, call) }
+    }
 
     if (configuration.websocket) {
         graphqlWebsocket(path, configuration) { handleRequest(it, call) }

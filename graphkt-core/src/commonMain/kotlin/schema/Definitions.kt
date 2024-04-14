@@ -294,6 +294,8 @@ fun GraphQLDirective(
  *
  * This will replace the current definition.
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("replace with `this.definition = definition`")
 fun GraphQLMutableDirective.definition(
     definition: GraphQLDirectiveDefinition
 ) {
@@ -444,6 +446,8 @@ fun GraphQLMutableDirectiveDefinition.location(
 /**
  * Set the repeatable property to the given [value].
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("replace with `this.repeatable = value`")
 fun GraphQLMutableDirectiveDefinition.repeatable(
     value: Boolean = true
 ) {
@@ -828,7 +832,9 @@ fun <T : Any, M> GraphQLMutableFieldDefinition(): GraphQLMutableFieldDefinition<
         override val arguments = mutableListOf<GraphQLArgumentDefinition<*>>()
         override val onGetBlocks = mutableListOf<GraphQLGetterBlock<T, M>>()
         override val onGetBlockingBlocks = mutableListOf<GraphQLGetterBlockingBlock<T, M>>()
-        override var getter: GraphQLFlowGetter<T, M> = { throw NotImplementedError("Getter of field $name was not implemented.") }
+        override var getter: GraphQLFlowGetter<T, M> = {
+            throw NotImplementedError("Getter of field $name was not implemented.")
+        }
     }
 }
 
@@ -1405,7 +1411,9 @@ fun <T : Any> GraphQLMutableInterfaceType(): GraphQLMutableInterfaceType<T> {
         override val onGetBlocks = mutableListOf<GraphQLGetterBlock<T, *>>()
         override val onGetBlockingBlocks = mutableListOf<GraphQLGetterBlockingBlock<T, *>>()
         override val fields = mutableListOf<GraphQLFieldDefinition<T, *>>()
-        override var typeGetter: GraphQLTypeGetter<T> = { throw NotImplementedError("Type getter of interface $name was not implemented.") }
+        override var typeGetter: GraphQLTypeGetter<T> = {
+            throw NotImplementedError("Type getter of interface $name was not implemented.")
+        }
     }
 }
 
@@ -2075,7 +2083,9 @@ fun <T : Any> GraphQLMutableUnionType(): GraphQLMutableUnionType<T> {
         override lateinit var name: String
         override var description: String = ""
         override val directives = mutableListOf<GraphQLDirective>()
-        override var typeGetter: GraphQLTypeGetter<T> = { throw NotImplementedError("Type getter of union $name was not implemented.") }
+        override var typeGetter: GraphQLTypeGetter<T> = {
+            throw NotImplementedError("Type getter of union $name was not implemented.")
+        }
         override val types = mutableListOf<GraphQLObjectType<out T>>()
     }
 }

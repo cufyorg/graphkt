@@ -77,6 +77,8 @@ interface GraphQLMutableElementWithName :
  *
  * @since 2.0.0
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("replace with `this.name = name`")
 fun GraphQLMutableElementWithName.name(
     name: String
 ) {
@@ -134,6 +136,8 @@ interface GraphQLMutableElementWithDescription :
  *
  * @since 2.0.0
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("replace with `this.description = description`")
 fun GraphQLMutableElementWithDescription.description(
     description: String
 ) {
@@ -151,6 +155,7 @@ fun GraphQLMutableElementWithDescription.description(
  *
  * @since 2.0.0
  */
+@Deprecated("replace with `this.description = block()`", ReplaceWith("this.description = block().trimIndent()"))
 fun GraphQLMutableElementWithDescription.description(
     block: () -> String
 ) {

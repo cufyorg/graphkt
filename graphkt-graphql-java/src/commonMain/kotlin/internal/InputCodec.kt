@@ -15,7 +15,6 @@
  */
 package org.cufy.graphkt.java.internal
 
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.GraphQLInputArrayType
 import org.cufy.graphkt.schema.GraphQLInputObjectType
 import org.cufy.graphkt.schema.GraphQLInputSetter
@@ -32,8 +31,7 @@ thus not implemented here.
 
 //
 
-@InternalGraphktApi
-fun <T> GraphQLInputType<T>.furtherDecodeArgumentValue(rawValue: Any?): T {
+internal fun <T> GraphQLInputType<T>.furtherDecodeArgumentValue(rawValue: Any?): T {
     if (rawValue == null) {
         @Suppress("UNCHECKED_CAST")
         return null as T
@@ -45,20 +43,22 @@ fun <T> GraphQLInputType<T>.furtherDecodeArgumentValue(rawValue: Any?): T {
 
             @Suppress("UNCHECKED_CAST")
             val rawMap = rawValue as? Map<String, Any?>
-                    ?: error("Expected a map for the value but got $rawValue")
+                ?: error("Expected a map for the value but got $rawValue")
 
             type.furtherDecodeArgumentValue(rawMap)
         }
+
         is GraphQLInputArrayType<*> -> {
             @Suppress("UNCHECKED_CAST")
             val type = this as GraphQLInputArrayType<Any?>
 
             val rawList = rawValue as? List<Any?>
-                    ?: error("Expected a list for the value but got $rawValue")
+                ?: error("Expected a list for the value but got $rawValue")
 
             @Suppress("UNCHECKED_CAST")
             type.furtherDecodeArgumentValue(rawList) as T
         }
+
         else -> {
             @Suppress("UNCHECKED_CAST")
             rawValue as T
@@ -66,13 +66,11 @@ fun <T> GraphQLInputType<T>.furtherDecodeArgumentValue(rawValue: Any?): T {
     }
 }
 
-@InternalGraphktApi
-fun <T> GraphQLInputArrayType<T>.furtherDecodeArgumentValue(rawList: List<Any?>): List<T> {
+internal fun <T> GraphQLInputArrayType<T>.furtherDecodeArgumentValue(rawList: List<Any?>): List<T> {
     return rawList.map { type.furtherDecodeArgumentValue(it) }
 }
 
-@InternalGraphktApi
-fun <T : Any> GraphQLInputObjectType<T>.furtherDecodeArgumentValue(rawMap: Map<String, Any?>): T {
+internal fun <T : Any> GraphQLInputObjectType<T>.furtherDecodeArgumentValue(rawMap: Map<String, Any?>): T {
     val instance = this.constructor.invoke()
     this.fields.forEach {
         val name = it.name
@@ -92,8 +90,7 @@ fun <T : Any> GraphQLInputObjectType<T>.furtherDecodeArgumentValue(rawMap: Map<S
 
 //
 
-@InternalGraphktApi
-fun <T> GraphQLInputType<T>.furtherEncodeArgumentValue(value: T): Any? {
+internal fun <T> GraphQLInputType<T>.furtherEncodeArgumentValue(value: T): Any? {
     if (value == null) {
         return null
     }
@@ -104,6 +101,7 @@ fun <T> GraphQLInputType<T>.furtherEncodeArgumentValue(value: T): Any? {
 
             type.furtherEncodeArgumentValue(value)
         }
+
         is GraphQLInputArrayType<*> -> {
             @Suppress("UNCHECKED_CAST")
             val type = this as GraphQLInputArrayType<Any?>
@@ -112,19 +110,18 @@ fun <T> GraphQLInputType<T>.furtherEncodeArgumentValue(value: T): Any? {
 
             type.furtherEncodeArgumentValue(list)
         }
+
         else -> {
             value
         }
     }
 }
 
-@InternalGraphktApi
-fun <T> GraphQLInputArrayType<T>.furtherEncodeArgumentValue(list: List<T>): List<Any?> {
+internal fun <T> GraphQLInputArrayType<T>.furtherEncodeArgumentValue(list: List<T>): List<Any?> {
     return list.map { type.furtherEncodeArgumentValue(it) }
 }
 
-@InternalGraphktApi
-fun <T : Any> GraphQLInputObjectType<T>.furtherEncodeArgumentValue(instance: T): Map<String, Any?> {
+internal fun <T : Any> GraphQLInputObjectType<T>.furtherEncodeArgumentValue(instance: T): Map<String, Any?> {
     val rawMap = mutableMapOf<String, Any?>()
     this.fields.forEach {
         val name = it.name
