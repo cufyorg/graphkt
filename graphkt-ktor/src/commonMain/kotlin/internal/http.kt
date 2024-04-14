@@ -15,6 +15,7 @@
  */
 package org.cufy.graphkt.ktor.internal
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -41,8 +42,8 @@ internal fun Route.graphqlHttp(
     post(path) {
         val request = call.receive<GraphQLRequest>()
         val response = handler(request).single()
-        val message = GraphktKtorJson.encodeToString(response)
+        val responseString = GraphktKtorJson.encodeToString(response)
 
-        call.respond(response)
+        call.respondText(responseString, ContentType.Application.Json)
     }
 }

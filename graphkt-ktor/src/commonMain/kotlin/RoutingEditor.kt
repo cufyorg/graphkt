@@ -15,13 +15,14 @@
  */
 package org.cufy.graphkt.ktor
 
-import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import org.cufy.graphkt.ktor.internal.graphktStaticResource
+
+private const val GRAPHIQL = "graphkt-graphiql.html"
+private const val GRAPHQL_PLAYGROUND = "graphkt-graphql-playground.html"
+private const val APOLLO_SANDBOX = "graphkt-apollo-sandbox.html"
 
 // Playground
 
@@ -30,14 +31,18 @@ import kotlinx.coroutines.withContext
  * and respond to them with the graphql playground
  * html.
  */
+@Deprecated("Has Being Replaced", ReplaceWith("graphqlPlayground(path)"))
 @KtorDsl
-fun Application.playground(
-    path: String = "/graphql"
-) {
-    routing {
-        playground(path)
-    }
-}
+fun Application.playground(path: String = "/graphql") = graphqlPlayground(path)
+
+/**
+ * Builds a route to match graphql `GET` requests
+ * and respond to them with the graphql playground
+ * html.
+ */
+@Deprecated("Has Being Replaced", ReplaceWith("graphqlPlayground(path)"))
+@KtorDsl
+fun Route.playground(path: String = "/graphql") = graphqlPlayground(path)
 
 /**
  * Builds a route to match graphql `GET` requests
@@ -45,22 +50,17 @@ fun Application.playground(
  * html.
  */
 @KtorDsl
-fun Route.playground(
-    path: String = "/graphql"
-) {
-    val classloader = GraphQLKtorConfiguration::class.java.classLoader
-    val resource = classloader.getResource("playground.html")!!
+fun Application.graphqlPlayground(path: String = "/graphql") =
+    routing { graphktStaticResource(path, GRAPHQL_PLAYGROUND) }
 
-    get(path) {
-        call.respondOutputStream(ContentType.Text.Html) {
-            val input = withContext(Dispatchers.IO) {
-                resource.openStream()
-            }
-
-            input.use { it.copyTo(this) }
-        }
-    }
-}
+/**
+ * Builds a route to match graphql `GET` requests
+ * and respond to them with the graphql playground
+ * html.
+ */
+@KtorDsl
+fun Route.graphqlPlayground(path: String = "/graphql") =
+    graphktStaticResource(path, GRAPHQL_PLAYGROUND)
 
 // Sandbox
 
@@ -69,14 +69,18 @@ fun Route.playground(
  * and respond to them with the graphql sandbox
  * html.
  */
+@Deprecated("Has Being Replaced", ReplaceWith("apolloSandbox(path)"))
 @KtorDsl
-fun Application.sandbox(
-    path: String = "/graphql"
-) {
-    routing {
-        sandbox(path)
-    }
-}
+fun Application.sandbox(path: String = "/graphql") = apolloSandbox(path)
+
+/**
+ * Builds a route to match graphql `GET` requests
+ * and respond to them with the graphql sandbox
+ * html.
+ */
+@Deprecated("Has Being Replaced", ReplaceWith("apolloSandbox(path)"))
+@KtorDsl
+fun Route.sandbox(path: String = "/graphql") = apolloSandbox(path)
 
 /**
  * Builds a route to match graphql `GET` requests
@@ -84,22 +88,17 @@ fun Application.sandbox(
  * html.
  */
 @KtorDsl
-fun Route.sandbox(
-    path: String = "/graphql"
-) {
-    val classloader = GraphQLKtorConfiguration::class.java.classLoader
-    val resource = classloader.getResource("sandbox.html")!!
+fun Application.apolloSandbox(path: String = "/graphql") =
+    routing { graphktStaticResource(path, APOLLO_SANDBOX) }
 
-    get(path) {
-        call.respondOutputStream(ContentType.Text.Html) {
-            val input = withContext(Dispatchers.IO) {
-                resource.openStream()
-            }
-
-            input.use { it.copyTo(this) }
-        }
-    }
-}
+/**
+ * Builds a route to match graphql `GET` requests
+ * and respond to them with the graphql sandbox
+ * html.
+ */
+@KtorDsl
+fun Route.apolloSandbox(path: String = "/graphql") =
+    graphktStaticResource(path, APOLLO_SANDBOX)
 
 // graphiql
 
@@ -108,32 +107,13 @@ fun Route.sandbox(
  * and respond to them with the graphiql html.
  */
 @KtorDsl
-fun Application.graphiql(
-    path: String = "/graphql"
-) {
-    routing {
-        graphiql(path)
-    }
-}
+fun Application.graphiql(path: String = "/graphql") =
+    routing { graphktStaticResource(path, GRAPHIQL) }
 
 /**
  * Builds a route to match graphql `GET` requests
  * and respond to them with the graphiql html.
  */
 @KtorDsl
-fun Route.graphiql(
-    path: String = "/graphql"
-) {
-    val classloader = GraphQLKtorConfiguration::class.java.classLoader
-    val resource = classloader.getResource("graphiql.html")!!
-
-    get(path) {
-        call.respondOutputStream(ContentType.Text.Html) {
-            val input = withContext(Dispatchers.IO) {
-                resource.openStream()
-            }
-
-            input.use { it.copyTo(this) }
-        }
-    }
-}
+fun Route.graphiql(path: String = "/graphql") =
+    graphktStaticResource(path, GRAPHIQL)
