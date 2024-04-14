@@ -15,25 +15,11 @@
  */
 package org.cufy.graphkt.java.internal
 
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.*
-import graphql.schema.FieldCoordinates as JavaFieldCoordinates
-import graphql.schema.GraphQLDirective as JavaGraphQLDirective
-import graphql.schema.GraphQLInputType as JavaGraphQLInputType
-import graphql.schema.GraphQLList as JavaGraphQLList
-import graphql.schema.GraphQLNamedInputType as JavaGraphQLNamedInputType
-import graphql.schema.GraphQLNamedOutputType as JavaGraphQLNamedOutputType
-import graphql.schema.GraphQLNonNull as JavaGraphQLNonNull
-import graphql.schema.GraphQLOutputType as JavaGraphQLOutputType
-import graphql.schema.GraphQLScalarType as JavaGraphQLScalarType
-import graphql.schema.GraphQLType as JavaGraphQLType
-import graphql.schema.GraphQLTypeReference as JavaGraphQLTypeReference
-import graphql.schema.GraphQLUnionType as JavaGraphQLUnionType
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun <T> TransformContext.addType(
+internal fun <T> TransformContext.addType(
     type: GraphQLType<T>,
     nullable: Boolean = false
 ): JavaGraphQLType {
@@ -43,11 +29,13 @@ fun <T> TransformContext.addType(
 
         is GraphQLArrayType<*> ->
             JavaGraphQLList.list(addType(type.type))
+
         is GraphQLTypeReference<*> ->
             JavaGraphQLTypeReference.typeRef(type.name)
 
         is GraphQLOutputType<*> ->
             return addOutputType(type, nullable)
+
         is GraphQLInputType<*> ->
             return addInputType(type, nullable)
 
@@ -70,8 +58,7 @@ fun <T> TransformContext.addType(
  * - [GraphQLEnumType]
  * - [GraphQLOutputNullableType]
  */
-@InternalGraphktApi
-fun <T> TransformContext.addOutputType(
+internal fun <T> TransformContext.addOutputType(
     type: GraphQLOutputType<T>,
     nullable: Boolean = false
 ): JavaGraphQLOutputType {
@@ -81,6 +68,7 @@ fun <T> TransformContext.addOutputType(
 
         is GraphQLOutputArrayType<*> ->
             JavaGraphQLList.list(addOutputType(type.type))
+
         is GraphQLTypeReference<*> ->
             JavaGraphQLTypeReference.typeRef(type.name)
 
@@ -108,8 +96,7 @@ fun <T> TransformContext.addOutputType(
  * - [GraphQLInputNullableType]
  * - [GraphQLInputObjectType]
  */
-@InternalGraphktApi
-fun <T> TransformContext.addInputType(
+internal fun <T> TransformContext.addInputType(
     type: GraphQLInputType<T>,
     nullable: Boolean = false
 ): JavaGraphQLInputType {
@@ -119,6 +106,7 @@ fun <T> TransformContext.addInputType(
 
         is GraphQLInputArrayType<*> ->
             JavaGraphQLList.list(addInputType(type.type))
+
         is GraphQLTypeReference<*> ->
             JavaGraphQLTypeReference.typeRef(type.name)
 
@@ -139,8 +127,7 @@ fun <T> TransformContext.addInputType(
 /* ============= ------------------ ============= */
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun <T : Any> TransformContext.addScalarType(
+internal fun <T : Any> TransformContext.addScalarType(
     type: GraphQLScalarType<T>
 ): JavaGraphQLScalarType {
     if (type in scalarTypes)
@@ -176,9 +163,8 @@ fun <T : Any> TransformContext.addScalarType(
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
 @Suppress("UNCHECKED_CAST")
-fun <T, R> TransformContext.addEnumType(
+internal fun <T, R> TransformContext.addEnumType(
     type: GraphQLEnumType<T>
 ): R where R : JavaGraphQLNamedInputType, R : JavaGraphQLNamedOutputType {
     if (type in enumTypes)
@@ -216,8 +202,7 @@ fun <T, R> TransformContext.addEnumType(
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun <T : Any> TransformContext.addInputObjectType(
+internal fun <T : Any> TransformContext.addInputObjectType(
     type: GraphQLInputObjectType<T>
 ): JavaGraphQLNamedInputType {
     if (type in inputObjectTypes)
@@ -254,8 +239,7 @@ fun <T : Any> TransformContext.addInputObjectType(
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun <T : Any> TransformContext.addUnionType(
+internal fun <T : Any> TransformContext.addUnionType(
     type: GraphQLUnionType<T>
 ): JavaGraphQLNamedOutputType {
     if (type in unionTypes)
@@ -291,7 +275,6 @@ fun <T : Any> TransformContext.addUnionType(
     return java
 }
 
-@InternalGraphktApi
 private fun <T : Any> TransformContext.addTypeGetters(
     type: GraphQLUnionType<T>
 ) {
@@ -302,8 +285,7 @@ private fun <T : Any> TransformContext.addTypeGetters(
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun <T : Any> TransformContext.addInterfaceType(
+internal fun <T : Any> TransformContext.addInterfaceType(
     type: GraphQLInterfaceType<T>
 ): JavaGraphQLNamedOutputType {
     if (type in interfaceTypes)
@@ -355,8 +337,7 @@ fun <T : Any> TransformContext.addInterfaceType(
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun <T : Any> TransformContext.addObjectType(
+internal fun <T : Any> TransformContext.addObjectType(
     type: GraphQLObjectType<T>
 ): JavaGraphQLNamedOutputType {
     if (type in objectTypes)
@@ -429,8 +410,7 @@ fun <T : Any> TransformContext.addObjectType(
 
 /* ============= ------------------ ============= */
 
-@InternalGraphktApi
-fun TransformContext.addDirectiveDefinition(
+internal fun TransformContext.addDirectiveDefinition(
     definition: GraphQLDirectiveDefinition
 ): JavaGraphQLDirective {
     if (definition in directives)

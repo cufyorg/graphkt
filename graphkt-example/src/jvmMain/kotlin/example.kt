@@ -11,10 +11,7 @@ import io.ktor.server.websocket.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import org.cufy.graphkt.java.`graphql-java`
-import org.cufy.graphkt.ktor.enableGraphQLS
-import org.cufy.graphkt.ktor.graphql
-import org.cufy.graphkt.ktor.playground
-import org.cufy.graphkt.ktor.schema
+import org.cufy.graphkt.ktor.*
 import org.cufy.graphkt.schema.*
 import org.slf4j.event.Level
 import java.time.Duration

@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.ktor.internal.graphqlHttp
 import org.cufy.graphkt.ktor.internal.graphqlWebsocket
 import org.cufy.graphkt.schema.*
@@ -54,7 +53,6 @@ fun Application.graphql(
  * @since 2.0.0
  */
 @KtorDsl
-@OptIn(InternalGraphktApi::class)
 fun Route.graphql(
     path: String = "/graphql",
     block: GraphQLKtorMutableConfiguration.() -> Unit = {}

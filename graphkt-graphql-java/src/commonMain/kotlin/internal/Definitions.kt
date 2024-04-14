@@ -15,17 +15,11 @@
  */
 package org.cufy.graphkt.java.internal
 
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.*
-import graphql.schema.GraphQLArgument as JavaGraphQLArgument
-import graphql.schema.GraphQLEnumValueDefinition as JavaGraphQLEnumValueDefinition
-import graphql.schema.GraphQLFieldDefinition as JavaGraphQLFieldDefinition
-import graphql.schema.GraphQLInputObjectField as JavaGraphQLInputObjectField
 
 /* =========== - ArgumentDefinition - =========== */
 
-@InternalGraphktApi
-fun <T> TransformContext.transformGraphQLArgumentDefinition(
+internal fun <T> TransformContext.transformGraphQLArgumentDefinition(
     definition: GraphQLArgumentDefinition<T>
 ): JavaGraphQLArgument {
     val name = definition.name
@@ -50,8 +44,7 @@ fun <T> TransformContext.transformGraphQLArgumentDefinition(
 
 /* ========== - EnumValueDefinition  - ========== */
 
-@InternalGraphktApi
-fun <T> TransformContext.transformGraphQLEnumValueDefinition(
+internal fun <T> TransformContext.transformGraphQLEnumValueDefinition(
     definition: GraphQLEnumValueDefinition<T>
 ): JavaGraphQLEnumValueDefinition {
     val name = definition.name
@@ -76,8 +69,7 @@ fun <T> TransformContext.transformGraphQLEnumValueDefinition(
 
 /* ============ - FieldDefinition  - ============ */
 
-@InternalGraphktApi
-fun <T : Any, M> TransformContext.transformGraphQLFieldDefinition(
+internal fun <T : Any, M> TransformContext.transformGraphQLFieldDefinition(
     definition: GraphQLFieldDefinition<T, M>
 ): JavaGraphQLFieldDefinition {
     val name = definition.name
@@ -106,8 +98,7 @@ fun <T : Any, M> TransformContext.transformGraphQLFieldDefinition(
 
 /* ========== - InputFieldDefinition - ========== */
 
-@InternalGraphktApi
-fun <T : Any, M> TransformContext.transformGraphQLInputFieldDefinition(
+internal fun <T : Any, M> TransformContext.transformGraphQLInputFieldDefinition(
     definition: GraphQLInputFieldDefinition<T, M>
 ): JavaGraphQLInputObjectField {
     val name = definition.name

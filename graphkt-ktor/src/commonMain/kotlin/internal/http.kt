@@ -23,7 +23,6 @@ import io.ktor.util.pipeline.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.single
 import kotlinx.serialization.encodeToString
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 
@@ -35,7 +34,6 @@ import org.cufy.graphkt.schema.GraphQLResponse
  * @param path the route path.
  * @param handler a graphql request handler.
  */
-@InternalGraphktApi
 internal fun Route.graphqlHttp(
     path: String,
     handler: suspend PipelineContext<Unit, ApplicationCall>.(GraphQLRequest) -> Flow<GraphQLResponse>

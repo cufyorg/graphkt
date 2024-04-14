@@ -23,7 +23,7 @@ import kotlinx.coroutines.future.asDeferred
 import org.cufy.graphkt.GraphQLEngine
 import org.cufy.graphkt.GraphQLEngineFactory
 import org.cufy.graphkt.GraphQLMutableElementWithEngine
-import org.cufy.graphkt.InternalGraphktApi
+import org.cufy.graphkt.java.internal.JavaGraphQL
 import org.cufy.graphkt.java.internal.createJavaExecutionInput
 import org.cufy.graphkt.java.internal.transformGraphQLSchema
 import org.cufy.graphkt.java.internal.transformToGraphQLResponseFlow
@@ -31,7 +31,6 @@ import org.cufy.graphkt.schema.GraphQLRequest
 import org.cufy.graphkt.schema.GraphQLResponse
 import org.cufy.graphkt.schema.GraphQLSchema
 import java.io.Reader
-import graphql.GraphQL as JavaGraphQL
 
 // GraphQL Java Engine Factory
 
@@ -47,7 +46,6 @@ class GraphQLJava(
     @Suppress("MemberVisibilityCanBePrivate")
     val configuration: GraphQLJavaConfiguration
 ) : GraphQLEngineFactory {
-    @OptIn(InternalGraphktApi::class)
     override fun invoke(schema: GraphQLSchema): GraphQLEngine {
         val javaSchema = transformGraphQLSchema(schema)
             .transform { configuration.schemaTransformers.forEach { block -> block(it) } }
@@ -100,7 +98,6 @@ class GraphQLJavaEngine(
         return out.reader()
     }
 
-    @OptIn(InternalGraphktApi::class)
     override fun execute(
         request: GraphQLRequest,
         context: Map<Any?, Any?>,

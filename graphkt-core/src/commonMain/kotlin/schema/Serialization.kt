@@ -215,6 +215,30 @@ object GraphQLPacketType {
 }
 
 /**
+ * Legacy packet types.
+ *
+ * @author LSafer
+ * @since 2.0.0
+ */
+@Serializable
+object GraphQLLegacyPacketType {
+    /**
+     * The legacy equivalent to [GraphQLPacketType.Subscribe].
+     */
+    const val Start = "start"
+
+    /**
+     * The legacy equivalent to [GraphQLPacketType.Next].
+     */
+    const val Data = "data"
+
+    /**
+     * The legacy equivalent to [GraphQLPacketType.Complete].
+     */
+    const val Stop = "stop"
+}
+
+/**
  * The packet of a graphql web socket frame.
  *
  * @author LSafer

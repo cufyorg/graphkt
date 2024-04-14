@@ -28,7 +28,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.cufy.graphkt.InternalGraphktApi
 import org.cufy.graphkt.ktor.GraphQLKtorConfiguration
 import org.cufy.graphkt.schema.GraphQLPacket
 import org.cufy.graphkt.schema.GraphQLPacketType
@@ -83,7 +82,6 @@ internal fun SubscriberAlreadyExists(uniqueOperationId: String) =
  * @param path the route path.
  * @param handler a graphql request handler.
  */
-@InternalGraphktApi
 internal fun Route.graphqlWebsocket(
     path: String,
     configuration: GraphQLKtorConfiguration,
