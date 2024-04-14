@@ -11,7 +11,9 @@ import io.ktor.server.websocket.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import org.cufy.graphkt.java.`graphql-java`
-import org.cufy.graphkt.ktor.*
+import org.cufy.graphkt.ktor.graphql
+import org.cufy.graphkt.ktor.graphqlPlayground
+import org.cufy.graphkt.ktor.schema
 import org.cufy.graphkt.schema.*
 import org.slf4j.event.Level
 import java.time.Duration
@@ -22,8 +24,8 @@ class CustomObject(val name: String, val value: String)
 val CustomFlow = MutableSharedFlow<CustomObject>()
 
 val CustomScalarType = GraphQLScalarType<CustomScalar> {
-    name("CustomScalar")
-    description { "An example of a custom scalar." }
+    name = "CustomScalar"
+    description = "An example of a custom scalar."
     encode { GraphQLString(it.value) }
     decode {
         require(it is GraphQLString) { "Expected GraphQLString but got ${it::class.simpleName}" }
@@ -32,31 +34,31 @@ val CustomScalarType = GraphQLScalarType<CustomScalar> {
 }
 
 object CustomObjectType : GraphQLObjectClass<CustomObject>({
-    name("Custom")
-    description { "An example of a custom object type." }
+    name = "Custom"
+    description = "An example of a custom object type."
     field(CustomObject::name) {
+        description = "The name of the object."
         type { GraphQLStringType }
-        description { "The name of the object." }
     }
     field(CustomObject::value) {
+        description = "The value of the object."
         type { GraphQLStringType }
-        description { "The value of the object." }
     }
     field("this") {
+        description = "This"
         type { CustomObjectType }
-        description { "This" }
         get { instance }
     }
     field("copycatOfThis") {
+        description = "This but as the copycat version."
         type { CustomObjectTypeCopyCat }
-        description { "This but as the copycat version." }
         get { instance }
     }
 })
 
 object CustomObjectTypeCopyCat : GraphQLObjectClass<CustomObject>({
-    name("CustomCopyCat")
-    description { "An example of a custom object type copying another type." }
+    name = "CustomCopyCat"
+    description = "An example of a custom object type copying another type."
 
     directives += CustomObjectType.directives
     interfaces += CustomObjectType.interfaces
@@ -88,12 +90,11 @@ fun Application.myApplicationModule() {
         masking = false
     }
 
-    playground()
+    graphqlPlayground()
 //    graphiql()
     graphql {
         `graphql-java`
-
-        enableGraphQLS()
+        graphqls = "/graphqls"
 
         schema {
             query {
@@ -112,12 +113,12 @@ fun Application.myApplicationModule() {
 @GraphQLDsl
 fun GraphQLRoute<Unit>.queries() {
     field("cat") {
+        description = "Return the input"
         type { CustomScalarType }
-        description { "Return the input" }
 
         val valueArg = argument("value") {
+            description = "The value to return"
             type { CustomScalarType }
-            description { "The value to return" }
         }
 
         get { valueArg() }
@@ -130,12 +131,12 @@ fun GraphQLRoute<Unit>.mutations() {
         type { GraphQLVoidType }
 
         val nameArg = argument("name") {
+            description = "The name to be associated with the emitted value."
             type { GraphQLStringType }
-            description { "The name to be associated with the emitted value." }
         }
         val valueArg = argument("value") {
+            description = "The value to be emitted"
             type { GraphQLStringType }
-            description { "The value to be emitted" }
         }
 
         get {
@@ -153,8 +154,8 @@ fun GraphQLRoute<Unit>.subscriptions() {
         type { CustomObjectType }
 
         val nameArg = argument("name") {
+            description = "The name to filter the messages by."
             type { GraphQLStringType }
-            description { "The name to filter the messages by." }
         }
 
         getFlow {
