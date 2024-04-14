@@ -27,6 +27,7 @@ import java.io.Reader
  * @author LSafer
  * @since 2.0.0
  */
+@ExperimentalGraphktApi
 interface GraphQLEngineFactory {
     /**
      * Create a new engine instance.
@@ -34,6 +35,7 @@ interface GraphQLEngineFactory {
      * @param schema the engine's schema.
      * @since 2.0.0
      */
+    @ExperimentalGraphktApi
     operator fun invoke(schema: GraphQLSchema): GraphQLEngine
 }
 
@@ -44,10 +46,12 @@ interface GraphQLEngineFactory {
  * @author LSafer
  * @since 2.0.0
  */
+@ExperimentalGraphktApi
 interface GraphQLEngine {
     /**
      * Obtain a reader that reads the schema definition.
      */
+    @ExperimentalGraphktApi
     fun obtainSchemaReader(): Reader
 
     /**
@@ -58,6 +62,7 @@ interface GraphQLEngine {
      * @param local the initial local.
      * @since 2.0.0
      */
+    @ExperimentalGraphktApi
     fun execute(
         request: GraphQLRequest,
         context: Map<Any?, Any?> = emptyMap(),
@@ -81,6 +86,7 @@ interface GraphQLElementWithEngine {
     /**
      * The engine factory.
      */
+    @ExperimentalGraphktApi
     val engine: GraphQLEngineFactory
 }
 
@@ -99,5 +105,6 @@ interface GraphQLElementWithEngine {
 interface GraphQLMutableElementWithEngine
     : GraphQLElementWithEngine {
 
+    @ExperimentalGraphktApi
     override /* lateinit */ var engine: GraphQLEngineFactory
 }

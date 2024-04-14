@@ -24,9 +24,4 @@ package org.cufy.graphkt
     message = "This is an experimental API and might change at anytime",
     level = RequiresOptIn.Level.WARNING
 )
-annotation class ExperimentalGraphktApi(
-    /**
-     * Optionally, the reason why the component was marked with this annotation.
-     */
-    val reason: String = "This is an experimental API and might change at anytime"
-)
+annotation class ExperimentalGraphktApi

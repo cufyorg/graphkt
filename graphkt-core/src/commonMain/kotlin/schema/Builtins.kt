@@ -21,8 +21,8 @@ import java.math.BigInteger
 //
 
 private val GraphQLDeprecatedReasonArgument = GraphQLArgumentDefinition("reason") {
+    description = "The reason for the deprecation."
     type { GraphQLStringType }
-    description { "The reason for the deprecation." }
 }
 
 /**
@@ -31,7 +31,7 @@ private val GraphQLDeprecatedReasonArgument = GraphQLArgumentDefinition("reason"
  * @since 2.0.0
  */
 val GraphQLDeprecatedDirective = GraphQLDirectiveDefinition("deprecated") {
-    description { "Marks the field, argument, input field or enum value as deprecated." }
+    description = "Marks the field, argument, input field or enum value as deprecated."
     argument(GraphQLDeprecatedReasonArgument)
     location(GraphQLDirectiveLocation.FIELD_DEFINITION)
     location(GraphQLDirectiveLocation.ENUM_VALUE)
@@ -40,8 +40,8 @@ val GraphQLDeprecatedDirective = GraphQLDirectiveDefinition("deprecated") {
 }
 
 private val GraphQLSpecifiedByUrlArgument = GraphQLArgumentDefinition("url") {
+    description = "The URL that specifies the behaviour of this scalar."
     type { GraphQLStringType }
-    description { "The URL that specifies the behaviour of this scalar." }
 }
 
 /**
@@ -50,7 +50,7 @@ private val GraphQLSpecifiedByUrlArgument = GraphQLArgumentDefinition("url") {
  * @since 2.0.0
  */
 val GraphQLSpecifiedByDirective = GraphQLDirectiveDefinition("specifiedBy") {
-    description { "Exposes a URL that specifies the behaviour of this scalar." }
+    description = "Exposes a URL that specifies the behaviour of this scalar."
     argument(GraphQLSpecifiedByUrlArgument)
     location(GraphQLDirectiveLocation.SCALAR)
 }
@@ -59,10 +59,10 @@ val GraphQLSpecifiedByDirective = GraphQLDirectiveDefinition("specifiedBy") {
  * Directs the executor to include this field or fragment only when the `if` argument is true.
  */
 val GraphQLIncludeDirective = GraphQLDirectiveDefinition("include") {
-    description { "Directs the executor to include this field or fragment only when the `if` argument is true." }
+    description = "Directs the executor to include this field or fragment only when the `if` argument is true."
     argument("if") {
+        description = "Included when true."
         type { GraphQLBooleanType }
-        description { "Included when true." }
     }
     location(GraphQLDirectiveLocation.FRAGMENT_SPREAD)
     location(GraphQLDirectiveLocation.INLINE_FRAGMENT)
@@ -73,10 +73,10 @@ val GraphQLIncludeDirective = GraphQLDirectiveDefinition("include") {
  * Directs the executor to skip this field or fragment when the `if`'argument is true.
  */
 val GraphQLSkipDirective = GraphQLDirectiveDefinition("skip") {
-    description { "Directs the executor to skip this field or fragment when the `if`'argument is true." }
+    description = "Directs the executor to skip this field or fragment when the `if`'argument is true."
     argument("if") {
+        description = "Skipped when true."
         type { GraphQLBooleanType }
-        description { "Skipped when true." }
     }
     location(GraphQLDirectiveLocation.FRAGMENT_SPREAD)
     location(GraphQLDirectiveLocation.INLINE_FRAGMENT)
@@ -117,7 +117,7 @@ fun GraphQLMutableElementWithDirectives.specifiedBy(url: String) {
  * @since 2.0.0
  */
 val GraphQLIntType: GraphQLScalarType<Int> = GraphQLScalarType("Int") {
-    description { "Built-in Int (32-bit)" }
+    description = "Built-in Int (32-bit)"
     decode {
         require(it is GraphQLInteger) {
             "Expected GraphQLInteger but got ${it.javaClass.simpleName}"
@@ -135,7 +135,7 @@ val GraphQLIntType: GraphQLScalarType<Int> = GraphQLScalarType("Int") {
  * @since 2.0.0
  */
 val GraphQLFloatType: GraphQLScalarType<Double> = GraphQLScalarType("Float") {
-    description { "Built-in Float (64-bit)" }
+    description = "Built-in Float (64-bit)"
     decode {
         when (it) {
             is GraphQLDecimal -> it.value.toDouble()
@@ -157,7 +157,7 @@ val GraphQLFloatType: GraphQLScalarType<Double> = GraphQLScalarType("Float") {
  * @since 2.0.0
  */
 val GraphQLStringType: GraphQLScalarType<String> = GraphQLScalarType("String") {
-    description { "Built-in String" }
+    description = "Built-in String"
     decode {
         require(it is GraphQLString) {
             "Expected GraphQLString but got ${it.javaClass.simpleName}"
@@ -175,7 +175,7 @@ val GraphQLStringType: GraphQLScalarType<String> = GraphQLScalarType("String") {
  * @since 2.0.0
  */
 val GraphQLBooleanType: GraphQLScalarType<Boolean> = GraphQLScalarType("Boolean") {
-    description { "Built-in Boolean" }
+    description = "Built-in Boolean"
     decode {
         require(it is GraphQLBoolean) {
             "Expected GraphQLBoolean but got ${it.javaClass.simpleName}"
@@ -193,7 +193,7 @@ val GraphQLBooleanType: GraphQLScalarType<Boolean> = GraphQLScalarType("Boolean"
  * @since 2.0.0
  */
 val GraphQLIDType: GraphQLScalarType<String> = GraphQLScalarType("ID") {
-    description { "Built-in ID" }
+    description = "Built-in ID"
     decode {
         require(it is GraphQLString) {
             "Expected GraphQLString but got ${it.javaClass.simpleName}"
@@ -213,8 +213,8 @@ val GraphQLIDType: GraphQLScalarType<String> = GraphQLScalarType("ID") {
  * @since 2.0.0
  */
 val GraphQLLongType: GraphQLScalarType<Long> = GraphQLScalarType("Long") {
+    description = "Long"
     specifiedBy("https://github.com")
-    description { "Long" }
     decode {
         require(it is GraphQLInteger) {
             "Expected GraphQLInteger but got ${it.javaClass.simpleName}"
@@ -232,7 +232,7 @@ val GraphQLLongType: GraphQLScalarType<Long> = GraphQLScalarType("Long") {
  * @since 2.0.0
  */
 val GraphQLDecimalType: GraphQLScalarType<BigDecimal> = GraphQLScalarType("Decimal") {
-    description { "Decimal" }
+    description = "Decimal"
     decode {
         when (it) {
             is GraphQLDecimal -> it.value
@@ -253,7 +253,7 @@ val GraphQLDecimalType: GraphQLScalarType<BigDecimal> = GraphQLScalarType("Decim
  * @since 2.0.0
  */
 val GraphQLIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integer") {
-    description { "Integer" }
+    description = "Integer"
     decode {
         require(it is GraphQLInteger) {
             "Expected GraphQLInteger but got ${it.javaClass.simpleName}"
@@ -270,8 +270,8 @@ val GraphQLIntegerType: GraphQLScalarType<BigInteger> = GraphQLScalarType("Integ
  *
  * @since 2.0.0
  */
-val GraphQLVoidType = GraphQLScalarType<Unit>("Void") {
-    description { "Void" }
+val GraphQLVoidType = GraphQLScalarType("Void") {
+    description = "Void"
     decode { }
     encode { GraphQLBoolean(true) }
 }
