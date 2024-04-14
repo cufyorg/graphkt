@@ -1,0 +1,43 @@
+[versions]
+kotlin = "1.9.20"
+ktor = "2.3.7"
+
+[libraries]
+
+##### Kotlin Dependencies #####
+
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.0" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.7.3" }
+kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version = "1.7.3" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version = "1.7.3" }
+
+##### Java Veteran Dependencies #####
+
+# LOGBACK
+logback-core = { module = "ch.qos.logback:logback-core", version = "1.4.14" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.4.14" }
+
+# SELF4J
+self4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.9" }
+
+# RxJava
+rxJava = { module = "io.reactivex.rxjava2:rxjava", version = "2.1.5" }
+
+##### Other Dependencies #####
+
+graphqlJava = { module = "com.graphql-java:graphql-java", version = "21.5" }
+
+##### Ktor Dependencies #####
+
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+# KTOR SERVER
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
+ktor-server-hostCommon = { module = "io.ktor:ktor-server-host-common", version.ref = "ktor" }
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktor-server-defaultHeaders = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
+ktor-server-httpRedirect = { module = "io.ktor:ktor-server-http-redirect", version.ref = "ktor" }
+ktor-server-callLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
