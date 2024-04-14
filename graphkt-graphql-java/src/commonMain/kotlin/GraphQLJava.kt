@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.asDeferred
+import org.cufy.graphkt.ExperimentalGraphktApi
 import org.cufy.graphkt.GraphQLEngine
 import org.cufy.graphkt.GraphQLEngineFactory
 import org.cufy.graphkt.GraphQLMutableElementWithEngine
@@ -34,6 +35,7 @@ import java.io.Reader
 
 // GraphQL Java Engine Factory
 
+@ExperimentalGraphktApi
 private val singletonOfGraphQLJava by lazy { GraphQLJava { } }
 
 /**
@@ -42,6 +44,7 @@ private val singletonOfGraphQLJava by lazy { GraphQLJava { } }
  * @author LSafer
  * @since 2.0.0
  */
+@ExperimentalGraphktApi
 class GraphQLJava(
     @Suppress("MemberVisibilityCanBePrivate")
     val configuration: GraphQLJavaConfiguration
@@ -61,6 +64,7 @@ class GraphQLJava(
 /**
  * Obtain the default `graphql-java` engine factory.
  */
+@ExperimentalGraphktApi
 fun GraphQLJava(): GraphQLJava {
     return singletonOfGraphQLJava
 }
@@ -69,6 +73,7 @@ fun GraphQLJava(): GraphQLJava {
  * Create a new [singletonOfGraphQLJava] instance configured
  * with the given configuration [block].
  */
+@ExperimentalGraphktApi
 fun GraphQLJava(block: GraphQLJavaConfigurationBlock): GraphQLJava {
     return GraphQLJava(GraphQLJavaConfiguration(block))
 }
@@ -81,6 +86,7 @@ fun GraphQLJava(block: GraphQLJavaConfigurationBlock): GraphQLJava {
  * @author LSafer
  * @since 2.0.0
  */
+@ExperimentalGraphktApi
 class GraphQLJavaEngine(
     /**
      * The graphql instance.
@@ -124,6 +130,7 @@ class GraphQLJavaEngine(
  * @param block the engine configuration.
  * @since 2.0.0
  */
+@OptIn(ExperimentalGraphktApi::class)
 @Suppress("FunctionName")
 fun GraphQLMutableElementWithEngine.`graphql-java`(block: GraphQLJavaConfigurationBlock) {
     engine = GraphQLJava(block)
@@ -134,6 +141,7 @@ fun GraphQLMutableElementWithEngine.`graphql-java`(block: GraphQLJavaConfigurati
  *
  * @since 2.0.0
  */
+@OptIn(ExperimentalGraphktApi::class)
 @Suppress("ObjectPropertyName")
 val GraphQLMutableElementWithEngine.`graphql-java`: Unit
     get() = run { engine = GraphQLJava() }
