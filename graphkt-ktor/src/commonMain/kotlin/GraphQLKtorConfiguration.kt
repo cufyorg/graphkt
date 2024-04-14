@@ -80,6 +80,13 @@ typealias GraphQLKtorResponseTransformer =
 interface GraphQLKtorConfiguration :
     GraphQLElementWithEngine {
     /**
+     * True, to enable `http` implementation.
+     *
+     * @since 2.0.0
+     */
+    val http: Boolean /* = true */
+
+    /**
      * True, to enable `graphql-ws` implementation.
      *
      * @since 2.0.0
@@ -142,6 +149,7 @@ interface GraphQLKtorConfiguration :
 interface GraphQLKtorMutableConfiguration :
     GraphQLMutableElementWithEngine,
     GraphQLKtorConfiguration {
+    override var http: Boolean /* = true */
     override var websocket: Boolean /* = true */
     override var builtins: Boolean /* = true */
     override var graphqls: String? /* = null */
@@ -159,6 +167,7 @@ interface GraphQLKtorMutableConfiguration :
 @OptIn(ExperimentalGraphktApi::class)
 fun GraphQLKtorConfiguration(
     engine: GraphQLEngineFactory,
+    http: Boolean = true,
     websocket: Boolean = true,
     builtins: Boolean = true,
     graphqls: String? = null,
@@ -171,6 +180,7 @@ fun GraphQLKtorConfiguration(
 ): GraphQLKtorConfiguration {
     return object : GraphQLKtorConfiguration {
         override val engine = engine
+        override val http = http
         override val websocket = websocket
         override val builtins = builtins
         override val graphqls = graphqls
@@ -190,6 +200,7 @@ fun GraphQLKtorConfiguration(
 fun GraphQLKtorMutableConfiguration(): GraphQLKtorMutableConfiguration {
     return object : GraphQLKtorMutableConfiguration {
         override lateinit var engine: GraphQLEngineFactory
+        override var http: Boolean = true
         override var websocket: Boolean = true
         override var builtins: Boolean = true
         override var graphqls: String? = null

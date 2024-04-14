@@ -110,7 +110,9 @@ fun Route.graphql(
 
     // add the routes (the listeners)
 
-    graphqlHttp(path) { handleRequest(it, call) }
+    if (configuration.http) {
+        graphqlHttp(path) { handleRequest(it, call) }
+    }
 
     if (configuration.websocket) {
         graphqlWebsocket(path, configuration) { handleRequest(it, call) }
